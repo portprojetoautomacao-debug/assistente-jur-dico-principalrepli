@@ -115,7 +115,7 @@ describe("useAutoMinuta", () => {
       mockCompletedTasks.push(...tasks);
 
       // Renderizar hook
-      const { result, rerender } = renderHook(() => useAutoMinuta());
+      const { rerender } = renderHook(() => useAutoMinuta());
 
       // Forçar re-render para triggar useEffect
       rerender();

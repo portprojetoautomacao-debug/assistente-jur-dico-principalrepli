@@ -1,13 +1,20 @@
 /**
  * Teste de Integração REAL - Agentes LangGraph
  * ⚠️ SEM MOCKS - Usa API Anthropic real
+ * 
+ * Para executar: npm run test:integration
+ * Requer: servidor rodando em localhost:3001
  */
 
 import { describe, expect, it } from "vitest";
 
-describe("Agentes LangGraph - Integração Real", () => {
+// Skip tests if server is not available
+const SERVER_URL = process.env.TEST_SERVER_URL || "http://localhost:3001";
+const skipIfNoServer = process.env.SKIP_INTEGRATION_TESTS === "true";
+
+describe.skipIf(skipIfNoServer)("Agentes LangGraph - Integração Real", () => {
   it("deve listar agentes disponíveis", async () => {
-    const response = await fetch("http://localhost:3001/api/agents/list");
+    const response = await fetch(`${SERVER_URL}/api/agents/list`);
     const agents = await response.json();
 
     expect(Array.isArray(agents)).toBe(true);
@@ -30,7 +37,7 @@ describe("Agentes LangGraph - Integração Real", () => {
       },
     };
 
-    const response = await fetch("http://localhost:3001/api/agents/execute", {
+    const response = await fetch(`${SERVER_URL}/api/agents/execute`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(task),
@@ -51,7 +58,7 @@ describe("Agentes LangGraph - Integração Real", () => {
   }, 60000); // 60s timeout para chamada API real
 
   it("deve obter estatísticas reais de execução", async () => {
-    const response = await fetch("http://localhost:3001/api/agents/stats");
+    const response = await fetch(`${SERVER_URL}/api/agents/stats`);
     const stats = await response.json();
 
     expect(stats).toBeDefined();

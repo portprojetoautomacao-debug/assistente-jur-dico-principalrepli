@@ -33,6 +33,8 @@ export default defineConfig({
         // Ajuste conservador: poucas threads para evitar OOM/worker errors
         minThreads: 1,
         maxThreads: process.env.CI ? 2 : 1,
+        // Aumentar memória disponível para workers
+        execArgv: ["--max-old-space-size=4096"],
       },
     },
     // Ajustar concorrência baseado em ambiente para estabilidade

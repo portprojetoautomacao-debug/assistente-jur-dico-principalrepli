@@ -20,7 +20,7 @@ async function globalTeardown(config: FullConfig) {
 
   // Cleanup adicional: matar processos órfãos do tsx/node
   try {
-    const killProcess = spawn("pkill", ["-f", "tsx.*backend"], {
+    spawn("pkill", ["-f", "tsx.*backend"], {
       shell: true,
       stdio: "ignore",
     });

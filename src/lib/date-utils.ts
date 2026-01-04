@@ -14,18 +14,32 @@ export function getRelativeDateDescription(dateStr: string): string {
 
 /**
  * Valida componentes numéricos de uma data no formato DD/MM/YYYY
+ * Verifica se o dia é válido para o mês específico, incluindo anos bissextos
  */
 export function validateDateComponents(day: number, month: number, year: number): boolean {
-  return (
-    !Number.isNaN(day) &&
-    !Number.isNaN(month) &&
-    !Number.isNaN(year) &&
-    day >= 1 &&
-    day <= 31 &&
-    month >= 1 &&
-    month <= 12 &&
-    year >= 2000
-  );
+  if (
+    Number.isNaN(day) ||
+    Number.isNaN(month) ||
+    Number.isNaN(year) ||
+    day < 1 ||
+    month < 1 ||
+    month > 12 ||
+    year < 2000
+  ) {
+    return false;
+  }
+
+  // Dias máximos por mês
+  const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+  // Verifica ano bissexto para fevereiro
+  if (month === 2) {
+    const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    const maxDays = isLeapYear ? 29 : 28;
+    return day <= maxDays;
+  }
+
+  return day <= daysInMonth[month - 1];
 }
 
 /**

@@ -1,0 +1,19 @@
+# Railway Deployment Configuration
+# Assistente Jurídico PJe (frontend + backend)
+
+# Documentation: https://docs.railway.app/reference/config-as-code
+
+[build]
+builder = "DOCKERFILE"
+
+[deploy]
+# Importante: o container NÃO precisa de npm para iniciar.
+# O servidor lê PORT/BACKEND_PORT e expõe /health.
+startCommand = "node backend/dist/backend/src/server.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[network]
+# Railway injeta a porta em PORT automaticamente

@@ -1,0 +1,271 @@
+> git -c user.useConfigOnly=true commit --quiet --allow-empty-message --file -
+🔍 Pre-commit: Executando verificações...
+\033[1;33m📝 Arquivos TypeScript/JavaScript modificados:\033[0m
+Untitled-1.js
+Untitled-3.js
+Untitled-4.js
+api/agents-v2.test.ts
+api/agents.ts
+api/agents/autogen_orchestrator.ts
+api/agents/process-task.ts
+api/cron.ts
+api/dspy-bridge.test.ts
+api/expedientes.ts
+api/observability.ts
+api/otel-backend.ts
+api/pje-sync.ts
+api/tests/agents-api.test.ts
+api/tests/djen-agent-flow.test.ts
+api/tests/legal-memory.test.ts
+api/tests/observability.tracing.test.ts
+api/tests/pje-sync.integration.test.ts
+api/tests/pje-sync.test.ts
+deadline-calendar-integration.ts
+playwright.config.ts
+scripts/dev-with-api-server.js
+src/App.tsx
+src/__tests__/editor-visibility.test.tsx
+src/components/AIAgents.tsx
+src/components/AdvancedNLPDashboard.test.tsx
+src/components/AgentMetrics.tsx
+src/components/DashboardAdvbox.tsx
+src/components/DashboardCharts.tsx
+src/components/EvaluationDashboard.tsx
+src/components/FinancialManagementAdvbox.tsx
+src/components/MinutasManager.tsx
+src/components/OfficeManagement.tsx
+src/components/ProcessCRMAdvbox.tsx
+src/components/Sidebar.tsx
+src/components/__tests__/MinutasManager.smoke.test.tsx
+src/components/__tests__/MinutasManager.test.tsx
+src/components/__tests__/ProcessosView.smoke.test.tsx
+src/components/__tests__/ProcessosView.test.tsx
+src/components/dashboard/DashboardStats.test.tsx
+src/components/dashboard/DashboardStats.tsx
+src/components/tiptap-templates/simple/simple-editor.test.tsx
+src/components/tiptap-templates/simple/theme-toggle.test.tsx
+src/components/tiptap-ui/blockquote-button/use-blockquote.ts
+src/components/tiptap-ui/code-block-button/use-code-block.ts
+src/components/tiptap-ui/color-highlight-button/use-color-highlight.ts
+src/components/tiptap-ui/heading-button/use-heading.ts
+src/components/tiptap-ui/heading-dropdown-menu/use-heading-dropdown-menu.ts
+src/components/tiptap-ui/image-upload-button/use-image-upload.ts
+src/components/tiptap-ui/link-popover/use-link-popover.ts
+src/components/tiptap-ui/list-button/use-list.ts
+src/components/tiptap-ui/list-dropdown-menu/use-list-dropdown-menu.ts
+src/components/tiptap-ui/mark-button/use-mark.ts
+src/components/tiptap-ui/text-align-button/use-text-align.ts
+src/components/tiptap-ui/undo-redo-button/use-undo-redo.ts
+src/components/ui/accordion.test.tsx
+src/components/ui/button.test.tsx
+src/examples/AgentTracingDemo.tsx
+src/examples/TracingExamples.tsx
+src/hooks/use-autonomous-agents.ts
+src/hooks/use-timeline-sync.test.ts
+src/hooks/use-tracing.ts
+src/lib/agents.ts
+src/lib/agents/todoist-agent.test.ts
+src/lib/cron.ts
+src/lib/monitoring.ts
+src/lib/otel-integration.ts
+src/lib/real-agent-client.ts
+src/lib/tracing.ts
+src/pages/MonitoringDashboard.tsx
+src/test/setup.ts
+src/tests/console-error-detection.test.tsx
+src/tests/helpers/console-error-tracker.ts
+src/tests/tracing-integration.test.ts
+src/tests/tracing.test.ts
+src/types.ts
+tests/e2e/console-errors.spec.ts
+tests/e2e/debug-path.spec.ts
+tests/e2e/gemini-key-expired.spec.ts
+tests/e2e/global-setup.ts
+tests/e2e/loop-detection.spec.ts
+tests/e2e/tracing.spec.ts
+tests/e2e/ui-overhaul.spec.ts
+tests/integration/agents-v2-multi.test.ts
+tests/integration/agents-v2.test.ts
+tests/integration/dspy-bridge.test.ts
+tests/integration/hybrid-agents.test.ts
+vitest.setup.ts
+
+\033[1;33m🔎 Executando verificação de tipos...\033[0m
+> assistente-juridico-p@1.0.1 type-check
+> tsc --noEmit --skipLibCheck
+\033[0;32m✅ Type-check passou\033[0m
+
+\033[1;33m🧹 Executando lint nos arquivos modificados...\033[0m
+
+/workspaces/assistente-jur-dico-principal/api/agents-v2.test.ts
+  21:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:8   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  33:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  42:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  60:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  60:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/api/agents/autogen_orchestrator.ts
+  110:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  110:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  115:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  150:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  151:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  164:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  210:8   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/api/agents/process-task.ts
+  345:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  345:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/api/dspy-bridge.test.ts
+   8:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/api/pje-sync.ts
+  37:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  47:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/api/tests/legal-memory.test.ts
+   4:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  13:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/src/__tests__/editor-visibility.test.tsx
+  63:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/src/components/AIAgents.tsx
+  314:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  588:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  589:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  595:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  596:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  633:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  634:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  640:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  641:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/src/components/EvaluationDashboard.tsx
+  43:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  55:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/src/components/MinutasManager.tsx
+  402:14  warning  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+  416:14  warning  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspaces/assistente-jur-dico-principal/src/components/tiptap-templates/simple/theme-toggle.test.tsx
+   1:10  warning  'fireEvent' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   1:29  warning  'screen' is defined but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  49:14  warning  '_err' is defined but never used                                             @typescript-eslint/no-unused-vars
+
+/workspaces/assistente-jur-dico-principal/src/components/ui/button.test.tsx
+  6:26  warning  'fireEvent' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  6:37  warning  'waitFor' is defined but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+
+/workspaces/assistente-jur-dico-principal/src/examples/TracingExamples.tsx
+   17:41  warning  'withTracing' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  240:14  warning  'span' is defined but never used. Allowed unused args must match /^_/u                  @typescript-eslint/no-unused-vars
+
+/workspaces/assistente-jur-dico-principal/src/hooks/use-autonomous-agents.ts
+  252:14  warning  Unexpected any. Specify a different type                                                                                             @typescript-eslint/no-explicit-any
+  305:17  warning  Unexpected any. Specify a different type                                                                                             @typescript-eslint/no-explicit-any
+  483:27  warning  Unexpected any. Specify a different type                                                                                             @typescript-eslint/no-explicit-any
+  511:24  warning  Unexpected any. Specify a different type                                                                                             @typescript-eslint/no-explicit-any
+  567:6   warning  React Hook useEffect has a missing dependency: '__globalAgentsInitState'. Either include it or remove the dependency array           react-hooks/exhaustive-deps
+  619:24  warning  Unexpected any. Specify a different type                                                                                             @typescript-eslint/no-explicit-any
+  815:35  warning  Unexpected any. Specify a different type                                                                                             @typescript-eslint/no-explicit-any
+  821:24  warning  Unexpected any. Specify a different type                                                                                             @typescript-eslint/no-explicit-any
+  822:66  warning  Unexpected any. Specify a different type                                                                                             @typescript-eslint/no-explicit-any
+  885:5   warning  React Hook useCallback has missing dependencies: 'setAgents' and 'setTaskQueue'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  981:33  warning  Unexpected any. Specify a different type                                                                                             @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/src/hooks/use-timeline-sync.test.ts
+  27:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/src/lib/monitoring.ts
+   84:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/src/lib/otel-integration.ts
+   57:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   81:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  133:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  143:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  144:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  178:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  360:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/src/lib/real-agent-client.ts
+  197:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  198:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  200:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/src/pages/MonitoringDashboard.tsx
+  35:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  53:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/src/test/setup.ts
+   58:46  warning  Unexpected any. Specify a different type                                    @typescript-eslint/no-explicit-any
+  281:23  warning  'editor' is defined but never used. Allowed unused args must match /^_/u    @typescript-eslint/no-unused-vars
+  281:33  warning  Unexpected any. Specify a different type                                    @typescript-eslint/no-explicit-any
+  282:20  warning  'children' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  282:32  warning  Unexpected any. Specify a different type                                    @typescript-eslint/no-explicit-any
+  283:22  warning  'children' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  283:34  warning  Unexpected any. Specify a different type                                    @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/src/tests/console-error-detection.test.tsx
+  25:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/tests/e2e/gemini-key-expired.spec.ts
+  6:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/tests/e2e/global-setup.ts
+  4:28  warning  'config' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/workspaces/assistente-jur-dico-principal/tests/e2e/tracing.spec.ts
+  18:20  warning  Unexpected any. Specify a different type                                                                                                                       @typescript-eslint/no-explicit-any
+  19:20  warning  Unexpected any. Specify a different type                                                                                                                       @typescript-eslint/no-explicit-any
+  34:5   error    Include a description after the "@ts-expect-error" directive to explain why the @ts-expect-error is necessary. The description must be 3 characters or longer  @typescript-eslint/ban-ts-comment
+  47:5   error    Include a description after the "@ts-expect-error" directive to explain why the @ts-expect-error is necessary. The description must be 3 characters or longer  @typescript-eslint/ban-ts-comment
+  52:9   error    Include a description after the "@ts-expect-error" directive to explain why the @ts-expect-error is necessary. The description must be 3 characters or longer  @typescript-eslint/ban-ts-comment
+  70:5   error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free                                            @typescript-eslint/ban-ts-comment
+  86:5   error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free                                            @typescript-eslint/ban-ts-comment
+  91:33  warning  Unexpected any. Specify a different type                                                                                                                       @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/tests/e2e/ui-overhaul.spec.ts
+  3:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/tests/integration/agents-v2-multi.test.ts
+  50:8   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  51:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  55:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/tests/integration/agents-v2.test.ts
+  21:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:8   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  33:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  42:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/tests/integration/dspy-bridge.test.ts
+   1:1   error    Do not use "@ts-nocheck" because it alters compilation errors  @typescript-eslint/ban-ts-comment
+  43:85  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+
+/workspaces/assistente-jur-dico-principal/tests/integration/hybrid-agents.test.ts
+   13:8   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   31:8   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  199:16  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  220:16  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  246:16  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+/workspaces/assistente-jur-dico-principal/vitest.setup.ts
+   1:21  warning  'beforeEach' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  18:12  warning  '_' is defined but never used                                                 @typescript-eslint/no-unused-vars
+  30:40  warning  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+  34:42  warning  'messages' is defined but never used. Allowed unused args must match /^_/u    @typescript-eslint/no-unused-vars
+  34:52  warning  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+
+✖ 108 problems (6 errors, 102 warnings)
+
+\033[0;31m❌ Lint falhou! Corrija os problemas antes de commitar.\033[0m
+\033[1;33m💡 Dica: Execute 'npm run lint:fix' para corrigir automaticamente\033[0m

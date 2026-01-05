@@ -1,0 +1,31 @@
+{
+  // Configurações corrigidas para resolver erro de "*.copilotmd"
+  // Remova ou altere a linha problemática:
+
+  // ❌ LINHA PROBLEMÁTICA (remova esta):
+  // "*.copilotmd": "vscode.markdown.preview.editor",
+
+  // ✅ ALTERNATIVAS VÁLIDAS (escolha uma):
+
+  // Opção 1: Usar editor padrão
+  "*.copilotmd": "default",
+
+  // Opção 2: Usar editor de chat (se for arquivo de conversa)
+  // "*.copilotmd": "workbench.editor.chatSession",
+
+  // Opção 3: Remover completamente a configuração
+  // (deixe o VS Code decidir automaticamente)
+
+  // Outras configurações válidas que você pode usar:
+  // "*.copilotmd": "workbench.editorinputs.searchEditorInput",
+  // "*.copilotmd": "notebookOutputEditor",
+  // "*.copilotmd": "jupyter-notebook",
+  // "*.copilotmd": "repl",
+  // "*.copilotmd": "workbench.editors.gettingStartedInput",
+  // "*.copilotmd": "imagePreview.previewEditor",
+  // "*.copilotmd": "vscode.audioPreview",
+  // "*.copilotmd": "vscode.videoPreview",
+  // "*.copilotmd": "jsProfileVisualizer.cpuprofile.table",
+  // "*.copilotmd": "jsProfileVisualizer.heapprofile.table",
+  // "*.copilotmd": "jsProfileVisualizer.heapsnapshot.table"
+}

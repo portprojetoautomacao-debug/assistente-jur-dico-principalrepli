@@ -1,0 +1,16 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a78bfa;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="16" cy="16" r="16" fill="#1a1a1a"/>
+  <circle cx="16" cy="16" r="14" fill="none" stroke="url(#grad-dark)" stroke-width="2"/>
+  <!-- Balança da Justiça estilizada -->
+  <path d="M16 6 L16 24" stroke="url(#grad-dark)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M10 10 L22 10" stroke="url(#grad-dark)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M8 14 L12 10 L12 14 C12 16 10 17 8 14Z" fill="url(#grad-dark)"/>
+  <path d="M24 14 L20 10 L20 14 C20 16 22 17 24 14Z" fill="url(#grad-dark)"/>
+  <circle cx="16" cy="24" r="2" fill="url(#grad-dark)"/>
+</svg>

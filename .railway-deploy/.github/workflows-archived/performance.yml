@@ -1,0 +1,178 @@
+name: Performance Monitoring
+
+on:
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Executar semanalmente para monitorar degradação
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: performance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse-ci:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build application
+      run: npm run build
+      env:
+        VITE_GOOGLE_CLIENT_ID: 'dummy-client-id'
+        VITE_GOOGLE_API_KEY: 'dummy-api-key'
+        VITE_REDIRECT_URI: 'http://localhost:5173'
+        VITE_APP_ENV: 'ci'
+
+    - name: Run Lighthouse CI
+      run: |
+        npm install -g @lhci/cli
+        lhci autorun
+      env:
+        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+      continue-on-error: true
+
+    - name: Generate performance report
+      if: always()
+      run: |
+        echo "## ⚡ Performance Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Lighthouse CI analysis completed." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Performance Thresholds" >> $GITHUB_STEP_SUMMARY
+        echo "- Performance: ≥ 80" >> $GITHUB_STEP_SUMMARY
+        echo "- Accessibility: ≥ 90" >> $GITHUB_STEP_SUMMARY
+        echo "- Best Practices: ≥ 90" >> $GITHUB_STEP_SUMMARY
+        echo "- SEO: ≥ 80" >> $GITHUB_STEP_SUMMARY
+
+  bundle-analysis:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build and analyze bundle
+      run: |
+        npm run build
+        
+        echo "## 📦 Bundle Size Analysis" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Calcular tamanho total
+        TOTAL_SIZE=$(du -sh dist | cut -f1)
+        echo "**Total Bundle Size:** $TOTAL_SIZE" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Listar maiores arquivos
+        echo "### 📋 Largest Files" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| File | Size | Gzipped |" >> $GITHUB_STEP_SUMMARY
+        echo "|------|------|---------|" >> $GITHUB_STEP_SUMMARY
+        
+        find dist -type f \( -name "*.js" -o -name "*.css" \) -exec du -h {} + | \
+          sort -rh | head -10 | while read size file; do
+            filename=$(basename "$file")
+            gzipped=$(gzip -c "$file" | wc -c | numfmt --to=iec-i --suffix=B 2>/dev/null || echo "N/A")
+            echo "| $filename | $size | $gzipped |" >> $GITHUB_STEP_SUMMARY
+          done
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Verificar se excede limites recomendados
+        JS_SIZE=$(find dist -name "*.js" -exec du -b {} + | awk '{sum+=$1} END {print sum}')
+        CSS_SIZE=$(find dist -name "*.css" -exec du -b {} + | awk '{sum+=$1} END {print sum}')
+        
+        # Converter para KB
+        JS_KB=$((JS_SIZE / 1024))
+        CSS_KB=$((CSS_SIZE / 1024))
+        
+        echo "### 📊 Size Breakdown" >> $GITHUB_STEP_SUMMARY
+        echo "- JavaScript: ${JS_KB}KB" >> $GITHUB_STEP_SUMMARY
+        echo "- CSS: ${CSS_KB}KB" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Avisos se muito grande
+        if [ $JS_KB -gt 500 ]; then
+          echo "⚠️ **Warning:** JavaScript bundle exceeds 500KB" >> $GITHUB_STEP_SUMMARY
+          echo "Consider code splitting or tree shaking" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ $CSS_KB -gt 100 ]; then
+          echo "⚠️ **Warning:** CSS bundle exceeds 100KB" >> $GITHUB_STEP_SUMMARY
+          echo "Consider removing unused styles" >> $GITHUB_STEP_SUMMARY
+        fi
+      env:
+        VITE_GOOGLE_CLIENT_ID: 'dummy-client-id'
+        VITE_GOOGLE_API_KEY: 'dummy-api-key'
+        VITE_REDIRECT_URI: 'http://localhost:5173'
+        VITE_APP_ENV: 'ci'
+
+    - name: Compare with base branch
+      if: github.event_name == 'pull_request'
+      run: |
+        # Checkout base branch
+        git fetch origin ${{ github.base_ref }}
+        git checkout origin/${{ github.base_ref }}
+        
+        # Build base
+        npm ci
+        npm run build
+        BASE_SIZE=$(du -sb dist | cut -f1)
+        
+        # Checkout PR branch
+        git checkout ${{ github.sha }}
+        npm ci
+        npm run build
+        PR_SIZE=$(du -sb dist | cut -f1)
+        
+        # Calcular diferença
+        DIFF=$((PR_SIZE - BASE_SIZE))
+        DIFF_PERCENT=$(echo "scale=2; ($DIFF * 100) / $BASE_SIZE" | bc)
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📈 Bundle Size Comparison" >> $GITHUB_STEP_SUMMARY
+        echo "- **Base:** $(numfmt --to=iec-i --suffix=B $BASE_SIZE)" >> $GITHUB_STEP_SUMMARY
+        echo "- **PR:** $(numfmt --to=iec-i --suffix=B $PR_SIZE)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Difference:** $(numfmt --to=iec-i --suffix=B $DIFF) (${DIFF_PERCENT}%)" >> $GITHUB_STEP_SUMMARY
+        
+        if [ $DIFF -gt 102400 ]; then  # 100KB
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Warning:** Bundle size increased by more than 100KB" >> $GITHUB_STEP_SUMMARY
+        fi
+      env:
+        VITE_GOOGLE_CLIENT_ID: 'dummy-client-id'
+        VITE_GOOGLE_API_KEY: 'dummy-api-key'
+        VITE_REDIRECT_URI: 'http://localhost:5173'
+        VITE_APP_ENV: 'ci'
+      continue-on-error: true

@@ -1,0 +1,133 @@
+name: Vercel Webhook Automation
+
+on:
+  repository_dispatch:
+    types: [vercel-deployment]
+
+jobs:
+  handle-vercel-webhook:
+    name: '🎯 Processar Evento Vercel'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: 📥 Checkout código
+      uses: actions/checkout@v4
+
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: 📦 Instalar dependências
+      run: npm ci
+
+    - name: 🎯 Processar evento do Vercel
+      run: |
+        echo "🎯 Processando evento do Vercel..."
+        EVENT_TYPE="${{ github.event.client_payload.type }}"
+        DEPLOYMENT_STATE="${{ github.event.client_payload.payload.deployment.state || 'unknown' }}"
+        DEPLOYMENT_URL="${{ github.event.client_payload.payload.deployment.url || '' }}"
+        DEPLOYMENT_NAME="${{ github.event.client_payload.payload.deployment.name || '' }}"
+
+        echo "📊 Evento: $EVENT_TYPE"
+        echo "🚀 Estado: $DEPLOYMENT_STATE"
+        echo "🌐 URL: $DEPLOYMENT_URL"
+        echo "📦 Nome: $DEPLOYMENT_NAME"
+
+        # Salvar informações do evento
+        echo "EVENT_TYPE=$EVENT_TYPE" >> $GITHUB_ENV
+        echo "DEPLOYMENT_STATE=$DEPLOYMENT_STATE" >> $GITHUB_ENV
+        echo "DEPLOYMENT_URL=$DEPLOYMENT_URL" >> $GITHUB_ENV
+        echo "DEPLOYMENT_NAME=$DEPLOYMENT_NAME" >> $GITHUB_ENV
+
+    - name: 🚨 Verificar falha de deployment
+      if: env.DEPLOYMENT_STATE == 'error' || env.DEPLOYMENT_STATE == 'failed'
+      run: bash .github/scripts/handle-deployment-failure.sh
+
+    - name: ✅ Verificar sucesso de deployment
+      if: env.DEPLOYMENT_STATE == 'ready'
+      run: |
+        echo "✅ Deployment bem-sucedido!"
+
+        # Executar testes de smoke na produção
+        echo "🧪 Executando testes de smoke..."
+        if curl -f --max-time 30 $DEPLOYMENT_URL > /dev/null; then
+          echo "✅ Aplicação responde corretamente"
+
+          # Criar comentário de sucesso no commit
+          gh pr comment ${{ github.event.client_payload.payload.deployment.meta.githubCommitSha || github.sha }} \
+            --body |
+              ✅ **Deployment bem-sucedido!**
+
+              🌐 **URL:** $DEPLOYMENT_URL
+              📦 **Nome:** $DEPLOYMENT_NAME
+              ⏰ **Timestamp:** $(date)
+
+              **Status:** Produção ativa e respondendo
+
+        else
+          echo "❌ Aplicação não responde após deploy!"
+          exit 1
+        fi
+
+    - name: 🔄 Iniciar rollback automático (se configurado)
+      if: (env.DEPLOYMENT_STATE == 'error' || env.DEPLOYMENT_STATE == 'failed') && env.AUTO_ROLLBACK == 'true'
+      run: |
+        echo "🔄 Iniciando rollback automático..."
+
+        # Identificar versão anterior estável
+        PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E "^release-" | head -2 | tail -1)
+
+        if [ -z "$PREVIOUS_TAG" ]; then
+          echo "❌ Nenhuma versão anterior encontrada para rollback automático"
+          exit 1
+        fi
+
+        echo "🔄 Fazendo rollback para: $PREVIOUS_TAG"
+        git checkout $PREVIOUS_TAG
+
+        # Rebuild e redeploy
+        npm ci
+        npm run build
+
+        npx vercel --prod --yes
+      env:
+        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        AUTO_ROLLBACK: ${{ secrets.AUTO_ROLLBACK_ENABLED }}
+
+    - name: 📊 Registrar métricas de deployment
+      run: |
+        echo "📊 Registrando métricas de deployment..."
+
+        # Aqui você pode integrar com ferramentas de monitoramento
+        # como DataDog, New Relic, etc.
+
+        METRICS_FILE="deployment-metrics.json"
+        cat > $METRICS_FILE << EOF
+        {
+          "timestamp": "$(date -Iseconds)",
+          "deployment_name": "$DEPLOYMENT_NAME",
+          "deployment_url": "$DEPLOYMENT_URL",
+          "state": "$DEPLOYMENT_STATE",
+          "event_type": "$EVENT_TYPE",
+          "commit_sha": "${{ github.event.client_payload.payload.deployment.meta.githubCommitSha || github.sha }}",
+          "commit_message": "${{ github.event.client_payload.payload.deployment.meta.githubCommitMessage || 'Automated deployment' }}"
+        }
+        EOF
+
+        echo "✅ Métricas registradas"
+
+    - name: 📤 Upload métricas
+      uses: actions/upload-artifact@v4
+      with:
+        name: deployment-metrics-${{ github.run_id }}
+        path: deployment-metrics.json
+
+    - name: 📢 Notificações finais
+      if: always()
+      run: bash .github/scripts/handle-deployment-success.sh

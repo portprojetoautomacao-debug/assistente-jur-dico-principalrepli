@@ -1,0 +1,345 @@
+{
+  "version": 2,
+  "framework": "vite",
+  "installCommand": "npm ci --include=dev",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/agents.ts": {
+      "maxDuration": 45,
+      "memory": 1024,
+      "includeFiles": "api/lib/**"
+    },
+    "api/backup.ts": {
+      "maxDuration": 60,
+      "memory": 512,
+      "includeFiles": "api/lib/**"
+    },
+    "api/cron.ts": {
+      "maxDuration": 60,
+      "memory": 512,
+      "includeFiles": "api/lib/**"
+    },
+    "api/djen-sync.ts": {
+      "maxDuration": 60,
+      "memory": 512,
+      "includeFiles": "api/lib/**"
+    },
+    "api/expedientes.ts": {
+      "maxDuration": 30,
+      "memory": 512,
+      "includeFiles": "api/lib/**"
+    },
+    "api/kv.ts": {
+      "maxDuration": 30,
+      "memory": 256,
+      "includeFiles": "api/lib/**"
+    },
+    "api/legal-services.ts": {
+      "maxDuration": 30,
+      "memory": 512,
+      "includeFiles": "api/lib/**"
+    },
+    "api/llm-proxy.ts": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "includeFiles": "api/lib/**"
+    },
+    "api/llm-stream.ts": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "includeFiles": "api/lib/**"
+    },
+    "api/observability.ts": {
+      "maxDuration": 30,
+      "memory": 256,
+      "includeFiles": "api/lib/**"
+    },
+    "api/status.ts": {
+      "maxDuration": 10,
+      "memory": 128
+    },
+    "api/test.ts": {
+      "maxDuration": 10,
+      "memory": 128
+    },
+    "api/notifications.ts": {
+      "maxDuration": 30,
+      "memory": 512,
+      "includeFiles": "api/lib/**"
+    },
+    "api/agents/process-task.ts": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "includeFiles": "api/lib/**"
+    },
+    "api/agents/autogen_orchestrator.ts": {
+      "maxDuration": 45,
+      "memory": 1024,
+      "includeFiles": "api/lib/**"
+    }
+  },
+  "regions": ["gru1"],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-forwarded-proto",
+          "value": "http"
+        }
+      ],
+      "destination": "https://assistente-juridico-github.vercel.app/:path*",
+      "permanent": true
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron?action=djen-monitor",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron?action=djen-monitor",
+      "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/cron?action=daily-reset",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron?action=process-agent-queue",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron?action=process-notifications",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron?action=calendar-sync",
+      "schedule": "0 */2 * * *"
+    },
+    {
+      "path": "/api/cron?action=backup",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron?action=datajud-monitor",
+      "schedule": "0 16 * * *"
+    },
+    {
+      "path": "/api/cron?action=deadline-alerts",
+      "schedule": "55 11 * * *"
+    },
+    {
+      "path": "/api/cron?action=watchdog",
+      "schedule": "*/30 * * * *"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/_spark/llm",
+      "destination": "/api/llm-proxy"
+    },
+    {
+      "source": "/_spark/kv/:key*",
+      "destination": "/api/kv"
+    },
+    {
+      "source": "/_spark/loaded",
+      "destination": "/api/status?type=loaded"
+    },
+    {
+      "source": "/api/health",
+      "destination": "/api/status?type=health"
+    },
+    {
+      "source": "/api/deadline/calculate",
+      "destination": "/api/legal-services?service=deadline"
+    },
+    {
+      "source": "/api/djen/check",
+      "destination": "/api/legal-services?service=djen"
+    },
+    {
+      "source": "/_spark/:service/:path*",
+      "destination": "/api/spark-proxy?service=:service&path=:path"
+    },
+    {
+      "source": "/_spark/:service",
+      "destination": "/api/spark-proxy?service=:service"
+    },
+    {
+      "source": "/((?!api|robots\\.txt|sitemap\\.xml|favicon\\.ico|manifest\\.json|manifest\\.webmanifest|assets).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://vercel.live https://*.vercel.app https://apis.google.com https://accounts.google.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com; style-src 'self' 'unsafe-inline' https://accounts.google.com https://www.gstatic.com https://tagmanager.google.com; img-src 'self' data: blob: https://*.googleusercontent.com https://*.githubusercontent.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://ssl.gstatic.com https://www.gstatic.com; font-src 'self' data:; connect-src 'self' https://*.vercel.app https://*.googleapis.com https://apis.google.com https://*.upstash.io https://accounts.google.com https://main.vscode-cdn.net https://*.tunnels.api.visualstudio.com wss://*.tunnels.api.visualstudio.com https://*.rel.tunnels.api.visualstudio.com wss://*.rel.tunnels.api.visualstudio.com https://*.sentry.io https://*.ingest.sentry.io https://api.datajud.cnj.jus.br https://www.google-analytics.com https://*.analytics.google.com https://stats.g.doubleclick.net https://vercel.live; worker-src 'self' blob:; frame-src 'self' https://accounts.google.com https://content-docs.googleapis.com https://content.googleapis.com https://vercel.live https://www.googletagmanager.com; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=(), payment=()"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "all"
+        }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/workbox-:hash.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/fonts/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/_spark/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ]
+}

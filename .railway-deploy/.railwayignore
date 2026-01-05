@@ -1,0 +1,80 @@
+# Railway Ignore - Arquivos não necessários para deploy
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Build artifacts desnecessários
+.vite/
+dist-ssr/
+*.local
+
+# Testes
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# Documentação desnecessária
+docs/
+*.md
+!README.md
+
+# Arquivos de configuração local
+.env.local
+.env.development
+.env.test
+*.local
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+
+# Azure
+__azurite_db_blob__.json
+__azurite_db_blob_extent__.json
+
+# Scripts de desenvolvimento
+scripts/test-*.sh
+scripts/auto-*.sh
+scripts/sonar-*.sh
+
+# Arquivos de análise
+ANALISE_*.md
+CORRECAO_*.md
+*.spec.ts
+
+# Arquivos grandes de análise
+arquivosreplitanalise/
+codigo-agentes-auditoria*.md

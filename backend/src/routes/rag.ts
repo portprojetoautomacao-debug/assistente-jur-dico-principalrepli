@@ -74,7 +74,7 @@ router.get("/search", async (req, res) => {
       count: results.length,
     });
   } catch (err) {
-    console.error("[RAG] Search error:", err);
+    logger.error("[RAG] Search error:", err);
     const error = err as Error;
     return res.status(500).json({
       error: "Search failed",
@@ -106,7 +106,7 @@ router.get("/status", async (_req, res) => {
       documentCount: count,
     });
   } catch (err) {
-    console.error("[RAG] Status error:", err);
+    logger.error("[RAG] Status error:", err);
     const error = err as Error;
     return res.status(500).json({
       error: "Failed to get status",

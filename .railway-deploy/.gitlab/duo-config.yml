@@ -1,0 +1,102 @@
+# GitLab Duo Configuration
+# Configuração completa do GitLab Duo com funcionalidades avançadas
+
+# Configurações básicas de revisão
+duo_review:
+  enabled: true
+  auto_review: true
+  auto_merge_when_green: true
+  run_on_push: true
+  max_comments: 25
+  analysis_scope:
+    - performance
+    - security
+    - maintainability
+    - code_smell
+    - best_practices
+    - legal_compliance
+    - accessibility
+  exclude_paths:
+    - "node_modules/**"
+    - "dist/**"
+    - "build/**"
+    - "*.lock"
+    - ".git/**"
+  languages:
+    - typescript
+    - javascript
+    - yaml
+    - markdown
+    - python
+    - sql
+  check_test_coverage: true
+  check_code_quality: true
+  check_security: true
+  generate_tests: true
+  suggest_refactoring: true
+  enforce_standards: true
+  rules:
+    - if: "$CI_PIPELINE_SOURCE == 'merge_request_event'"
+      when: always
+    - if: "$CI_COMMIT_BRANCH =~ /^feature\//"
+      when: always
+
+# Configurações avançadas do Agent Platform
+agent_platform:
+  enabled: true
+  config_file: ".gitlab/duo-agent-platform.toml"
+  custom_agents:
+    - assistente-juridico-reviewer
+    - assistente-juridico-generator
+    - assistente-juridico-optimizer
+
+# Configurações do Knowledge Graph
+knowledge_graph:
+  enabled: true
+  config_file: ".gitlab/duo-knowledge-graph.toml"
+  domain_context: "legal_technology"
+
+# Configurações do Model Context Protocol
+mcp:
+  enabled: true
+  config_file: ".gitlab/duo-mcp.toml"
+  servers:
+    - gitlab-mcp-server
+    - github-mcp-server
+    - legal-tools-mcp-server
+
+# Comandos disponíveis no chat
+commands:
+  default: /review
+  available:
+    - /review
+    - /explain
+    - /refactor
+    - /fix
+    - /tests
+    - /suggest
+    - /security-check
+    - /legal-review
+    - /generate-docs
+    - /optimize-performance
+
+# Configurações específicas do projeto jurídico
+legal_config:
+  enabled: true
+  compliance_checks:
+    - lgpd_compliance
+    - legal_documentation
+    - court_deadlines
+  integrations:
+    - djen_monitoring
+    - google_calendar_sync
+    - todoist_tasks
+    - /performance-check
+  
+review_criteria:
+  - correctness
+  - performance
+  - security
+  - readability
+  - maintainability
+  - test_coverage

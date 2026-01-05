@@ -1,0 +1,342 @@
+spec:
+  inputs:
+    stage:
+      default: backup
+      description: "Stage onde o backup será executado"
+    backup_type:
+      default: "database"
+      description: "Tipo de backup: database, files, documents, all"
+      options: ["database", "files", "documents", "all"]
+    database_type:
+      default: "postgresql"
+      description: "Tipo de banco de dados: postgresql, mysql, mongodb"
+      options: ["postgresql", "mysql", "mongodb"]
+    database_host:
+      description: "Host do banco de dados"
+    database_port:
+      default: "5432"
+      description: "Porta do banco de dados"
+    database_name:
+      description: "Nome do banco de dados"
+    database_user:
+      description: "Usuário do banco de dados"
+    database_password:
+      description: "Senha do banco de dados"
+    s3_bucket:
+      description: "Bucket S3 para armazenar backups"
+    s3_region:
+      default: "us-east-1"
+      description: "Região do S3"
+    retention_days:
+      default: "30"
+      description: "Dias para retenção de backups"
+    compression:
+      default: true
+      description: "Comprimir arquivos de backup"
+    encryption:
+      default: true
+      description: "Criptografar backups"
+    include_sensitive_data:
+      default: false
+      description: "Incluir dados sensíveis no backup (dados pessoais, etc.)"
+    notify_on_completion:
+      default: true
+      description: "Notificar quando backup for concluído"
+
+# Componente de Backup para Dados Jurídicos
+# Suporte a backup de banco de dados, arquivos e documentos
+# Com criptografia e compressão automática
+
+database-backup:
+  stage: $[[ inputs.stage ]]
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache postgresql-client mysql-client mongodb-tools aws-cli gzip openssl
+  script:
+    - echo "💾 Iniciando backup de banco de dados..."
+    - |
+      # Configurar timestamp
+      TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+      BACKUP_NAME="${CI_PROJECT_NAME}_${CI_COMMIT_BRANCH}_${TIMESTAMP}"
+      BACKUP_DIR="/tmp/backup_$TIMESTAMP"
+      mkdir -p "$BACKUP_DIR"
+
+      # Backup baseado no tipo de banco
+      case "$[[ inputs.database_type ]]" in
+        postgresql)
+          echo "📊 Fazendo backup PostgreSQL..."
+          export PGPASSWORD="$[[ inputs.database_password ]]"
+          pg_dump \
+            -h "$[[ inputs.database_host ]]" \
+            -p "$[[ inputs.database_port ]]" \
+            -U "$[[ inputs.database_user ]]" \
+            -d "$[[ inputs.database_name ]]" \
+            -f "$BACKUP_DIR/database.sql" \
+            --no-owner --no-privileges --clean --if-exists
+          ;;
+        mysql)
+          echo "📊 Fazendo backup MySQL..."
+          mysqldump \
+            -h "$[[ inputs.database_host ]]" \
+            -P "$[[ inputs.database_port ]]" \
+            -u "$[[ inputs.database_user ]]" \
+            -p"$[[ inputs.database_password ]]" \
+            "$[[ inputs.database_name ]]" \
+            > "$BACKUP_DIR/database.sql"
+          ;;
+        mongodb)
+          echo "📊 Fazendo backup MongoDB..."
+          mongodump \
+            --host "$[[ inputs.database_host ]]" \
+            --port "$[[ inputs.database_port ]]" \
+            --username "$[[ inputs.database_user ]]" \
+            --password "$[[ inputs.database_password ]]" \
+            --db "$[[ inputs.database_name ]]" \
+            --out "$BACKUP_DIR/mongodb_dump"
+          ;;
+        *)
+          echo "❌ Tipo de banco não suportado: $[[ inputs.database_type ]]"
+          exit 1
+          ;;
+      esac
+
+      # Verificar se backup foi criado
+      if [ ! -e "$BACKUP_DIR" ]; then
+        echo "❌ Falha ao criar backup"
+        exit 1
+      fi
+
+      # Compressão
+      if [ "$[[ inputs.compression ]]" = "true" ]; then
+        echo "🗜️  Comprimindo backup..."
+        tar -czf "$BACKUP_DIR.tar.gz" -C "$BACKUP_DIR" .
+        BACKUP_FILE="$BACKUP_DIR.tar.gz"
+      else
+        BACKUP_FILE="$BACKUP_DIR"
+      fi
+
+      # Criptografia
+      if [ "$[[ inputs.encryption ]]" = "true" ]; then
+        echo "🔐 Criptografando backup..."
+        openssl enc -aes-256-cbc -salt -in "$BACKUP_FILE" -out "$BACKUP_FILE.enc" -k "$BACKUP_ENCRYPTION_KEY"
+        BACKUP_FILE="$BACKUP_FILE.enc"
+      fi
+
+      # Upload para S3
+      if [ -n "$[[ inputs.s3_bucket ]]" ]; then
+        echo "☁️  Enviando backup para S3..."
+        aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+        aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+        aws configure set region "$[[ inputs.s3_region ]]"
+
+        S3_KEY="backups/$BACKUP_NAME$(basename "$BACKUP_FILE")"
+        aws s3 cp "$BACKUP_FILE" "s3://$[[ inputs.s3_bucket ]]/$S3_KEY"
+
+        # Configurar lifecycle para retenção
+        if [ "$[[ inputs.retention_days ]]" -gt 0 ]; then
+          aws s3api put-bucket-lifecycle-configuration \
+            --bucket "$[[ inputs.s3_bucket ]]" \
+            --lifecycle-configuration '{
+              "Rules": [
+                {
+                  "ID": "BackupRetention",
+                  "Status": "Enabled",
+                  "Prefix": "backups/",
+                  "Expiration": {
+                    "Days": '$[[ inputs.retention_days ]]'
+                  }
+                }
+              ]
+            }'
+        fi
+
+        echo "✅ Backup enviado para S3: s3://$[[ inputs.s3_bucket ]]/$S3_KEY"
+      else
+        echo "⚠️  S3 não configurado, backup local mantido em $BACKUP_FILE"
+      fi
+
+      # Limpar arquivos temporários
+      rm -rf "$BACKUP_DIR"
+
+      echo "✅ Backup concluído com sucesso!"
+  artifacts:
+    reports:
+      dotenv: backup.env
+    expire_in: 1 week
+  allow_failure: false
+  rules:
+    - if: $CI_COMMIT_BRANCH && ($[[ inputs.backup_type ]] == "database" || $[[ inputs.backup_type ]] == "all")
+    - when: manual
+
+files-backup:
+  stage: $[[ inputs.stage ]]
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache aws-cli gzip openssl
+  script:
+    - echo "📁 Iniciando backup de arquivos..."
+    - |
+      # Configurar timestamp
+      TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+      BACKUP_NAME="${CI_PROJECT_NAME}_files_${CI_COMMIT_BRANCH}_${TIMESTAMP}"
+      BACKUP_DIR="/tmp/files_backup_$TIMESTAMP"
+      mkdir -p "$BACKUP_DIR"
+
+      # Copiar arquivos importantes
+      echo "📋 Copiando arquivos do projeto..."
+      cp -r public/ "$BACKUP_DIR/" 2>/dev/null || echo "⚠️  Diretório public não encontrado"
+      cp -r docs/ "$BACKUP_DIR/" 2>/dev/null || echo "⚠️  Diretório docs não encontrado"
+      cp -r src/ "$BACKUP_DIR/" 2>/dev/null || echo "⚠️  Diretório src não encontrado"
+
+      # Arquivos de configuração (excluindo sensíveis)
+      mkdir -p "$BACKUP_DIR/config"
+      cp package.json "$BACKUP_DIR/config/" 2>/dev/null || echo "⚠️  package.json não encontrado"
+      cp tsconfig.json "$BACKUP_DIR/config/" 2>/dev/null || echo "⚠️  tsconfig.json não encontrado"
+      cp tailwind.config.js "$BACKUP_DIR/config/" 2>/dev/null || echo "⚠️  tailwind.config.js não encontrado"
+
+      # Excluir dados sensíveis se solicitado
+      if [ "$[[ inputs.include_sensitive_data ]]" = "false" ]; then
+        echo "🛡️  Removendo dados sensíveis..."
+        find "$BACKUP_DIR" -name "*.env*" -delete
+        find "$BACKUP_DIR" -name "*secret*" -delete
+        find "$BACKUP_DIR" -name "*key*" -delete
+        rm -f "$BACKUP_DIR/config/.env"
+      fi
+
+      # Compressão
+      if [ "$[[ inputs.compression ]]" = "true" ]; then
+        echo "🗜️  Comprimindo arquivos..."
+        tar -czf "$BACKUP_DIR.tar.gz" -C "$BACKUP_DIR" .
+        BACKUP_FILE="$BACKUP_DIR.tar.gz"
+      else
+        BACKUP_FILE="$BACKUP_DIR"
+      fi
+
+      # Criptografia
+      if [ "$[[ inputs.encryption ]]" = "true" ]; then
+        echo "🔐 Criptografando backup..."
+        openssl enc -aes-256-cbc -salt -in "$BACKUP_FILE" -out "$BACKUP_FILE.enc" -k "$BACKUP_ENCRYPTION_KEY"
+        BACKUP_FILE="$BACKUP_FILE.enc"
+      fi
+
+      # Upload para S3
+      if [ -n "$[[ inputs.s3_bucket ]]" ]; then
+        echo "☁️  Enviando backup para S3..."
+        aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+        aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+        aws configure set region "$[[ inputs.s3_region ]]"
+
+        S3_KEY="backups/$BACKUP_NAME$(basename "$BACKUP_FILE")"
+        aws s3 cp "$BACKUP_FILE" "s3://$[[ inputs.s3_bucket ]]/$S3_KEY"
+
+        echo "✅ Backup de arquivos enviado para S3: s3://$[[ inputs.s3_bucket ]]/$S3_KEY"
+      else
+        echo "⚠️  S3 não configurado, backup local mantido em $BACKUP_FILE"
+      fi
+
+      # Limpar arquivos temporários
+      rm -rf "$BACKUP_DIR"
+
+      echo "✅ Backup de arquivos concluído!"
+  artifacts:
+    reports:
+      dotenv: backup.env
+    expire_in: 1 week
+  allow_failure: false
+  rules:
+    - if: $CI_COMMIT_BRANCH && ($[[ inputs.backup_type ]] == "files" || $[[ inputs.backup_type ]] == "all")
+    - when: manual
+
+documents-backup:
+  stage: $[[ inputs.stage ]]
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache aws-cli gzip openssl
+  script:
+    - echo "📄 Iniciando backup de documentos jurídicos..."
+    - |
+      # Configurar timestamp
+      TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+      BACKUP_NAME="${CI_PROJECT_NAME}_documents_${CI_COMMIT_BRANCH}_${TIMESTAMP}"
+      BACKUP_DIR="/tmp/documents_backup_$TIMESTAMP"
+      mkdir -p "$BACKUP_DIR"
+
+      # Copiar documentos jurídicos
+      echo "📋 Copiando documentos jurídicos..."
+      cp -r docs/ "$BACKUP_DIR/" 2>/dev/null || echo "⚠️  Diretório docs não encontrado"
+
+      # Documentos específicos do projeto jurídico
+      mkdir -p "$BACKUP_DIR/legal"
+      cp PRD.md "$BACKUP_DIR/legal/" 2>/dev/null || echo "⚠️  PRD.md não encontrado"
+      cp README.md "$BACKUP_DIR/legal/" 2>/dev/null || echo "⚠️  README.md não encontrado"
+      cp LICENSE "$BACKUP_DIR/legal/" 2>/dev/null || echo "⚠️  LICENSE não encontrado"
+
+      # Backup de configurações legais
+      mkdir -p "$BACKUP_DIR/legal-config"
+      cp docs/DJEN_DOCUMENTATION.md "$BACKUP_DIR/legal-config/" 2>/dev/null || echo "⚠️  DJEN_DOCUMENTATION.md não encontrado"
+      cp docs/SECURITY.md "$BACKUP_DIR/legal-config/" 2>/dev/null || echo "⚠️  SECURITY.md não encontrado"
+
+      # Excluir dados sensíveis
+      echo "🛡️  Removendo dados sensíveis dos documentos..."
+      find "$BACKUP_DIR" -name "*.env*" -delete
+      find "$BACKUP_DIR" -name "*secret*" -delete
+      find "$BACKUP_DIR" -name "*credential*" -delete
+
+      # Compressão
+      if [ "$[[ inputs.compression ]]" = "true" ]; then
+        echo "🗜️  Comprimindo documentos..."
+        tar -czf "$BACKUP_DIR.tar.gz" -C "$BACKUP_DIR" .
+        BACKUP_FILE="$BACKUP_DIR.tar.gz"
+      else
+        BACKUP_FILE="$BACKUP_DIR"
+      fi
+
+      # Criptografia obrigatória para documentos jurídicos
+      echo "🔐 Criptografando documentos jurídicos..."
+      openssl enc -aes-256-cbc -salt -in "$BACKUP_FILE" -out "$BACKUP_FILE.enc" -k "$LEGAL_BACKUP_ENCRYPTION_KEY"
+      BACKUP_FILE="$BACKUP_FILE.enc"
+
+      # Upload para S3
+      if [ -n "$[[ inputs.s3_bucket ]]" ]; then
+        echo "☁️  Enviando documentos para S3..."
+        aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+        aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+        aws configure set region "$[[ inputs.s3_region ]]"
+
+        S3_KEY="legal-backups/$BACKUP_NAME$(basename "$BACKUP_FILE")"
+        aws s3 cp "$BACKUP_FILE" "s3://$[[ inputs.s3_bucket ]]/$S3_KEY"
+
+        # Configurar lifecycle com retenção mais longa para documentos legais
+        RETENTION_DAYS=$(( $[[ inputs.retention_days ]] > 365 ? $[[ inputs.retention_days ]] : 365 ))
+        aws s3api put-bucket-lifecycle-configuration \
+          --bucket "$[[ inputs.s3_bucket ]]" \
+          --lifecycle-configuration '{
+            "Rules": [
+              {
+                "ID": "LegalDocumentsRetention",
+                "Status": "Enabled",
+                "Prefix": "legal-backups/",
+                "Expiration": {
+                  "Days": '$RETENTION_DAYS'
+                }
+              }
+            ]
+          }'
+
+        echo "✅ Documentos jurídicos enviados para S3: s3://$[[ inputs.s3_bucket ]]/$S3_KEY"
+      else
+        echo "⚠️  S3 não configurado, backup local mantido em $BACKUP_FILE"
+      fi
+
+      # Limpar arquivos temporários
+      rm -rf "$BACKUP_DIR"
+
+      echo "✅ Backup de documentos jurídicos concluído!"
+  artifacts:
+    reports:
+      dotenv: backup.env
+    expire_in: 1 week
+  allow_failure: false
+  rules:
+    - if: $CI_COMMIT_BRANCH && ($[[ inputs.backup_type ]] == "documents" || $[[ inputs.backup_type ]] == "all")
+    - when: manual

@@ -1,0 +1,271 @@
+# RBAC para Agentes GitLab com Controle de Acesso Seguro
+# Implementa as melhores práticas de segurança do GitLab
+
+---
+# ClusterRoleBinding para CI Jobs - permissões básicas para desenvolvimento
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-ci-job-developer
+  labels:
+    app: gitlab-agent
+    environment: desenvolvimento
+roleRef:
+  name: gitlab-agent-desenvolvimento
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - name: gitlab:ci_job
+    kind: Group
+
+---
+# ClusterRoleBinding para CI Jobs - permissões limitadas para QA
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-ci-job-qa
+  labels:
+    app: gitlab-agent
+    environment: qa
+roleRef:
+  name: gitlab-agent-qa
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - name: gitlab:ci_job
+    kind: Group
+
+---
+# ClusterRoleBinding para CI Jobs - apenas leitura para produção
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-ci-job-production
+  labels:
+    app: gitlab-agent
+    environment: production
+roleRef:
+  name: gitlab-agent-production
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - name: gitlab:ci_job
+    kind: Group
+
+---
+# ClusterRole para desenvolvimento (permissões completas)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gitlab-agent-desenvolvimento
+  labels:
+    app: gitlab-agent
+    environment: desenvolvimento
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps", "secrets", "persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "statefulsets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies", "ingresses"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+---
+# ClusterRole para QA (permissões limitadas)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gitlab-agent-qa
+  labels:
+    app: gitlab-agent
+    environment: qa
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+---
+# ClusterRole para produção (apenas leitura e monitoramento)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gitlab-agent-production
+  labels:
+    app: gitlab-agent
+    environment: production
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "statefulsets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies", "ingresses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch"]
+
+---
+# ClusterRoleBinding para desenvolvimento (permissões completas)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-agent-desenvolvimento-binding
+  labels:
+    app: gitlab-agent
+    environment: desenvolvimento
+roleRef:
+  name: gitlab-agent-desenvolvimento
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - name: gitlab:agent:agente-desenvolvimento
+    kind: User
+  - name: gitlab:ci_job
+    kind: Group
+  - kind: ServiceAccount
+    name: gitlab-agent-desenvolvimento
+    namespace: desenvolvimento
+
+---
+# ClusterRoleBinding para QA
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-agent-qa-binding
+  labels:
+    app: gitlab-agent
+    environment: qa
+roleRef:
+  name: gitlab-agent-qa
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - name: gitlab:agent:agente-qa
+    kind: User
+  - name: gitlab:ci_job
+    kind: Group
+    namespace: qa
+
+---
+# ClusterRoleBinding para produção
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-agent-production-binding
+  labels:
+    app: gitlab-agent
+    environment: production
+roleRef:
+  name: gitlab-agent-production
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - name: gitlab:agent:agente-producao
+    kind: User
+  - name: gitlab:ci_job
+    kind: Group
+    namespace: production
+
+---
+# ServiceAccount para cada agente
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitlab-agent-desenvolvimento
+  namespace: desenvolvimento
+  labels:
+    app: gitlab-agent
+    environment: desenvolvimento
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitlab-agent-qa
+  namespace: qa
+  labels:
+    app: gitlab-agent
+    environment: qa
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitlab-agent-production
+  namespace: production
+  labels:
+    app: gitlab-agent
+    environment: production
+---
+# RBAC authorization conforme documentação GitLab
+# Implementa personificação de usuários e controle de acesso
+
+# ClusterRoleBinding para personificação de usuários (User Impersonation)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-user-impersonation
+  labels:
+    app: gitlab-agent
+    type: user-impersonation
+roleRef:
+  name: gitlab-agent-desenvolvimento
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - name: gitlab:user
+    kind: Group
+
+---
+# ClusterRoleBinding específico para projeto (exemplo da documentação)
+# Permite maintainers do projeto acessar workloads
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-project-maintainers-view
+  labels:
+    app: gitlab-agent
+    example: documentation
+roleRef:
+  name: view
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  # Exemplo: maintainers do projeto ID 123 podem ver workloads
+  - name: gitlab:project_role:123:maintainer
+    kind: Group
+
+---
+# ClusterRoleBinding para grupos (exemplo da documentação)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-group-developers-edit
+  labels:
+    app: gitlab-agent
+    example: documentation
+roleRef:
+  name: edit
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  # Exemplo: developers do grupo ID 456 podem editar recursos
+  - name: gitlab:group_role:456:developer
+    kind: Group

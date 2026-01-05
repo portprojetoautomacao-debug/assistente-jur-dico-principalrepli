@@ -1,0 +1,63 @@
+use-djen-publications.ts:226 [DJENWidget] Tentando busca direta via navegador...
+18:38:37.093 use-djen-publications.ts:226 [DJENWidget] Tentando busca direta via navegador...
+18:38:37.113 use-djen-publications.ts:119 [DJEN Browser] Usando advogados padrão: Thiago Bodevan Veiga
+18:38:37.114 djen-browser-capture.ts:104 [DJEN Browser] Buscando publicações: https://comunicaapi.pje.jus.br/api/v1/comunicacao?meio=D&numeroOab=184404&ufOab=MG&dataDisponibilizacaoInicio=2026-01-03&dataDisponibilizacaoFim=2026-01-03
+18:38:37.204 djen-browser-capture.ts:134 [DJEN Browser] Capturadas 0 publicações
+18:38:37.318 djen-browser-capture.ts:104 [DJEN Browser] Buscando publicações: https://comunicaapi.pje.jus.br/api/v1/comunicacao?meio=D&numeroOab=184404&ufOab=MG&dataDisponibilizacaoInicio=2026-01-03&dataDisponibilizacaoFim=2026-01-03
+18:38:37.381 djen-browser-capture.ts:134 [DJEN Browser] Capturadas 0 publicações
+18:38:44.267 google-docs-service.ts:57 [GoogleDocs] Initializing Google Docs Service... 
+18:38:44.267 installHook.js:1 [GoogleDocs] ERROR: Credenciais do Google Docs não configuradas. Configure VITE_GOOGLE_CLIENT_ID e VITE_GOOGLE_API_KEY (ou VITE_GEMINI_API_KEY). 
+overrideMethod @ installHook.js:1Understand this error
+18:38:44.270 installHook.js:1 [GoogleDocs] Initializing Google Docs Service... 
+18:38:44.270 installHook.js:1 [GoogleDocs] ERROR: Credenciais do Google Docs não configuradas. Configure VITE_GOOGLE_CLIENT_ID e VITE_GOOGLE_API_KEY (ou VITE_GEMINI_API_KEY). 
+overrideMethod @ installHook.js:1Understand this error
+18:38:44.293 installHook.js:1 [useGoogleDocs] Failed to check auth status Error: Credenciais do Google Docs não configuradas. Configure VITE_GOOGLE_CLIENT_ID e VITE_GOOGLE_API_KEY (ou VITE_GEMINI_API_KEY).
+    at GoogleDocsService.initialize (google-docs-service.ts:196:13)
+    at checkAuth (use-google-docs.ts:20:33)
+    at use-google-docs.ts:28:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=cb608d06:18567:20)
+    at runWithFiberInDEV (react-dom_client.js?v=cb608d06:997:72)
+    at commitHookEffectListMount (react-dom_client.js?v=cb608d06:9411:163)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=cb608d06:9465:60)
+    at reconnectPassiveEffects (react-dom_client.js?v=cb608d06:11273:13)
+    at recursivelyTraverseReconnectPassiveEffects (react-dom_client.js?v=cb608d06:11240:11)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=cb608d06:11173:88)
+overrideMethod @ installHook.js:1Understand this error
+18:38:44.293 installHook.js:1 [useGoogleDocs] Failed to check auth status Error: Credenciais do Google Docs não configuradas. Configure VITE_GOOGLE_CLIENT_ID e VITE_GOOGLE_API_KEY (ou VITE_GEMINI_API_KEY).
+    at GoogleDocsService.initialize (google-docs-service.ts:196:13)
+    at checkAuth (use-google-docs.ts:20:33)
+    at use-google-docs.ts:28:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=cb608d06:18567:20)
+    at runWithFiberInDEV (react-dom_client.js?v=cb608d06:997:72)
+    at commitHookEffectListMount (react-dom_client.js?v=cb608d06:9411:163)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=cb608d06:9465:60)
+    at reconnectPassiveEffects (react-dom_client.js?v=cb608d06:11273:13)
+    at recursivelyTraverseReconnectPassiveEffects (react-dom_client.js?v=cb608d06:11240:11)
+    at reconnectPassiveEffects (react-dom_client.js?v=cb608d06:11292:78)
+overrideMethod @ installHook.js:1Understand this error
+18:38:46.612 localhost:3001/api/ai/status:1  Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+18:38:46.612 installHook.js:1 [useAICommands] Failed to check status: TypeError: Failed to fetch
+    at use-ai-commands.ts:83:30
+    at MinutasManager.tsx:142:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=cb608d06:18567:20)
+    at runWithFiberInDEV (react-dom_client.js?v=cb608d06:997:72)
+    at commitHookEffectListMount (react-dom_client.js?v=cb608d06:9411:163)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=cb608d06:9465:60)
+    at reconnectPassiveEffects (react-dom_client.js?v=cb608d06:11273:13)
+    at recursivelyTraverseReconnectPassiveEffects (react-dom_client.js?v=cb608d06:11240:11)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=cb608d06:11173:88)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=cb608d06:11010:13)
+overrideMethod @ installHook.js:1Understand this error
+18:38:46.873 localhost:3001/api/ai/status:1  Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this errorExplanationUnderstanding the problemThe Failed to load resource: net::ERR_CONNECTION_REFUSED error indicates that your browser attempted to connect to a web server to retrieve a resource (like an HTML file, image, script, or stylesheet), but the server actively refused the connection. This means the browser couldn't even establish an initial connection, let alone request data. It's not a problem with the requested resource itself, but rather with the ability to connect to the server hosting it.Common reasons for this error include:Server-side issues: The server you're trying to reach might be offline, not running, overloaded, or its firewall settings might be blocking the connection.Network configuration problems: This can include issues with your internet connection, incorrect DNS settings, misconfigured proxy settings, or VPN interference.Client-side interference: Your browser's cache or cookies might be corrupted or outdated, browser extensions could be blocking the request, or your local firewall/antivirus software might be interfering.How to verifyTo verify the cause, consider the following:Check the server's status: If you control the server, ensure it's running and accessible on the expected port. If it's a third-party service, check its status page or try accessing it from a different network or device.Examine the URL and port: Confirm that the URL in the console error (the resource that failed to load) is correct and points to the right server and port. For example, if you're trying to connect to a local development server, make sure it's actually running and listening on the localhost address and port specified in the URL.Test with other resources/websites: Try accessing other websites or resources to see if the issue is isolated to a specific resource or server, or if it's a broader network problem.Use browser's network tab: In Chrome DevTools, go to the "Network" tab. You'll see the failed request highlighted in red, often with "failed" or "connection refused" as its status. This confirms the error is occurring at the connection level.Suggested fixHere are several approaches to fix the net::ERR_CONNECTION_REFUSED error, starting with the most common and easiest to check:Ensure the server is running: If you are developing locally, make sure your local development server (e.g., Node.js server, Python server, etc.) is active and listening on the correct port and address. If the error is for a remote resource, confirm the server hosting it is online and functional.Check the URL and Port: Double-check the URL of the failed resource in the console message. Ensure there are no typos, and that the protocol (HTTP/HTTPS), hostname, and port number are correct. For instance, if your server is running on http://localhost:3000, ensure the browser is trying to access http://localhost:3000 and not http://localhost:8080 or https://localhost:3000.Clear browser cache and cookies: Outdated or corrupted browser data can sometimes prevent connections.Open Chrome settings (chrome://settings/).Go to "Privacy and security" > "Clear browsing data".Select "All time" for the time range.Check "Cached images and files" and "Cookies and other site data" (and optionally "Browsing history").Click "Clear data".Alternatively, try opening the resource in an Incognito window to bypass the cache and extensions.Disable browser extensions: A faulty or outdated browser extension can interfere with network requests.Go to chrome://extensions/.Temporarily disable all extensions.Reload the page. If the error is gone, re-enable extensions one by one to identify the culprit.Check firewall and antivirus software: Your computer's firewall or antivirus software might be blocking the connection.Temporarily disable your firewall or antivirus software to see if the connection can be established.If it resolves the issue, add an exception for your development server or the target domain in your security software settings.Review proxy settings: If you're using a proxy server, incorrect settings can cause connection refusals.In Chrome, go to Settings > "System" > "Open your computer's proxy settings".Ensure your proxy settings are correctly configured, or temporarily disable them if you're not supposed to be using one.Flush DNS cache and change DNS server:Flush DNS cache: This clears old or corrupted DNS entries.Windows: Open Command Prompt as administrator and type ipconfig /flushdns.macOS: Open Terminal and type sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder.Change DNS server: If flushing doesn't work, consider temporarily changing your DNS server to a public one like Google DNS (8.8.8.8 and 8.8.4.4) or Cloudflare DNS (1.1.1.1 and 1.0.0.1). This is usually done in your network adapter settings.Check network connectivity: Ensure your internet connection is stable. Try restarting your router.CORS issues (for API calls): If this error occurs specifically when making API calls (e.g., fetch or XMLHttpRequest requests to a different domain or port than your frontend), it might indicate a Cross-Origin Resource Sharing (CORS) problem. Although ERR_CONNECTION_REFUSED is typically before CORS checks, a misconfigured backend that completely refuses the connection for an OPTIONS preflight request (used by browsers for CORS) could manifest this way. Ensure your backend server is correctly configured to handle CORS requests, including OPTIONS methods.SummaryThe net::ERR_CONNECTION_REFUSED error indicates that your browser was unable to establish a connection with the server. This is often due to the server being offline, incorrect network configurations (DNS, proxy), or interference from client-side factors like browser extensions, cache, or firewalls. The primary steps to resolve it include ensuring the server is running, verifying the URL and port, clearing browser data, disabling extensions, and checking security software settings.Data used to understand this messageConsole messageReload the page to capture related network request data for this message in order to create a better insight.Use search insteadAI tools may generate inaccurate info that doesn't represent Google's views. Data sent to Google may be seen by human reviewers to improve this feature. Open settings or learn more
+18:38:46.873 installHook.js:1 [useAICommands] Failed to check status: TypeError: Failed to fetch
+    at use-ai-commands.ts:83:30
+    at MinutasManager.tsx:142:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=cb608d06:18567:20)
+    at runWithFiberInDEV (react-dom_client.js?v=cb608d06:997:72)
+    at commitHookEffectListMount (react-dom_client.js?v=cb608d06:9411:163)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=cb608d06:9465:60)
+    at reconnectPassiveEffects (react-dom_client.js?v=cb608d06:11273:13)
+    at recursivelyTraverseReconnectPassiveEffects (react-dom_client.js?v=cb608d06:11240:11)
+    at reconnectPassiveEffects (react-dom_client.js?v=cb608d06:11292:78)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=cb608d06:13339:135)
+overrideMethod @ installHook.js:1Understand this error

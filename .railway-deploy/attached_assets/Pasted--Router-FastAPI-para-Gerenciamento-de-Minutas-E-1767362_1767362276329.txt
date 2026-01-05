@@ -1,0 +1,401 @@
+"""
+Router FastAPI para Gerenciamento de Minutas
+============================================
+
+Endpoints:
+- GET /api/minutas - Listar todas as minutas
+- POST /api/minutas - Criar nova minuta
+- GET /api/minutas/{minuta_id} - Buscar minuta específica
+- PUT /api/minutas/{minuta_id} - Atualizar minuta
+- DELETE /api/minutas/{minuta_id} - Deletar minuta
+"""
+
+import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel, Field
+
+# Simular database (substituir por Redis/Upstash em produção)
+_minutas_db: Dict[str, Dict[str, Any]] = {}
+
+router = APIRouter(prefix="/api/minutas", tags=["Minutas"])
+
+# Constantes
+USUARIO = "Usuário"
+
+
+# ===========================
+# MODELOS PYDANTIC
+# ===========================
+
+
+class MinutaCreate(BaseModel):
+    """Schema para criar minuta"""
+
+    titulo: str = Field(..., min_length=1, max_length=200)
+    tipo: str = Field(
+        ..., pattern="^(peticao|contrato|parecer|recurso|procuracao|outro)$"
+    )
+    conteudo: str = ""
+    status: str = Field(
+        default="rascunho",
+        pattern="^(rascunho|em-revisao|pendente-revisao|finalizada|arquivada)$",
+    )
+    autor: str = USUARIO
+    processId: Optional[str] = None
+    expedienteId: Optional[str] = None
+    criadoPorAgente: bool = False
+    agenteId: Optional[str] = None
+    variaveis: Optional[Dict[str, str]] = None
+
+
+class MinutaUpdate(BaseModel):
+    """Schema para atualizar minuta"""
+
+    titulo: Optional[str] = Field(None, min_length=1, max_length=200)
+    tipo: Optional[str] = Field(
+        None, pattern="^(peticao|contrato|parecer|recurso|procuracao|outro)$"
+    )
+    conteudo: Optional[str] = None
+    status: Optional[str] = Field(
+        None, pattern="^(rascunho|em-revisao|pendente-revisao|finalizada|arquivada)$"
+    )
+    autor: Optional[str] = None
+    processId: Optional[str] = None
+    expedienteId: Optional[str] = None
+    variaveis: Optional[Dict[str, str]] = None
+
+
+class MinutaResponse(BaseModel):
+    """Schema de resposta de minuta"""
+
+    id: str
+    titulo: str
+    tipo: str
+    conteudo: str
+    status: str
+    autor: str
+    criadoEm: str
+    atualizadoEm: str
+    processId: Optional[str] = None
+    expedienteId: Optional[str] = None
+    criadoPorAgente: bool = False
+    agenteId: Optional[str] = None
+    variaveis: Optional[Dict[str, str]] = None
+
+
+# ===========================
+# ENDPOINTS
+# ===========================
+
+
+@router.get("", response_model=List[MinutaResponse])
+async def listar_minutas(
+    status: Optional[str] = None,
+    tipo: Optional[str] = None,
+    criada_por_agente: Optional[bool] = None,
+) -> List[MinutaResponse]:
+    """
+    Lista todas as minutas com filtros opcionais
+
+    Query Parameters:
+    - status: Filtrar por status (rascunho, em-revisao, etc)
+    - tipo: Filtrar por tipo (peticao, contrato, etc)
+    - criada_por_agente: Filtrar por minutas criadas por IA
+    """
+    minutas = list(_minutas_db.values())
+
+    # Aplicar filtros
+    if status:
+        minutas = [m for m in minutas if m["status"] == status]
+
+    if tipo:
+        minutas = [m for m in minutas if m["tipo"] == tipo]
+
+    if criada_por_agente is not None:
+        minutas = [m for m in minutas if m["criadoPorAgente"] == criada_por_agente]
+
+    # Ordenar por data de atualização (mais recente primeiro)
+    minutas.sort(key=lambda m: m["atualizadoEm"], reverse=True)
+
+    return minutas
+
+
+@router.post("", response_model=MinutaResponse, status_code=status.HTTP_201_CREATED)
+async def criar_minuta(minuta: MinutaCreate) -> Dict[str, Any]:
+    """
+    Cria uma nova minuta
+
+    Body: MinutaCreate schema
+    """
+    # Gerar ID único
+    minuta_id = str(uuid.uuid4())
+
+    # Timestamp
+    now = datetime.now().isoformat()
+
+    # Criar minuta
+    nova_minuta = {
+        "id": minuta_id,
+        "titulo": minuta.titulo,
+        "tipo": minuta.tipo,
+        "conteudo": minuta.conteudo,
+        "status": minuta.status,
+        "autor": minuta.autor,
+        "criadoEm": now,
+        "atualizadoEm": now,
+        "processId": minuta.processId,
+        "expedienteId": minuta.expedienteId,
+        "criadoPorAgente": minuta.criadoPorAgente,
+        "agenteId": minuta.agenteId,
+        "variaveis": minuta.variaveis or {},
+    }
+
+    # Salvar no "database"
+    _minutas_db[minuta_id] = nova_minuta
+
+    return nova_minuta
+
+
+@router.get("/{minuta_id}", response_model=MinutaResponse)
+async def buscar_minuta(minuta_id: str) -> Dict[str, Any]:
+    """
+    Busca uma minuta específica por ID
+
+    Path Parameters:
+    - minuta_id: ID da minuta
+    """
+    if minuta_id not in _minutas_db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Minuta {minuta_id} não encontrada",
+        )
+
+    return _minutas_db[minuta_id]
+
+
+@router.put("/{minuta_id}", response_model=MinutaResponse)
+async def atualizar_minuta(minuta_id: str, update: MinutaUpdate) -> MinutaResponse:
+    """
+    Atualiza uma minuta existente
+
+    Path Parameters:
+    - minuta_id: ID da minuta
+
+    Body: MinutaUpdate schema (campos opcionais)
+    """
+    if minuta_id not in _minutas_db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Minuta {minuta_id} não encontrada",
+        )
+
+    # Minuta existente
+    minuta = _minutas_db[minuta_id]
+
+    # Atualizar campos fornecidos
+    update_data = update.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        minuta[field] = value
+
+    # Atualizar timestamp
+    minuta["atualizadoEm"] = datetime.now().isoformat()
+
+    # Salvar
+    _minutas_db[minuta_id] = minuta
+
+    return minuta
+
+
+@router.delete("/{minuta_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def deletar_minuta(minuta_id: str):
+    """
+    Deleta uma minuta
+
+    Path Parameters:
+    - minuta_id: ID da minuta
+    """
+    if minuta_id not in _minutas_db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Minuta {minuta_id} não encontrada",
+        )
+
+    del _minutas_db[minuta_id]
+
+    # Retorno vazio (204 No Content)
+    return None
+
+
+@router.post(
+    "/{minuta_id}/duplicar",
+    response_model=MinutaResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def duplicar_minuta(minuta_id: str) -> Dict[str, Any]:
+    """
+    Duplica uma minuta existente
+
+    Path Parameters:
+    - minuta_id: ID da minuta a ser duplicada
+    """
+    if minuta_id not in _minutas_db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Minuta {minuta_id} não encontrada",
+        )
+
+    # Minuta original
+    original = _minutas_db[minuta_id]
+
+    # Criar cópia
+    novo_id = str(uuid.uuid4())
+    now = datetime.now().isoformat()
+
+    duplicata = {
+        **original,
+        "id": novo_id,
+        "titulo": f"Cópia de {original['titulo']}",
+        "status": "rascunho",
+        "criadoEm": now,
+        "atualizadoEm": now,
+        "criadoPorAgente": False,
+        "agenteId": None,
+    }
+
+    # Salvar
+    _minutas_db[novo_id] = duplicata
+
+    return duplicata
+
+
+@router.get("/processo/{processo_id}", response_model=List[MinutaResponse])
+async def listar_minutas_por_processo(processo_id: str) -> List[MinutaResponse]:
+    """
+    Lista minutas vinculadas a um processo específico
+
+    Path Parameters:
+    - processo_id: ID do processo
+    """
+    minutas = [m for m in _minutas_db.values() if m.get("processId") == processo_id]
+
+    # Ordenar por data
+    minutas.sort(key=lambda m: m["atualizadoEm"], reverse=True)
+
+    return minutas
+
+
+@router.get("/expediente/{expediente_id}", response_model=List[MinutaResponse])
+async def listar_minutas_por_expediente(expediente_id: str) -> List[MinutaResponse]:
+    """
+    Lista minutas vinculadas a um expediente específico
+
+    Path Parameters:
+    - expediente_id: ID do expediente
+    """
+    minutas = [
+        m for m in _minutas_db.values() if m.get("expedienteId") == expediente_id
+    ]
+
+    # Ordenar por data
+    minutas.sort(key=lambda m: m["atualizadoEm"], reverse=True)
+
+    return minutas
+
+
+@router.get("/stats/resumo", response_model=Dict[str, Any])
+async def estatisticas_minutas() -> Dict[str, Any]:
+    """
+    Retorna estatísticas sobre as minutas
+
+    Retorna:
+    - total: Total de minutas
+    - por_status: Contagem por status
+    - por_tipo: Contagem por tipo
+    - criadas_por_agente: Minutas criadas por IA
+    """
+    minutas = list(_minutas_db.values())
+
+    # Contagens
+    por_status = {}
+    por_tipo = {}
+    criadas_por_agente = 0
+
+    for minuta in minutas:
+        # Status
+        status_key = minuta["status"]
+        por_status[status_key] = por_status.get(status_key, 0) + 1
+
+        # Tipo
+        tipo_key = minuta["tipo"]
+        por_tipo[tipo_key] = por_tipo.get(tipo_key, 0) + 1
+
+        # IA
+        if minuta.get("criadoPorAgente"):
+            criadas_por_agente += 1
+
+    return {
+        "total": len(minutas),
+        "por_status": por_status,
+        "por_tipo": por_tipo,
+        "criadas_por_agente": criadas_por_agente,
+    }
+
+
+# ===========================
+# FUNÇÕES AUXILIARES
+# ===========================
+
+
+def popular_minutas_exemplo():
+    """Popula database com minutas de exemplo (para testes)"""
+    exemplos = [
+        {
+            "titulo": "Petição Inicial - Ação Trabalhista",
+            "tipo": "peticao",
+            "conteudo": "<p>EXCELENTÍSSIMO SENHOR DOUTOR JUIZ DE DIREITO...</p>",
+            "status": "rascunho",
+            "autor": "Usuário",
+            "criadoPorAgente": False,
+        },
+        {
+            "titulo": "Contestação - Processo 0001234-56.2025.8.02.0001",
+            "tipo": "peticao",
+            "conteudo": "<p>Vem respeitosamente à presença de Vossa Excelência...</p>",
+            "status": "pendente-revisao",
+            "autor": "Agente Redação (IA)",
+            "criadoPorAgente": True,
+            "agenteId": "redacao-peticoes",
+        },
+        {
+            "titulo": "Contrato de Prestação de Serviços",
+            "tipo": "contrato",
+            "conteudo": "<p>CONTRATO DE PRESTAÇÃO DE SERVIÇOS...</p>",
+            "status": "finalizada",
+            "autor": "Usuário",
+            "criadoPorAgente": False,
+        },
+    ]
+
+    for exemplo in exemplos:
+        minuta_id = str(uuid.uuid4())
+        now = datetime.now().isoformat()
+
+        minuta = {
+            "id": minuta_id,
+            **exemplo,
+            "criadoEm": now,
+            "atualizadoEm": now,
+            "processId": None,
+            "expedienteId": None,
+            "agenteId": exemplo.get("agenteId"),
+            "variaveis": {},
+        }
+
+        _minutas_db[minuta_id] = minuta
+
+
+# Popular minutas de exemplo (comentar em produção)
+# popular_minutas_exemplo()

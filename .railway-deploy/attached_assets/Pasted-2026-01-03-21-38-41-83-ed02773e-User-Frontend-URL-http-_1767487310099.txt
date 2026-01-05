@@ -1,0 +1,116 @@
+2026-01-03 21:38:41.83
+ed02773e
+User
+🌐 Frontend URL: http://localhost:5173
+2026-01-03 21:38:41.83
+ed02773e
+User
+🚀 Backend server running on port 3001
+2026-01-03 21:38:41.87
+ed02773e
+User
+at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2026-01-03 21:38:41.87
+ed02773e
+User
+code: 'ERR_MODULE_NOT_FOUND',
+2026-01-03 21:38:41.87
+ed02773e
+User
+}
+2026-01-03 21:38:41.87
+ed02773e
+User
+at moduleResolve (node:internal/modules/esm/resolve:952:10)
+2026-01-03 21:38:41.87
+ed02773e
+User
+[Agents] ⚠️ Usando modo stub (IA desabilitada)
+2026-01-03 21:38:41.87
+ed02773e
+User
+at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2026-01-03 21:38:41.87
+ed02773e
+User
+at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2026-01-03 21:38:41.87
+ed02773e
+User
+[Agents] ❌ Erro ao carregar agentes: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/runner/workspace/backend/dist/src/lib/sentry-gemini-integration-v2' imported from /home/runner/workspace/backend/dist/src/agents/monitor-djen/monitor_graph.js
+2026-01-03 21:38:41.87
+ed02773e
+User
+at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2026-01-03 21:38:41.87
+ed02773e
+User
+at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2026-01-03 21:38:41.87
+ed02773e
+User
+at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2026-01-03 21:38:41.87
+ed02773e
+User
+url: 'file:///home/runner/workspace/backend/dist/src/lib/sentry-gemini-integration-v2'
+2026-01-03 21:38:41.87
+ed02773e
+User
+at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+2026-01-03 21:38:41.88
+ed02773e
+User
+}
+2026-01-03 21:38:41.88
+ed02773e
+User
+at moduleResolve (node:internal/modules/esm/resolve:952:10)
+2026-01-03 21:38:41.88
+ed02773e
+User
+at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2026-01-03 21:38:41.88
+ed02773e
+User
+at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2026-01-03 21:38:41.88
+ed02773e
+User
+at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+2026-01-03 21:38:41.88
+ed02773e
+User
+at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2026-01-03 21:38:41.88
+ed02773e
+User
+at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2026-01-03 21:38:41.88
+ed02773e
+User
+[Editor] ❌ Erro ao carregar agentes: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/runner/workspace/backend/dist/src/agents/base/agent_state' imported from /home/runner/workspace/backend/dist/src/agents/harvey/harvey_graph.js
+2026-01-03 21:38:41.88
+ed02773e
+User
+at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2026-01-03 21:38:41.88
+ed02773e
+User
+url: 'file:///home/runner/workspace/backend/dist/src/agents/base/agent_state'
+2026-01-03 21:38:41.88
+ed02773e
+User
+at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2026-01-03 21:38:41.88
+ed02773e
+User
+code: 'ERR_MODULE_NOT_FOUND',
+2026-01-03 21:38:42.61
+ed02773e
+User
+ℹ️ DJEN Scheduler desabilitado (defina DJEN_SCHEDULER_ENABLED=true para ativar)
+2026-01-03 21:38:42.61
+ed02773e
+User
+✅ Tabela expedientes inicializada

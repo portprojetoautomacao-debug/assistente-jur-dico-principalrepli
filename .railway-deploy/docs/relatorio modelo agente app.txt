@@ -1,0 +1,895 @@
+Perfeito, agora dá pra montar o “cérebro da firma” de um jeito organizado.
+Vou te entregar um **pacote fechado**:
+
+* 1 núcleo de agente (igual o nó de agente de IA do n8n)
+* 1 client de LLM que usa **/api/llm-proxy**
+* 1 registro com os **15 agentes** (Harvey, Justin-e, DJEN, Prazos etc.)
+* 1 conjunto de *tools* genéricas que falam com as APIs que você já tem
+* 1 função serverless `/api/agents` que orquestra tudo
+
+Isso tudo já está **compatível com a arquitetura que você descreveu**:
+Vite + React na frente, Vercel Functions no backend, Spark LLM via `/api/llm-proxy`, KV/Redis via `/api/kv`.
+
+---
+
+## 1. Núcleo genérico do agente (igual nó de agente do n8n)
+
+> `lib/ai/core-agent.ts`
+
+Este é o “motor” que TODOS os agentes vão usar.
+
+```ts
+// lib/ai/core-agent.ts
+// Núcleo genérico de agente — estilo nó "AI Agent" do n8n
+
+export type Role = "system" | "user" | "assistant";
+
+export interface ChatMessage {
+  role: Role;
+  content: string;
+}
+
+export interface LlmClient {
+  chat(messages: ChatMessage[]): Promise<string>;
+}
+
+export interface ToolContext {
+  [key: string]: any;
+}
+
+export interface Tool {
+  name: string;
+  description: string;
+  run: (args: any, ctx: ToolContext) => Promise<any>;
+}
+
+export interface MemoryStore {
+  load(sessionId: string): Promise<ChatMessage[]>;
+  save(sessionId: string, history: ChatMessage[]): Promise<void>;
+}
+
+export interface AgentPersona {
+  id: string;
+  name: string;
+  description: string;
+  systemPrompt: string;
+  toolNames: string[]; // quais tools esse agente pode usar
+}
+
+export interface AgentOptions {
+  llm: LlmClient;
+  tools: Tool[];
+  persona: AgentPersona;
+  toolContext: ToolContext;
+  sessionId?: string;
+  maxSteps?: number;
+  memoryStore?: MemoryStore;
+}
+
+// ===== Implementação simples de memória em RAM (dev) =====
+
+const inMemoryStore = new Map<string, ChatMessage[]>();
+
+export const InMemoryMemoryStore: MemoryStore = {
+  async load(sessionId: string) {
+    return inMemoryStore.get(sessionId) ?? [];
+  },
+  async save(sessionId: string, history: ChatMessage[]) {
+    inMemoryStore.set(sessionId, history);
+  },
+};
+
+// ===== Núcleo do agente =====
+
+export class SimpleAgent {
+  private readonly maxSteps: number;
+  private readonly sessionId: string;
+  private readonly memoryStore: MemoryStore;
+
+  constructor(private opts: AgentOptions) {
+    this.maxSteps = opts.maxSteps ?? 6;
+    this.sessionId = opts.sessionId ?? `session-${opts.persona.id}`;
+    this.memoryStore = opts.memoryStore ?? InMemoryMemoryStore;
+  }
+
+  private buildSystemMessage(): ChatMessage {
+    const allowedTools = this.opts.tools
+      .filter((t) => this.opts.persona.toolNames.includes(t.name))
+      .map((t) => `- ${t.name}: ${t.description}`)
+      .join("\n");
+
+    return {
+      role: "system",
+      content: `
+Você é o agente "${this.opts.persona.name}".
+
+Descrição do seu papel:
+${this.opts.persona.description}
+
+Instruções gerais:
+${this.opts.persona.systemPrompt}
+
+Você tem acesso às seguintes ferramentas, que pode chamar quando precisar de dados externos ou executar ações:
+
+${allowedTools}
+
+PROTOCOLO DE RESPOSTA (OBRIGATÓRIO):
+
+Sempre responda ESTRITAMENTE em JSON válido, usando um destes formatos:
+
+1) Para chamar uma ferramenta:
+{
+  "action": "tool",
+  "tool": "NOME_DA_FERRAMENTA",
+  "args": { ... }
+}
+
+2) Para resposta final ao usuário/sistema:
+{
+  "action": "final",
+  "answer": "texto da resposta final aqui"
+}
+`.trim(),
+    };
+  }
+
+  private allowedTools(): Tool[] {
+    const set = new Set(this.opts.persona.toolNames);
+    return this.opts.tools.filter((t) => set.has(t.name));
+  }
+
+  async run(userInput: string): Promise<{
+    answer: string;
+    steps: number;
+    usedTools: string[];
+  }> {
+    const history = await this.memoryStore.load(this.sessionId);
+    const usedTools: string[] = [];
+
+    let messages: ChatMessage[] = [
+      this.buildSystemMessage(),
+      ...history,
+      { role: "user", content: userInput },
+    ];
+
+    for (let step = 0; step < this.maxSteps; step++) {
+      const raw = await this.opts.llm.chat(messages);
+
+      let parsed: any;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        // força correção
+        messages.push({ role: "assistant", content: raw });
+        messages.push({
+          role: "user",
+          content:
+            "Sua resposta não está em JSON válido. Reformule seguindo exatamente o formato especificado.",
+        });
+        continue;
+      }
+
+      if (parsed.action === "final") {
+        const answer = parsed.answer ?? "";
+
+        const newHistory: ChatMessage[] = [
+          ...history,
+          { role: "user", content: userInput },
+          { role: "assistant", content: answer },
+        ];
+        await this.memoryStore.save(this.sessionId, newHistory);
+
+        return { answer, steps: step + 1, usedTools };
+      }
+
+      if (parsed.action === "tool") {
+        const toolName: string = parsed.tool;
+        const toolArgs = parsed.args ?? {};
+        const tool = this.allowedTools().find((t) => t.name === toolName);
+
+        if (!tool) {
+          messages.push({ role: "assistant", content: raw });
+          messages.push({
+            role: "user",
+            content: `A ferramenta "${toolName}" não está disponível para este agente. Use apenas as ferramentas listadas.`,
+          });
+          continue;
+        }
+
+        let result: any;
+        try {
+          result = await tool.run(toolArgs, this.opts.toolContext);
+          usedTools.push(toolName);
+        } catch (e: any) {
+          result = {
+            error: true,
+            message: e?.message ?? String(e),
+          };
+        }
+
+        messages.push({ role: "assistant", content: raw });
+        messages.push({
+          role: "user",
+          content:
+            `Resultado da ferramenta "${toolName}": ${JSON.stringify(
+              result
+            )}. Agora decida o próximo passo ou finalize a resposta.`,
+        });
+
+        continue;
+      }
+
+      // ação inválida
+      messages.push({ role: "assistant", content: raw });
+      messages.push({
+        role: "user",
+        content:
+          'Sua resposta JSON deve ter "action":"tool" ou "action":"final". Reformule seguindo o formato.',
+      });
+    }
+
+    return {
+      answer:
+        "Não consegui concluir a tarefa dentro do limite de passos configurado para o agente.",
+      steps: this.maxSteps,
+      usedTools,
+    };
+  }
+}
+```
+
+> Depois, se quiser, a gente troca o `InMemoryMemoryStore` por um `UpstashMemoryStore` usando a infra que você já tem em `/api/kv`.
+
+---
+
+## 2. Client de LLM usando o seu `/api/llm-proxy`
+
+> `lib/ai/http-llm-client.ts`
+
+```ts
+// lib/ai/http-llm-client.ts
+
+import type { ChatMessage, LlmClient } from "./core-agent";
+
+export interface HttpLlmClientOptions {
+  /** Ex: "https://assistente-juridico-github.vercel.app/api/llm-proxy" */
+  baseUrl: string;
+  apiKey?: string; // se o proxy exigir auth
+}
+
+export class HttpLlmClient implements LlmClient {
+  constructor(private opts: HttpLlmClientOptions) {}
+
+  async chat(messages: ChatMessage[]): Promise<string> {
+    const res = await fetch(this.opts.baseUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(this.opts.apiKey
+          ? { Authorization: `Bearer ${this.opts.apiKey}` }
+          : {}),
+      },
+      body: JSON.stringify({ messages }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Erro no LLM proxy: ${res.status} - ${text}`);
+    }
+
+    const data = await res.json();
+    // adapte se o seu /api/llm-proxy devolver outra chave:
+    const content = data.answer ?? data.output ?? data.result ?? "";
+    return String(content);
+  }
+}
+```
+
+No `.env.vercel` (ou nas envs da Vercel):
+
+```bash
+LLM_PROXY_URL=https://assistente-juridico-github.vercel.app/api/llm-proxy
+```
+
+---
+
+## 3. Tools genéricas para todos os agentes
+
+Aqui vou definir **nomes de ferramentas estáveis** que encaixam bem com o que você já tem em `/api`:
+
+* `buscarIntimacaoPendente` → usa `/api/djen/check` ou backend de intimações
+* `criarTarefa` → usa `/api/todoist` ou seu CRM interno
+* `calcularPrazos` → usa `/api/deadline/calculate`
+* `consultarProcessoPJe` → usa `/api/serviços-legais`
+* `enviarMensagemWhatsApp` → usa Evolution API (URL de env)
+* `registrarLogAgente` → usa `/api/kv` para log/telemetria
+
+> `lib/ai/tools.ts`
+
+```ts
+// lib/ai/tools.ts
+
+import type { Tool, ToolContext } from "./core-agent";
+
+export interface GlobalToolContext extends ToolContext {
+  baseUrl: string;          // URL base do seu app (ex: https://assistente-juridico-github.vercel.app)
+  evolutionApiUrl: string;  // URL da Evolution API
+  evolutionApiKey: string;
+}
+
+/**
+ * 1) Buscar intimação pendente (PJe / DJEN / DataJud)
+ */
+export const buscarIntimacaoPendente: Tool = {
+  name: "buscarIntimacaoPendente",
+  description:
+    "Busca a próxima intimação pendente de análise no sistema (PJe / DJEN / DataJud).",
+  async run(args, ctx: GlobalToolContext) {
+    const url = `${ctx.baseUrl}/api/djen/check`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode: "next-pending", ...args }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(
+        `Erro ao buscar intimação pendente: ${res.status} - ${JSON.stringify(
+          data
+        )}`
+      );
+    }
+    return data;
+  },
+};
+
+/**
+ * 2) Criar tarefa (Todoist / CRM interno)
+ */
+export const criarTarefa: Tool = {
+  name: "criarTarefa",
+  description:
+    "Cria uma tarefa jurídica (p.ex. providência de prazo) no sistema de tarefas/CRM.",
+  async run(args, ctx: GlobalToolContext) {
+    const url = `${ctx.baseUrl}/api/todoist`; // ou /api/serviços-legais se você trocar
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "create-task",
+        ...args,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(
+        `Erro ao criar tarefa: ${res.status} - ${JSON.stringify(data)}`
+      );
+    }
+    return data;
+  },
+};
+
+/**
+ * 3) Calcular prazos
+ */
+export const calcularPrazos: Tool = {
+  name: "calcularPrazos",
+  description:
+    "Calcula prazos processuais a partir de uma data base, tipo de prazo e tribunal.",
+  async run(args, ctx: GlobalToolContext) {
+    const url = `${ctx.baseUrl}/api/deadline/calculate`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(args),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(
+        `Erro ao calcular prazo: ${res.status} - ${JSON.stringify(data)}`
+      );
+    }
+    return data;
+  },
+};
+
+/**
+ * 4) Consultar processo no PJe / serviços-legais
+ */
+export const consultarProcessoPJe: Tool = {
+  name: "consultarProcessoPJe",
+  description:
+    "Consulta dados consolidados de um processo (PJe / DJEN / DataJud) pelo número CNJ.",
+  async run(args, ctx: GlobalToolContext) {
+    const url = `${ctx.baseUrl}/api/serviços-legais`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "consultar-processo", ...args }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(
+        `Erro ao consultar processo PJe: ${res.status} - ${JSON.stringify(
+          data
+        )}`
+      );
+    }
+    return data;
+  },
+};
+
+/**
+ * 5) Enviar mensagem via WhatsApp (Evolution API)
+ */
+export const enviarMensagemWhatsApp: Tool = {
+  name: "enviarMensagemWhatsApp",
+  description:
+    "Envia uma mensagem de texto via WhatsApp usando a Evolution API.",
+  async run(args, ctx: GlobalToolContext) {
+    const { numero, mensagem } = args ?? {};
+    if (!numero || !mensagem) {
+      throw new Error("Campos 'numero' e 'mensagem' são obrigatórios.");
+    }
+
+    const res = await fetch(`${ctx.evolutionApiUrl}/message/sendText`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: ctx.evolutionApiKey,
+      },
+      body: JSON.stringify({
+        number: numero,
+        textMessage: { text: mensagem },
+        options: { delay: 0 },
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(
+        `Erro ao enviar WhatsApp: ${res.status} - ${JSON.stringify(data)}`
+      );
+    }
+    return data;
+  },
+};
+
+/**
+ * 6) Registrar log de execução do agente em KV/Redis
+ */
+export const registrarLogAgente: Tool = {
+  name: "registrarLogAgente",
+  description:
+    "Registra log estruturado da execução do agente em KV/Redis para auditoria.",
+  async run(args, ctx: GlobalToolContext) {
+    const url = `${ctx.baseUrl}/api/kv`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "log-agent",
+        payload: args,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(
+        `Erro ao registrar log do agente: ${res.status} - ${JSON.stringify(
+          data
+        )}`
+      );
+    }
+    return data;
+  },
+};
+
+export const ALL_TOOLS: Tool[] = [
+  buscarIntimacaoPendente,
+  criarTarefa,
+  calcularPrazos,
+  consultarProcessoPJe,
+  enviarMensagemWhatsApp,
+  registrarLogAgente,
+];
+```
+
+> Esses endpoints (`/api/djen/check`, `/api/deadline/calculate`, `/api/todoist`, `/api/serviços-legais`, `/api/kv`) você já tem.
+> Só vai ajustar depois o payload exato.
+
+---
+
+## 4. Registro dos 15 agentes (personas + tools)
+
+> `lib/ai/agents-registry.ts`
+
+Aqui definimos **quem é quem**, quais ferramentas cada um pode usar e qual “jeito de pensar” (systemPrompt) de cada um.
+
+```ts
+// lib/ai/agents-registry.ts
+
+import type { AgentPersona } from "./core-agent";
+
+export type AgentId =
+  | "harvey"
+  | "justine"
+  | "analise-documental"
+  | "monitor-djen"
+  | "gestao-prazos"
+  | "redacao-peticoes"
+  | "organizacao-arquivos"
+  | "pesquisa-juris"
+  | "analise-risco"
+  | "revisao-contratual"
+  | "comunicacao-clientes"
+  | "financeiro"
+  | "estrategia-processual"
+  | "traducao-juridica"
+  | "compliance";
+
+export const AGENTS: Record<AgentId, AgentPersona> = {
+  harvey: {
+    id: "harvey",
+    name: "Harvey Specter",
+    description:
+      "Assistente jurídico estratégico que analisa performance, processos, prazos e finanças do escritório.",
+    systemPrompt: `
+Priorize visão macro do escritório: gargalos de prazo, processos críticos, clientes importantes e saúde financeira.
+Você deve combinar dados objetivos com recomendações práticas para o advogado.
+Use ferramentas apenas quando realmente precisar de dados, e sempre registre logs de execução.
+`.trim(),
+    toolNames: [
+      "consultarProcessoPJe",
+      "calcularPrazos",
+      "criarTarefa",
+      "registrarLogAgente",
+    ],
+  },
+
+  justine: {
+    id: "justine",
+    name: "Mrs. Justin-e",
+    description:
+      "Especialista em análise de intimações com foco em prazos, providências e orientação ao controller jurídico.",
+    systemPrompt: `
+Seu foco é: intimações, prazos e tarefas.
+Fluxo típico:
+1) Buscar próxima intimação pendente.
+2) Interpretar o texto.
+3) Identificar prazo(s) e providências.
+4) Calcular prazo final quando aplicável.
+5) Criar tarefa para o controller/advogado.
+6) (Opcional) Enviar resumo pelo WhatsApp em linguagem clara.
+Sempre registre log da execução.
+`.trim(),
+    toolNames: [
+      "buscarIntimacaoPendente",
+      "calcularPrazos",
+      "criarTarefa",
+      "enviarMensagemWhatsApp",
+      "registrarLogAgente",
+    ],
+  },
+
+  "analise-documental": {
+    id: "analise-documental",
+    name: "Agente de Análise Documental",
+    description:
+      "Analisa automaticamente expedientes, intimações e documentos do PJe 24/7.",
+    systemPrompt: `
+Foque em extrair informações estruturadas de documentos e identificar se há prazos ou providências.
+Delegue cálculo de prazo ao agente de prazos (via ferramenta de cálculo).
+`.trim(),
+    toolNames: [
+      "consultarProcessoPJe",
+      "calcularPrazos",
+      "criarTarefa",
+      "registrarLogAgente",
+    ],
+  },
+
+  "monitor-djen": {
+    id: "monitor-djen",
+    name: "Agente de Monitoramento DJEN",
+    description:
+      "Monitora automaticamente o Diário de Justiça Eletrônico Nacional para novas publicações.",
+    systemPrompt: `
+Seu trabalho é varrer o DJEN/DataJud em busca de novas publicações relevantes e disparar intimações para análise.
+Você não precisa redigir peças; apenas identificar o que é relevante e encaminhar para outros agentes.
+`.trim(),
+    toolNames: [
+      "buscarIntimacaoPendente",
+      "criarTarefa",
+      "registrarLogAgente",
+    ],
+  },
+
+  "gestao-prazos": {
+    id: "gestao-prazos",
+    name: "Agente de Gestão de Prazos",
+    description:
+      "Calcula e acompanha prazos processuais automaticamente, com alertas e priorização.",
+    systemPrompt: `
+Seu foco é garantir que nenhum prazo seja perdido.
+Recebe insumos de outros agentes (intimações, decisões, tarefas) e devolve datas claras e prioridades.
+`.trim(),
+    toolNames: [
+      "calcularPrazos",
+      "criarTarefa",
+      "enviarMensagemWhatsApp",
+      "registrarLogAgente",
+    ],
+  },
+
+  "redacao-peticoes": {
+    id: "redacao-peticoes",
+    name: "Agente de Redação de Petições",
+    description:
+      "Auxilia na criação de petições e documentos jurídicos com base nos autos.",
+    systemPrompt: `
+Redija textos jurídicos claros, objetivos e bem fundamentados, sempre em conformidade com o CPC e Código de Ética da OAB.
+`.trim(),
+    toolNames: ["consultarProcessoPJe", "registrarLogAgente"],
+  },
+
+  "organizacao-arquivos": {
+    id: "organizacao-arquivos",
+    name: "Agente de Organização de Arquivos",
+    description:
+      "Organiza e categoriza automaticamente documentos do escritório por processo, tipo e relevância.",
+    systemPrompt: `
+Você não responde clientes; seu trabalho é classificar, renomear e sugerir estrutura de pastas.
+`.trim(),
+    toolNames: ["registrarLogAgente"],
+  },
+
+  "pesquisa-juris": {
+    id: "pesquisa-juris",
+    name: "Agente de Pesquisa Jurisprudencial",
+    description:
+      "Busca e analisa precedentes e jurisprudências relevantes automaticamente.",
+    systemPrompt: `
+Foque em encontrar precedentes relevantes, explicar o racional e resumir ementas em linguagem clara.
+`.trim(),
+    toolNames: ["registrarLogAgente"],
+  },
+
+  "analise-risco": {
+    id: "analise-risco",
+    name: "Agente de Análise de Risco",
+    description:
+      "Avalia riscos processuais, financeiros e estratégicos de cada caso.",
+    systemPrompt: `
+Forneça análises de risco sempre com escala (baixo, médio, alto) e justificativa objetiva.
+`.trim(),
+    toolNames: ["consultarProcessoPJe", "registrarLogAgente"],
+  },
+
+  "revisao-contratual": {
+    id: "revisao-contratual",
+    name: "Agente de Revisão Contratual",
+    description:
+      "Analisa contratos identificando cláusulas problemáticas e riscos.",
+    systemPrompt: `
+Identifique cláusulas de risco, pontos de desequilíbrio e parâmetros que fogem do padrão de mercado.
+`.trim(),
+    toolNames: ["registrarLogAgente"],
+  },
+
+  "comunicacao-clientes": {
+    id: "comunicacao-clientes",
+    name: "Agente de Comunicação com Clientes",
+    description:
+      "Gera comunicações personalizadas e relatórios para clientes, em linguagem leiga.",
+    systemPrompt: `
+Traduza juridiquês para linguagem simples e respeitosa.
+Evite termos técnicos sem explicação.
+`.trim(),
+    toolNames: [
+      "consultarProcessoPJe",
+      "enviarMensagemWhatsApp",
+      "registrarLogAgente",
+    ],
+  },
+
+  financeiro: {
+    id: "financeiro",
+    name: "Agente de Análise Financeira",
+    description:
+      "Monitora faturamento, recebimentos e análises de rentabilidade do escritório.",
+    systemPrompt: `
+Foque em métricas: honorários, despesas, rateio por caso e por cliente.
+Sempre converta insights em ações práticas (ex: revisar contrato, avisar cliente, ajustar estratégia).
+`.trim(),
+    toolNames: ["criarTarefa", "registrarLogAgente"],
+  },
+
+  "estrategia-processual": {
+    id: "estrategia-processual",
+    name: "Agente de Estratégia Processual",
+    description:
+      "Sugere estratégias processuais baseadas em análise de dados e precedentes.",
+    systemPrompt: `
+Avalie opções processuais, indique vantagens e riscos de cada uma e sugira o caminho mais adequado.
+`.trim(),
+    toolNames: ["consultarProcessoPJe", "registrarLogAgente"],
+  },
+
+  "traducao-juridica": {
+    id: "traducao-juridica",
+    name: "Agente de Tradução Jurídica",
+    description:
+      "Traduz termos técnicos para linguagem simples e vice-versa.",
+    systemPrompt: `
+Sua função é ser um tradutor entre linguagem jurídica técnica e linguagem leiga, mantendo fidelidade ao conteúdo.
+`.trim(),
+    toolNames: ["registrarLogAgente"],
+  },
+
+  compliance: {
+    id: "compliance",
+    name: "Agente de Compliance",
+    description:
+      "Verifica conformidade com legislações e normas regulatórias, incluindo LGPD e normas da OAB.",
+    systemPrompt: `
+Alerte sempre que identificar potencial conflito com LGPD, Código de Ética da OAB ou outras normas.
+`.trim(),
+    toolNames: ["registrarLogAgente"],
+  },
+};
+```
+
+---
+
+## 5. Função serverless `/api/agents` (orquestra TODOS os 15)
+
+Essa função substitui/atualiza o seu `agents.ts` existente e vira o “dispatcher” dos agentes.
+
+> `API/agents.ts`  → rota `/api/agents`
+
+```ts
+// API/agents.ts
+
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { SimpleAgent, InMemoryMemoryStore } from "../lib/ai/core-agent";
+import { HttpLlmClient } from "../lib/ai/http-llm-client";
+import { ALL_TOOLS, GlobalToolContext } from "../lib/ai/tools";
+import { AGENTS, AgentId } from "../lib/ai/agents-registry";
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Método não permitido" });
+  }
+
+  try {
+    const { agentId, message, sessionId } = (req.body || {}) as {
+      agentId?: AgentId;
+      message?: string;
+      sessionId?: string;
+    };
+
+    if (!agentId) {
+      return res.status(400).json({ error: "Campo 'agentId' é obrigatório." });
+    }
+
+    const persona = AGENTS[agentId];
+    if (!persona) {
+      return res.status(404).json({ error: `Agente '${agentId}' não encontrado.` });
+    }
+
+    const llm = new HttpLlmClient({
+      baseUrl:
+        process.env.LLM_PROXY_URL ||
+        `${process.env.APP_BASE_URL ?? ""}/api/llm-proxy`,
+    });
+
+    const ctx: GlobalToolContext = {
+      baseUrl:
+        process.env.APP_BASE_URL || "https://assistente-juridico-github.vercel.app",
+      evolutionApiUrl:
+        process.env.EVOLUTION_API_URL || "https://sua-evolution-api",
+      evolutionApiKey: process.env.EVOLUTION_API_KEY || "",
+    };
+
+    const agent = new SimpleAgent({
+      llm,
+      tools: ALL_TOOLS,
+      persona,
+      toolContext: ctx,
+      sessionId: sessionId || `session-${agentId}`,
+      maxSteps: 6,
+      // depois podemos trocar por memória em Redis/KV:
+      memoryStore: InMemoryMemoryStore,
+    });
+
+    const inputMessage =
+      message ||
+      "Execute sua rotina padrão automática para o dia de hoje, priorizando o que for mais importante.";
+
+    const result = await agent.run(inputMessage);
+
+    return res.status(200).json({
+      ok: true,
+      agentId,
+      agentName: persona.name,
+      steps: result.steps,
+      usedTools: result.usedTools,
+      answer: result.answer,
+    });
+  } catch (err: any) {
+    console.error("[/api/agents] Erro:", err);
+    return res
+      .status(500)
+      .json({ ok: false, error: err?.message ?? "Erro interno no agente" });
+  }
+}
+```
+
+---
+
+## 6. Como chamar isso na prática
+
+### 6.1. Do seu cron (`/api/cron`)
+
+Dentro da sua função `cron.ts`, você pode disparar, por exemplo:
+
+```ts
+// pseudo-código dentro de /api/cron
+
+await fetch(`${baseUrl}/api/agents`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    agentId: "justine",
+    message:
+      "Busque a próxima intimação pendente e faça tudo que for necessário automaticamente.",
+    sessionId: "rotina-justine",
+  }),
+});
+```
+
+Repete com outros `agentId` para rodar Harvey, DJEN, Prazos, etc.
+
+### 6.2. Do frontend (Painel “Agentes”)
+
+No React, basta chamar:
+
+```ts
+await fetch("/api/agents", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    agentId: "harvey",
+    message: "Me dê um resumo estratégico da situação do escritório hoje.",
+    sessionId: "ui-harvey-usuario-123",
+  }),
+});
+```
+
+---
+
+## 7. O que ficou “pendente de detalhe”
+
+Pra não inventar formato errado:
+
+* O **payload específico** de:
+
+  * `/api/djen/check`
+  * `/api/deadline/calculate`
+  * `/api/todoist`
+  * `/api/serviços-legais`
+  * `/api/kv`
+
+está como **genérico** (envio `action` e `args`).
+Ajuste esses pontos para o formato que esses endpoints realmente esperam.
+
+Se você quiser, no próximo passo você pode:
+
+* colar aqui o conteúdo de `API/djen/check.ts`, `API/deadline/calculate.ts` e `API/todoist.ts`,
+  e eu ajusto as tools pra ficarem **100% aderentes ao contrato real** dessas rotas — aí seu sistema de agentes entra em modo “zero intervenção humana” de verdade.

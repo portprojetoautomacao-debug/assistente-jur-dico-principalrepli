@@ -93,7 +93,7 @@ export const PII_PATTERNS: Record<PIIType, RegExp> = {
 
   // Endere�o: Rua/Av + nome + n�mero
   [PIIType.ENDERECO]:
-    /(?:Rua|Avenida|Av\.|R\.|Travessa|Trav\.)\s{1,3}[A-Za-zà-ú\s]{1,100},?\s{0,2}\d+/gi,
+    /(?:Rua|Avenida|Av\.|R\.|Travessa|Trav\.)\s{1,3}[A-Za-zà-ú ]{1,100},?\s{0,2}\d+/gi,
 
   // Conta banc�ria: Ag 1234 C/C 12345-6
   [PIIType.CONTA_BANCARIA]: /(?:Ag|Agência|Conta|C\/C)[\s:]{0,3}\d{3,6}-?\d?/gi,
@@ -115,7 +115,7 @@ export const PII_PATTERNS: Record<PIIType, RegExp> = {
 
   // Nome completo (heur�stica: Nome Sobrenome com mai�sculas)
   [PIIType.NOME_COMPLETO]:
-    /\b[A-ZÀ-Ü][a-zà-ü]{1,30}\s{1,2}(?:[A-ZÀ-Ü][a-zà-ü]{1,30}[\s]{0,2}){1,5}\b/g,
+    /\b[A-ZÀ-Ü][a-zà-ü]{1,30}\s{1,2}(?:[A-ZÀ-Ü][a-zà-ü]{1,30}\s{0,2}){1,5}\b/g,
 };
 
 /**
@@ -162,8 +162,8 @@ export function sanitizePII(text: string, config: PIIFilterConfig = DEFAULT_PII_
   }
 
   // Redactar padrões de senha comuns (senha seguida de números/letras)
-  sanitized = sanitized.replace(/senha[\w\d]+/gi, "[REDACTED]");
-  sanitized = sanitized.replace(/password[\w\d]+/gi, "[REDACTED]");
+  sanitized = sanitized.replace(/senha\w+/gi, "[REDACTED]");
+  sanitized = sanitized.replace(/password\w+/gi, "[REDACTED]");
 
   return sanitized;
 }

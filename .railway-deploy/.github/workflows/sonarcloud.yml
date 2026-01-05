@@ -1,0 +1,239 @@
+name: SonarCloud Analysis
+
+# ✅ CONFIGURAÇÃO COMPLETA
+# Token configurado em: Settings > Secrets and variables > Actions > SONAR_TOKEN
+#
+# Análise automática para:
+# - Push na branch main
+# - Pull Requests (opened, synchronize, reopened)
+# - Execução manual via workflow_dispatch
+#
+# Integração: JS/TS e Web (React + TypeScript + Vite)
+
+on:
+  push:
+    branches: [main, feat/optimize-workflows-enterprise-grade]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch: # Permite execução manual para teste
+    inputs:
+      test_comment:
+        description: "Simulate comment permission test (create and delete a test comment)"
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: sonarcloud-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones disabled for better analysis
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-sonarcloud-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-sonarcloud-
+            ${{ runner.os }}-
+
+      - name: Check for official SARIF tools (dry-run)
+        run: npm run ensure:sarif-deps || true
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Export ESLint report (SARIF)
+        run: npm run lint:sarif || true
+
+      - name: Upload ESLint SARIF to GitHub Security
+        if: always() && hashFiles('eslint-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: eslint-results.sarif
+          category: sonarcloud-eslint
+
+      - name: Build application
+        run: npm run build
+        continue-on-error: true
+        env:
+          VITE_GOOGLE_CLIENT_ID: "dummy-for-build"
+          VITE_GOOGLE_API_KEY: "dummy-for-build"
+          VITE_REDIRECT_URI: "http://localhost:5173"
+          VITE_APP_ENV: "ci"
+
+      - name: Run tests with coverage (lcov)
+        run: npm run test:coverage -- --coverage.reporter=lcov --coverage.reporter=text-summary
+        continue-on-error: true
+        env:
+          CI: true
+
+      - name: Generate TypeScript SARIF report
+        run: npm run tsc:sarif || true
+        continue-on-error: true
+
+      - name: Upload TypeScript SARIF to GitHub Security
+        if: always() && hashFiles('tsc-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: tsc-results.sarif
+          category: sonarcloud-typescript
+        continue-on-error: true
+
+      - name: Run Vitest with SARIF reporter
+        run: npm run test:sarif || true
+        continue-on-error: true
+
+      - name: Upload Vitest SARIF to GitHub Security
+        if: always() && hashFiles('vitest-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: vitest-results.sarif
+          category: sonarcloud-vitest
+        continue-on-error: true
+
+      - name: Install Chrome Extension dependencies
+        run: cd chrome-extension-pje && npm ci
+        continue-on-error: true
+
+      - name: Run Chrome Extension tests with coverage
+        run: cd chrome-extension-pje && npm run test:coverage
+        continue-on-error: true
+        env:
+          CI: true
+
+      - name: Build Chrome Extension
+        run: cd chrome-extension-pje && npm run build
+        continue-on-error: true
+
+      - name: Analyze Issue #161 files (Google Docs sync)
+        run: |
+          echo "📊 Analisando arquivos modificados na Issue #161..."
+          echo "Files to analyze:"
+          echo "  - src/hooks/use-google-docs.ts"
+          echo "  - src/components/MinutasManager.tsx"
+
+          # Verificar se os arquivos existem
+          if [ -f "src/hooks/use-google-docs.ts" ]; then
+            echo "✅ use-google-docs.ts encontrado"
+            wc -l src/hooks/use-google-docs.ts
+          fi
+
+          if [ -f "src/components/MinutasManager.tsx" ]; then
+            echo "✅ MinutasManager.tsx encontrado"
+            wc -l src/components/MinutasManager.tsx
+          fi
+        continue-on-error: true
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v5
+        continue-on-error: true # Não bloqueia CI se Quality Gate falhar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.verbose=false
+            -Dsonar.scm.revision=${{ github.sha }}
+            -Dsonar.links.ci=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            -Dsonar.inclusions=src/hooks/use-google-docs.ts,src/components/MinutasManager.tsx,src/**/*.ts,src/**/*.tsx,api/**/*.ts
+            ${{ github.event_name == 'pull_request' && format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base={2}', github.event.pull_request.number, github.head_ref, github.base_ref) || format('-Dsonar.branch.name={0}', github.ref_name) }}
+
+      - name: SonarCloud Quality Gate
+        uses: sonarsource/sonarqube-quality-gate-action@v1
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true # Não falha CI se Quality Gate falhar
+
+      - name: Comment Quality Gate Status
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            try {
+              if (context.eventName !== 'pull_request') {
+                core.info('Not a pull_request event - skipping comment');
+              } else {
+                const pr = context.payload.pull_request;
+                if (!pr) {
+                  core.info('No pull_request payload present - skipping comment');
+                } else {
+                  const repoFull = `${context.repo.owner}/${context.repo.repo}`;
+                  const isFork = pr.head && pr.head.repo && pr.head.repo.full_name && pr.head.repo.full_name !== repoFull;
+                  const issue_number = context.issue && context.issue.number;
+                  if (!issue_number) {
+                    core.info('No issue/PR number in context - skipping comment');
+                  } else if (isFork) {
+                    core.info('PR is from a fork; skipping comment because GITHUB_TOKEN may be restricted');
+                  } else {
+                    const status = '${{ job.status }}';
+                    const conclusion = status === 'success' ? '✅ Passou' : '⚠️ Precisa atenção';
+                    const message = `## SonarCloud Analysis ${conclusion}\n\nVerifique os detalhes em: https://sonarcloud.io/dashboard?id=portprojetoautomacao-debug_assistente-jur-dico-principalrepli`;
+                    await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number, body: message });
+                    core.info('SonarCloud comment posted successfully');
+                  }
+                }
+              }
+            } catch (err) {
+              core.error('Failed to post SonarCloud comment: ' + String(err));
+            }
+
+      - name: Test Comment Permission (simulate)
+        if: github.event_name == 'workflow_dispatch' && (github.event.inputs.test_comment == 'true' || github.event.inputs.test_comment == true)
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          github-token: ${{ secrets.BOT_GH_TOKEN != '' && secrets.BOT_GH_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              if (context.eventName !== 'pull_request' && context.payload.pull_request == null) {
+                core.info('No PR context available; skipping test comment (requires a PR context)');
+              } else {
+                const pr = context.payload.pull_request || {};
+                const repoFull = `${context.repo.owner}/${context.repo.repo}`;
+                const isFork = pr.head && pr.head.repo && pr.head.repo.full_name && pr.head.repo.full_name !== repoFull;
+                const issue_number = context.issue && context.issue.number;
+                if (!issue_number) {
+                  core.info('No PR number in context - skipping test');
+                } else if (isFork && !process.env.BOT_GH_TOKEN) {
+                  core.info('PR from fork and BOT_GH_TOKEN not set - simulation skipped');
+                } else {
+                  // Post a temporary comment and delete it
+                  const temp = await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number, body: '🔧 Test permission: temporary comment (will be deleted)' });
+                  core.info('Test comment created: ' + temp.data.id);
+                  await github.rest.issues.deleteComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: temp.data.id });
+                  core.info('Test comment deleted');
+                }
+              }
+            } catch (err) {
+              core.error('Comment permission test failed: ' + String(err));
+            }

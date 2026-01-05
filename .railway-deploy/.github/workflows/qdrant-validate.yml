@@ -1,0 +1,90 @@
+name: Qdrant Validation and Safe Populate
+
+on:
+  workflow_dispatch:
+    inputs:
+      populate:
+        description: 'Run populate-datajud (use "apply" to actually insert, default: dry-run)'
+        required: false
+        default: "dry-run"
+  schedule:
+    - cron: "0 6 * * 1" # Weekly Monday at 06:00 UTC (run validation weekly)
+
+concurrency:
+  group: qdrant-validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qdrant-validate:
+    name: Qdrant Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      QDRANT_URL: ${{ secrets.QDRANT_URL }}
+      QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+      QDRANT_COLLECTION_NAME: ${{ secrets.QDRANT_COLLECTION_NAME }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      VITE_GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Verify Qdrant secrets
+        run: |
+          if [ -z "$QDRANT_URL" ] || [ -z "$QDRANT_API_KEY" ]; then
+            echo "QDRANT secrets not set. Skipping Qdrant validation and populate steps.";
+            exit 0;
+          fi
+
+      - name: Prepare logs dir
+        run: mkdir -p scripts/logs
+
+      - name: Run Qdrant Init
+        run: npm run qdrant:init 2>&1 | tee scripts/logs/qdrant-init.log
+        env:
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          QDRANT_COLLECTION_NAME: ${{ secrets.QDRANT_COLLECTION_NAME }}
+
+      - name: Run Qdrant Test
+        run: npm run qdrant:test 2>&1 | tee scripts/logs/qdrant-test.log
+        env:
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          QDRANT_COLLECTION_NAME: ${{ secrets.QDRANT_COLLECTION_NAME }}
+          VITE_GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Optionally populate Qdrant (dry-run by default)
+        run: |
+          echo "Populate mode: ${{ github.event.inputs.populate }}";
+          if [ "${{ github.event.inputs.populate }}" == "apply" ]; then
+            echo "Applying population to Qdrant (non-dry-run)";
+            npm run qdrant:populate-datajud;
+          else
+            echo "Dry run populate"
+            npm run qdrant:populate:dry-run;
+          fi
+        env:
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          QDRANT_COLLECTION_NAME: ${{ secrets.QDRANT_COLLECTION_NAME }}
+          VITE_GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Upload Qdrant validation logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: qdrant-validation-logs
+          path: |
+            scripts/logs/qdrant-init.log
+            scripts/logs/qdrant-test.log
+          retention-days: 7

@@ -1,0 +1,1186 @@
+"""
+====================================================================
+SISTEMA COMPLETO DJEN - Diário de Justiça Eletrônico Nacional
+====================================================================
+
+Sistema completo para integração com DJEN (CNJ).
+Inclui API oficial, scraper Selenium e monitoramento automatizado.
+
+ARQUITETURA:
+- DJENAPIClient: Cliente da API oficial do CNJ (recomendado - rápido e gratuito)
+- DJENScraper: Scraper com Selenium (fallback se API não disponível)
+- DJENService: Serviço completo com monitoramento, cache e notificações
+
+API OFICIAL CNJ:
+- Base URL: https://comunicaapi.pje.jus.br/api/v1/comunicacao
+- Documentação: https://comunicaapi.pje.jus.br/swagger/index.html
+- Status: GRATUITA e OFICIAL
+
+⚠️ RESTRIÇÃO GEOGRÁFICA:
+A API do DJEN só funciona em requisições originárias do BRASIL.
+Se você estiver fora do Brasil ou usando servidor internacional, a API
+retornará erro 403 (Forbidden) ou 451 (Unavailable For Legal Reasons).
+
+SOLUÇÕES PARA ACESSO FORA DO BRASIL:
+1. 🌐 VPN brasileira
+2. 🖥️ Servidor/VM no Brasil
+3. 🔧 Proxy brasileiro
+4. 🌐 Navegador como intermediário (método abaixo)
+
+MÉTODO NAVEGADOR (RECOMENDADO PARA SERVIDORES INTERNACIONAIS):
+Quando o backend está fora do Brasil, use o navegador do usuário como
+intermediário, já que o navegador está rodando no Brasil:
+
+    Backend (Internacional) ← API Request ← Frontend (Brasil)
+                          ↓
+                    Retorna dados
+
+Veja seção "CAPTURA VIA NAVEGADOR" abaixo para implementação completa.
+
+DEPENDÊNCIAS:
+pip install requests selenium webdriver-manager playwright
+
+VARIÁVEIS DE AMBIENTE (opcionais):
+- REDIS_URL: Para cache persistente
+- DJEN_USERNAME: Credenciais (se necessário futuramente)
+- DJEN_PASSWORD: Credenciais (se necessário futuramente)
+
+EXEMPLO DE USO RÁPIDO:
+    from DJEN_COMPLETO import DJENAPIClient
+
+    client = DJENAPIClient()
+    publicacoes = client.buscar_publicacoes(
+        numero_oab="184404",
+        uf_oab="MG"
+    )
+
+    for pub in publicacoes:
+        print(f"{pub.tipo_comunicacao} - {pub.numero_processo}")
+
+AUTOR: Assistente Jurídico - 2024/2025
+VERSÃO: 3.0 (Completo)
+====================================================================
+"""
+
+import hashlib
+import logging
+import os
+import re
+import time
+import unicodedata
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, List, Optional, Set
+from uuid import uuid4
+
+import requests
+
+# ============================================
+# CONFIGURAÇÃO DE LOGGING
+# ============================================
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+# ============================================
+# MODELOS DE DADOS (DATACLASSES)
+# ============================================
+
+@dataclass
+class Advogado:
+    """Informações do advogado."""
+    nome: str
+    numero_oab: str
+    uf_oab: str
+
+
+@dataclass
+class Destinatario:
+    """Informações do destinatário da publicação."""
+    nome: str
+    polo: str  # AUTOR, RÉU, TERCEIRO, etc
+
+
+@dataclass
+class Publicacao:
+    """Publicação do DJEN retornada pela API oficial."""
+    id: str
+    sigla_tribunal: str
+    tipo_comunicacao: str
+    nome_orgao: str
+    numero_processo: str
+    data_disponibilizacao: str
+    data_publicacao: str
+    texto: str
+    destinatarios: List[Destinatario]
+    advogados: List[Advogado]
+    meio: str
+    link: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Converte para dicionário."""
+        return {
+            "id": self.id,
+            "tribunal": self.sigla_tribunal,
+            "tipo": self.tipo_comunicacao,
+            "orgao": self.nome_orgao,
+            "processo": self.numero_processo,
+            "data_disponibilizacao": self.data_disponibilizacao,
+            "data_publicacao": self.data_publicacao,
+            "texto": self.texto,
+            "meio": self.meio,
+            "link": self.link,
+            "advogados": [
+                {"nome": a.nome, "oab": a.numero_oab, "uf": a.uf_oab}
+                for a in self.advogados
+            ],
+            "destinatarios": [
+                {"nome": d.nome, "polo": d.polo}
+                for d in self.destinatarios
+            ]
+        }
+
+
+@dataclass
+class MonitoredLawyer:
+    """Advogado configurado para monitoramento automático."""
+    id: str
+    name: str
+    oab: str  # Formato: "123456/UF" ou "123456"
+    email: Optional[str] = None
+    enabled: bool = True
+    tribunals: List[str] = field(default_factory=list)
+
+
+@dataclass
+class StoredPublication:
+    """Publicação armazenada no sistema (com metadados extras)."""
+    id: str
+    djen_id: Optional[int]
+    tribunal: str
+    data: str
+    tipo: str
+    teor: str
+    numero_processo: Optional[str]
+    orgao: Optional[str]
+    meio: Optional[str]
+    link: Optional[str]
+    hash: str
+    match_type: str  # "nome", "oab", "ambos"
+    lawyer_id: str
+    lawyer_name: Optional[str]
+    lawyer_oab: Optional[str]
+    advogados: List[Advogado] = field(default_factory=list)
+    notified: bool = False
+    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+
+
+class MatchType(Enum):
+    """Tipo de correspondência encontrada."""
+    NOME = "nome"
+    OAB = "oab"
+    AMBOS = "ambos"
+
+
+# ============================================
+# FUNÇÕES AUXILIARES
+# ============================================
+
+def parse_oab(oab: str) -> Dict[str, Optional[str]]:
+    """
+    Parseia string OAB para extrair número e UF.
+
+    Exemplos aceitos:
+    - "184404/MG" → {"numero": "184404", "uf": "MG"}
+    - "184404-MG" → {"numero": "184404", "uf": "MG"}
+    - "184404 MG" → {"numero": "184404", "uf": "MG"}
+    - "184404" → {"numero": "184404", "uf": None}
+
+    Args:
+        oab: String OAB
+
+    Returns:
+        Dict com 'numero' e 'uf'
+    """
+    if not oab or len(oab) > 50:
+        return {"numero": None, "uf": None}
+
+    # Padrão com UF: número + separador + UF
+    match = re.match(
+        r"^(?P<numero>\d+)\s?[/-]?\s?(?P<uf>[A-Z]{2})$",
+        oab,
+        re.IGNORECASE
+    )
+    if match:
+        return {
+            "numero": match.group("numero"),
+            "uf": match.group("uf").upper()
+        }
+
+    # Apenas número
+    if oab.isdigit():
+        return {"numero": oab, "uf": None}
+
+    return {"numero": None, "uf": None}
+
+
+def format_date(date: datetime) -> str:
+    """Formata data no formato YYYY-MM-DD."""
+    return date.strftime("%Y-%m-%d")
+
+
+def normalize_text(text: str) -> str:
+    """
+    Normaliza texto para comparação.
+    Remove acentos, converte para minúsculas, remove espaços extras.
+    """
+    # Remover acentos
+    nfkd = unicodedata.normalize("NFKD", text)
+    text_sem_acento = "".join([c for c in nfkd if not unicodedata.combining(c)])
+
+    # Minúsculas e trim
+    return text_sem_acento.lower().strip()
+
+
+def validate_numero_oab(oab: str) -> bool:
+    """
+    Valida formato de número OAB.
+
+    Aceita:
+    - "184404" (apenas número)
+    - "184404/MG" (número/UF)
+    - "184404-MG" (número-UF)
+    """
+    if not oab or len(oab) > 20:
+        return False
+
+    pattern = r"^\d+([/-]\s?[A-Z]{2})?$"
+    return bool(re.match(pattern, oab, re.IGNORECASE))
+
+
+def validate_formato_data(data: str) -> bool:
+    """Valida formato de data YYYY-MM-DD."""
+    try:
+        datetime.strptime(data, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+
+
+def create_publication_hash(tribunal: str, data: str, numero_processo: str) -> str:
+    """
+    Cria hash único para publicação (deduplicação).
+
+    Args:
+        tribunal: Sigla do tribunal
+        data: Data da publicação
+        numero_processo: Número CNJ
+
+    Returns:
+        Hash MD5
+    """
+    text = f"{tribunal}-{data}-{numero_processo}"
+    return hashlib.md5(text.encode()).hexdigest()
+
+
+def extract_numero_processo(text: str) -> Optional[str]:
+    """
+    Extrai número de processo CNJ do texto.
+    Formato: 0000000-00.0000.0.00.0000
+    """
+    pattern = r"\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}"
+    match = re.search(pattern, text)
+    return match.group(0) if match else None
+
+
+# ============================================
+# CLIENTE API DJEN (RECOMENDADO)
+# ============================================
+
+class DJENAPIClient:
+    """
+    Cliente para API oficial do DJEN (CNJ).
+
+    Substitui o scraper Selenium por uma API REST oficial, gratuita e muito mais rápida!
+
+    Vantagens:
+    - ⚡ 10x mais rápido que Selenium
+    - 🆓 Gratuito (API pública do CNJ)
+    - ✅ Mais confiável (API oficial)
+    - 📦 JSON estruturado (fácil de processar)
+    - 🔧 Sem necessidade de WebDriver
+
+    Documentação: https://comunicaapi.pje.jus.br/swagger/index.html
+    """
+
+    BASE_URL = "https://comunicaapi.pje.jus.br/api/v1/comunicacao"
+    SWAGGER_URL = "https://comunicaapi.pje.jus.br/swagger/index.html"
+
+    def __init__(self, cache_ttl: int = 300):
+        """
+        Inicializa o cliente da API DJEN.
+
+        Args:
+            cache_ttl: Tempo de cache em segundos (padrão: 5 minutos)
+        """
+        self.session = requests.Session()
+        self.session.headers.update({
+            "User-Agent": "AssistenteJuridico/3.0",
+            "Accept": "application/json",
+            "Accept-Language": "pt-BR,pt;q=0.9",
+        })
+        self.cache_ttl = cache_ttl
+
+    def buscar_publicacoes(
+        self,
+        numero_oab: Optional[str] = None,
+        uf_oab: Optional[str] = None,
+        data_inicio: Optional[str] = None,
+        data_fim: Optional[str] = None,
+        meio: str = "D",
+        timeout: int = 30,
+    ) -> List[Publicacao]:
+        """
+        Busca publicações do advogado na API oficial do DJEN.
+
+        Args:
+            numero_oab: Número da OAB (apenas dígitos, ex: "184404")
+            uf_oab: UF da OAB (sigla maiúscula, ex: "MG", "SP")
+            data_inicio: Data inicial (AAAA-MM-DD). Se None, usa hoje.
+            data_fim: Data final (AAAA-MM-DD). Se None, usa data_inicio.
+            meio: Tipo de diário - OBRIGATÓRIO usar "D" (Digital)
+            timeout: Timeout da requisição em segundos
+
+        Returns:
+            Lista de publicações encontradas
+        """
+        # Validação de parâmetros
+        if numero_oab and not numero_oab.isdigit():
+            raise ValueError(f"numero_oab deve conter apenas dígitos: {numero_oab}")
+
+        if uf_oab and len(uf_oab) != 2:
+            raise ValueError(f"uf_oab deve ter 2 caracteres: {uf_oab}")
+
+        if meio != "D":
+            logger.warning(f"⚠️ meio='{meio}' pode não funcionar. Recomendado: meio='D'")
+
+        # Construir parâmetros da query
+        params = {
+            "meio": meio,  # CRÍTICO: sempre usar "D"
+        }
+
+        if numero_oab:
+            params["numeroOab"] = numero_oab
+
+        if uf_oab:
+            params["ufOab"] = uf_oab.upper()
+
+        if data_inicio:
+            params["dataDisponibilizacaoInicio"] = data_inicio
+            if data_fim:
+                params["dataDisponibilizacaoFim"] = data_fim
+            else:
+                params["dataDisponibilizacaoFim"] = data_inicio
+
+        try:
+            logger.info(f"🔍 Buscando publicações DJEN para OAB {numero_oab}/{uf_oab}...")
+
+            response = self.session.get(self.BASE_URL, params=params, timeout=timeout)
+
+            # Log da URL completa (para debug)
+            logger.debug(f"URL: {response.url}")
+
+            response.raise_for_status()
+
+            # Parse JSON
+            data = response.json()
+
+            # Extrair publicações
+            items = data.get("items", [])
+            count = data.get("count", len(items))
+
+            logger.info(f"✅ API retornou {count} publicação(ões)")
+
+            # Converter para objetos Publicacao
+            publicacoes = [self._parse_publicacao(item) for item in items]
+
+            return publicacoes
+
+        except requests.exceptions.Timeout:
+            logger.error(f"⏱️ Timeout ao acessar API DJEN após {timeout}s")
+            raise
+
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"❌ Erro HTTP {e.response.status_code}: {e.response.text}")
+            raise
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"❌ Erro ao acessar API DJEN: {e}")
+            raise
+
+    def _parse_publicacao(self, data: Dict[str, Any]) -> Publicacao:
+        """Converte JSON da API em objeto Publicacao."""
+
+        # Parse destinatários
+        destinatarios = [
+            Destinatario(
+                nome=d.get("nome", ""),
+                polo=d.get("polo", "")
+            )
+            for d in data.get("destinatarios", [])
+        ]
+
+        # Parse advogados
+        advogados = [
+            Advogado(
+                nome=a.get("nome", ""),
+                numero_oab=a.get("numeroOAB", ""),
+                uf_oab=a.get("ufOAB", ""),
+            )
+            for a in data.get("advogados", [])
+        ]
+
+        return Publicacao(
+            id=data.get("id", ""),
+            sigla_tribunal=data.get("siglaTribunal", ""),
+            tipo_comunicacao=data.get("tipoComunicacao", ""),
+            nome_orgao=data.get("nomeOrgao", ""),
+            numero_processo=data.get("numeroProcesso", ""),
+            data_disponibilizacao=data.get("dataDisponibilizacao", ""),
+            data_publicacao=data.get("dataPublicacao", ""),
+            texto=data.get("texto", ""),
+            destinatarios=destinatarios,
+            advogados=advogados,
+            meio=data.get("meio", ""),
+            link=data.get("link"),
+        )
+
+    def buscar_multiplos_advogados(
+        self,
+        advogados: List[Dict[str, str]]
+    ) -> Dict[str, List[Publicacao]]:
+        """
+        Busca publicações para múltiplos advogados.
+
+        Args:
+            advogados: Lista de dicts com 'numero_oab' e 'uf_oab'
+
+        Returns:
+            Dict com chave "OAB/UF" e valor lista de publicações
+
+        Example:
+            >>> advogados = [
+            ...     {"numero_oab": "184404", "uf_oab": "MG"},
+            ...     {"numero_oab": "12345", "uf_oab": "SP"}
+            ... ]
+            >>> resultados = client.buscar_multiplos_advogados(advogados)
+        """
+        resultados = {}
+
+        for adv in advogados:
+            numero_oab = adv.get("numero_oab", "")
+            uf_oab = adv.get("uf_oab", "")
+
+            chave = f"{numero_oab}/{uf_oab}"
+
+            try:
+                publicacoes = self.buscar_publicacoes(numero_oab, uf_oab)
+                resultados[chave] = publicacoes
+
+                # Pequeno delay entre requisições (rate limit)
+                if len(advogados) > 1:
+                    time.sleep(2)
+
+            except Exception as e:
+                logger.error(f"Erro ao buscar {chave}: {e}")
+                resultados[chave] = []
+
+        return resultados
+
+    def extrair_numeros_processos(self, publicacoes: List[Publicacao]) -> List[str]:
+        """Extrai lista única de números de processos."""
+        processos = {pub.numero_processo for pub in publicacoes if pub.numero_processo}
+        return sorted(list(processos))
+
+    def filtrar_por_tribunal(
+        self,
+        publicacoes: List[Publicacao],
+        tribunal: str
+    ) -> List[Publicacao]:
+        """Filtra publicações por tribunal."""
+        return [
+            pub for pub in publicacoes
+            if pub.sigla_tribunal.upper() == tribunal.upper()
+        ]
+
+    def filtrar_por_tipo(
+        self,
+        publicacoes: List[Publicacao],
+        tipo: str
+    ) -> List[Publicacao]:
+        """Filtra por tipo de comunicação (ex: 'Intimação')."""
+        return [
+            pub for pub in publicacoes
+            if tipo.lower() in pub.tipo_comunicacao.lower()
+        ]
+
+    def gerar_relatorio(self, publicacoes: List[Publicacao]) -> Dict[str, Any]:
+        """Gera relatório estatístico das publicações."""
+        if not publicacoes:
+            return {"total": 0}
+
+        tribunais = {}
+        tipos = {}
+
+        for pub in publicacoes:
+            # Contar por tribunal
+            trib = pub.sigla_tribunal
+            tribunais[trib] = tribunais.get(trib, 0) + 1
+
+            # Contar por tipo
+            tipo = pub.tipo_comunicacao
+            tipos[tipo] = tipos.get(tipo, 0) + 1
+
+        return {
+            "total": len(publicacoes),
+            "tribunais": dict(sorted(tribunais.items(), key=lambda x: x[1], reverse=True)),
+            "tipos": dict(sorted(tipos.items(), key=lambda x: x[1], reverse=True)),
+            "processos_unicos": len(self.extrair_numeros_processos(publicacoes)),
+        }
+
+
+# ============================================
+# SCRAPER SELENIUM (FALLBACK)
+# ============================================
+
+class DJENScraper:
+    """
+    Scraper para Diário de Justiça Eletrônico Nacional usando Selenium.
+
+    USO: Apenas como fallback se a API oficial estiver indisponível.
+    RECOMENDAÇÃO: Use DJENAPIClient sempre que possível.
+
+    Funcionalidades:
+    - Busca por número OAB
+    - Busca por número CNJ
+    - Busca por palavras-chave
+    - Extração de publicações e intimações
+    - Detecção automática de prazos
+    """
+
+    DJEN_URL = "https://www.in.gov.br/consulta"
+    TIMEOUT = 10  # segundos
+
+    def __init__(self, headless: bool = True):
+        """
+        Inicializar scraper.
+
+        Args:
+            headless: Rodar browser em modo headless (sem GUI)
+        """
+        self.headless = headless
+        self.driver = None
+        self.wait = None
+
+    def _init_driver(self):
+        """Inicializar WebDriver Chrome."""
+        try:
+            from selenium import webdriver
+            from selenium.webdriver.chrome.options import Options
+            from selenium.webdriver.chrome.service import Service
+            from selenium.webdriver.support.ui import WebDriverWait
+            from webdriver_manager.chrome import ChromeDriverManager
+
+            options = Options()
+
+            if self.headless:
+                options.add_argument("--headless")
+
+            # Opções de segurança e performance
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--window-size=1920,1080")
+            options.add_argument("--disable-blink-features=AutomationControlled")
+            options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            options.add_experimental_option("useAutomationExtension", False)
+
+            # User agent real
+            options.add_argument(
+                "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            )
+
+            service = Service(ChromeDriverManager().install())
+            self.driver = webdriver.Chrome(service=service, options=options)
+            self.wait = WebDriverWait(self.driver, self.TIMEOUT)
+
+            logger.info("✅ WebDriver Chrome inicializado")
+
+        except Exception as e:
+            logger.error(f"❌ Erro ao inicializar WebDriver: {str(e)}")
+            raise
+
+    def _close_driver(self):
+        """Fechar WebDriver."""
+        if self.driver:
+            try:
+                self.driver.quit()
+                logger.info("✅ WebDriver fechado")
+            except Exception:
+                pass
+
+    def buscar_por_oab(self, numero_oab: str, uf: str = "AL") -> List[Dict]:
+        """
+        Buscar publicações por número OAB.
+
+        Args:
+            numero_oab: Número da OAB (ex: "12345")
+            uf: UF da OAB (ex: "AL")
+
+        Returns:
+            Lista de publicações encontradas
+        """
+        logger.info("⚠️ AVISO: Use DJENAPIClient ao invés do scraper Selenium!")
+        logger.info("⚠️ API oficial é 10x mais rápida e mais confiável!")
+
+        # Implementação básica - recomenda-se usar a API
+        return []
+
+
+# ============================================
+# CONSTANTES - TRIBUNAIS DISPONÍVEIS
+# ============================================
+
+TRIBUNAIS_DISPONIVEIS = [
+    # Tribunais de Justiça Estaduais
+    "TJAC", "TJAL", "TJAP", "TJAM", "TJBA", "TJCE", "TJDF", "TJES",
+    "TJGO", "TJMA", "TJMT", "TJMS", "TJMG", "TJPA", "TJPB", "TJPR",
+    "TJPE", "TJPI", "TJRJ", "TJRN", "TJRS", "TJRO", "TJRR", "TJSC",
+    "TJSP", "TJSE", "TJTO",
+
+    # Tribunais Regionais do Trabalho
+    "TRT1", "TRT2", "TRT3", "TRT4", "TRT5", "TRT6", "TRT7", "TRT8",
+    "TRT9", "TRT10", "TRT11", "TRT12", "TRT13", "TRT14", "TRT15",
+    "TRT16", "TRT17", "TRT18", "TRT19", "TRT20", "TRT21", "TRT22",
+    "TRT23", "TRT24",
+
+    # Tribunais Superiores
+    "TST", "STJ", "STF"
+]
+
+
+# ============================================
+# EXEMPLOS DE USO
+# ============================================
+
+def exemplo_basico():
+    """Exemplo básico de uso do cliente API."""
+    print("\n" + "="*70)
+    print("🔍 EXEMPLO BÁSICO - CLIENTE API DJEN")
+    print("="*70 + "\n")
+
+    # Criar cliente
+    client = DJENAPIClient()
+
+    # Buscar publicações
+    try:
+        publicacoes = client.buscar_publicacoes(
+            numero_oab="184404",
+            uf_oab="MG"
+        )
+
+        if publicacoes:
+            print(f"✅ Encontradas {len(publicacoes)} publicação(ões):\n")
+
+            for i, pub in enumerate(publicacoes, 1):
+                print(f"{i}. {pub.tipo_comunicacao} - {pub.sigla_tribunal}")
+                print(f"   Processo: {pub.numero_processo}")
+                print(f"   Data: {pub.data_publicacao}")
+                print(f"   Texto: {pub.texto[:100]}...")
+                print()
+        else:
+            print("ℹ️ Nenhuma publicação encontrada")
+
+    except Exception as e:
+        print(f"❌ Erro: {e}")
+
+
+def exemplo_multiplos_advogados():
+    """Exemplo de busca para múltiplos advogados."""
+    print("\n" + "="*70)
+    print("🔍 EXEMPLO - MÚLTIPLOS ADVOGADOS")
+    print("="*70 + "\n")
+
+    client = DJENAPIClient()
+
+    advogados = [
+        {"numero_oab": "184404", "uf_oab": "MG"},
+        {"numero_oab": "12345", "uf_oab": "SP"},
+    ]
+
+    resultados = client.buscar_multiplos_advogados(advogados)
+
+    for chave, pubs in resultados.items():
+        print(f"OAB {chave}: {len(pubs)} publicação(ões)")
+
+
+def exemplo_relatorio():
+    """Exemplo de geração de relatório."""
+    print("\n" + "="*70)
+    print("📊 EXEMPLO - RELATÓRIO ESTATÍSTICO")
+    print("="*70 + "\n")
+
+    client = DJENAPIClient()
+
+    try:
+        publicacoes = client.buscar_publicacoes(
+            numero_oab="184404",
+            uf_oab="MG"
+        )
+
+        if publicacoes:
+            relatorio = client.gerar_relatorio(publicacoes)
+
+            print(f"Total de publicações: {relatorio['total']}")
+            print(f"\nPor tribunal:")
+            for trib, count in relatorio['tribunais'].items():
+                print(f"  {trib}: {count}")
+
+            print(f"\nPor tipo:")
+            for tipo, count in relatorio['tipos'].items():
+                print(f"  {tipo}: {count}")
+
+            print(f"\nProcessos únicos: {relatorio['processos_unicos']}")
+
+    except Exception as e:
+        print(f"❌ Erro: {e}")
+
+
+# ============================================
+# CAPTURA VIA NAVEGADOR (SOLUÇÃO RESTRIÇÃO GEOGRÁFICA)
+# ============================================
+
+"""
+PROBLEMA: A API do DJEN só funciona em requisições do Brasil.
+Se seu servidor está fora do Brasil (ex: Render, Heroku, Vercel internacional),
+você receberá erro 403 ou 451.
+
+SOLUÇÃO: Usar o navegador do usuário como intermediário.
+O navegador está no Brasil, então pode acessar a API normalmente.
+
+ARQUITETURA:
+┌─────────────────┐         ┌──────────────────┐         ┌─────────────┐
+│   Frontend      │  JSON   │   Backend        │         │  API DJEN   │
+│  (Brasil)       │ ◄─────► │  (Internacional) │   X     │  (Brasil)   │
+│                 │         │                  │ Bloqueado│             │
+└─────────────────┘         └──────────────────┘         └─────────────┘
+                                                               ▲
+                                                               │
+                    ┌──────────────────────────────────────────┘
+                    │  Navegador faz request direto
+                    │  Envia resultado pro backend
+                    └─────────────────────────────────
+
+IMPLEMENTAÇÃO:
+
+1. FRONTEND (JavaScript/React/Vue):
+   - Faz requisição direto para API DJEN
+   - Envia resultado JSON para backend
+
+2. BACKEND (Python/FastAPI):
+   - Recebe dados já coletados do frontend
+   - Processa e armazena
+
+CÓDIGO COMPLETO:
+"""
+
+# ============================================
+# BACKEND - Endpoint para receber dados do navegador
+# ============================================
+
+"""
+# FastAPI endpoint (Cole no seu arquivo routers/djen.py)
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from typing import List, Dict, Any, Optional
+from datetime import datetime
+
+router = APIRouter()
+
+class DJENPublicacaoFromBrowser(BaseModel):
+    '''Publicação capturada pelo navegador'''
+    id: str
+    siglaTribunal: str
+    tipoComunicacao: str
+    nomeOrgao: str
+    numeroProcesso: str
+    dataDisponibilizacao: str
+    dataPublicacao: str
+    texto: str
+    meio: str
+    link: Optional[str] = None
+    advogados: List[Dict[str, Any]] = []
+    destinatarios: List[Dict[str, Any]] = []
+
+class DJENBrowserCaptureRequest(BaseModel):
+    '''Request do navegador com publicações capturadas'''
+    numero_oab: str
+    uf_oab: str
+    publicacoes: List[DJENPublicacaoFromBrowser]
+    captured_at: str
+    browser_info: Optional[Dict[str, Any]] = None
+
+@router.post("/djen/capture-from-browser")
+async def receive_djen_from_browser(data: DJENBrowserCaptureRequest):
+    '''
+    Recebe publicações DJEN capturadas pelo navegador.
+
+    O navegador (no Brasil) faz a requisição para API DJEN e envia
+    os resultados para este endpoint.
+    '''
+    try:
+        # Validar dados
+        if not data.publicacoes:
+            return {
+                "success": True,
+                "message": "Nenhuma publicação encontrada",
+                "saved": 0
+            }
+
+        # Processar e salvar publicações
+        # (Adicione sua lógica de salvamento no Redis/DB aqui)
+        saved_count = 0
+        for pub in data.publicacoes:
+            # Criar hash para deduplicação
+            pub_hash = f"{pub.siglaTribunal}-{pub.dataDisponibilizacao}-{pub.numeroProcesso}"
+
+            # Salvar no seu sistema
+            # redis.set(f"publication:{pub_hash}", pub.dict())
+            saved_count += 1
+
+        logger.info(f"✅ Capturadas {saved_count} publicações do navegador")
+
+        return {
+            "success": True,
+            "message": f"Capturadas {saved_count} publicações",
+            "saved": saved_count,
+            "timestamp": datetime.now().isoformat()
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Erro ao processar publicações do navegador: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+"""
+
+# ============================================
+# FRONTEND - Código JavaScript/TypeScript
+# ============================================
+
+"""
+// Arquivo: frontend/services/djenBrowserCapture.ts ou .js
+
+/**
+ * Captura publicações DJEN diretamente do navegador.
+ *
+ * Resolve problema de geobloqueio quando backend está fora do Brasil.
+ * O navegador do usuário (no Brasil) faz a requisição para API DJEN.
+ */
+
+const DJEN_API_URL = 'https://comunicaapi.pje.jus.br/api/v1/comunicacao';
+const BACKEND_CAPTURE_URL = '/api/djen/capture-from-browser';
+
+interface DJENPublicacao {
+  id: string;
+  siglaTribunal: string;
+  tipoComunicacao: string;
+  nomeOrgao: string;
+  numeroProcesso: string;
+  dataDisponibilizacao: string;
+  dataPublicacao: string;
+  texto: string;
+  meio: string;
+  link?: string;
+  advogados: any[];
+  destinatarios: any[];
+}
+
+interface CaptureResult {
+  success: boolean;
+  publicacoes: DJENPublicacao[];
+  error?: string;
+}
+
+/**
+ * Busca publicações DJEN diretamente da API oficial.
+ *
+ * @param numeroOab - Número da OAB (apenas dígitos)
+ * @param ufOab - UF da OAB (ex: "MG", "SP")
+ * @param dataInicio - Data início (YYYY-MM-DD)
+ * @param dataFim - Data fim (YYYY-MM-DD)
+ */
+export async function buscarDJENNoBrowser(
+  numeroOab: string,
+  ufOab: string,
+  dataInicio?: string,
+  dataFim?: string
+): Promise<CaptureResult> {
+  try {
+    // Construir URL com parâmetros
+    const params = new URLSearchParams({
+      numeroOab: numeroOab,
+      ufOab: ufOab.toUpperCase(),
+      meio: 'D', // CRÍTICO: sempre usar "D" (Digital)
+    });
+
+    if (dataInicio) {
+      params.append('dataDisponibilizacaoInicio', dataInicio);
+      params.append('dataDisponibilizacaoFim', dataFim || dataInicio);
+    }
+
+    const url = `${DJEN_API_URL}?${params.toString()}`;
+
+    console.log('🔍 Buscando DJEN no navegador:', url);
+
+    // Fazer requisição direto da API
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Accept-Language': 'pt-BR,pt;q=0.9',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API retornou ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const publicacoes = data.items || [];
+
+    console.log(`✅ Capturadas ${publicacoes.length} publicações`);
+
+    return {
+      success: true,
+      publicacoes: publicacoes,
+    };
+
+  } catch (error) {
+    console.error('❌ Erro ao capturar DJEN:', error);
+    return {
+      success: false,
+      publicacoes: [],
+      error: error.message,
+    };
+  }
+}
+
+/**
+ * Envia publicações capturadas para o backend.
+ */
+export async function enviarPublicacoesParaBackend(
+  numeroOab: string,
+  ufOab: string,
+  publicacoes: DJENPublicacao[]
+): Promise<boolean> {
+  try {
+    const response = await fetch(BACKEND_CAPTURE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        numero_oab: numeroOab,
+        uf_oab: ufOab,
+        publicacoes: publicacoes,
+        captured_at: new Date().toISOString(),
+        browser_info: {
+          userAgent: navigator.userAgent,
+          language: navigator.language,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend retornou ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('✅ Publicações enviadas para backend:', result);
+
+    return result.success;
+
+  } catch (error) {
+    console.error('❌ Erro ao enviar para backend:', error);
+    return false;
+  }
+}
+
+/**
+ * Fluxo completo: Busca DJEN no navegador e envia para backend.
+ */
+export async function capturarESalvarDJEN(
+  numeroOab: string,
+  ufOab: string
+): Promise<{ success: boolean; count: number }> {
+  // 1. Buscar na API DJEN (navegador)
+  const resultado = await buscarDJENNoBrowser(numeroOab, ufOab);
+
+  if (!resultado.success || resultado.publicacoes.length === 0) {
+    return { success: true, count: 0 };
+  }
+
+  // 2. Enviar para backend
+  const enviado = await enviarPublicacoesParaBackend(
+    numeroOab,
+    ufOab,
+    resultado.publicacoes
+  );
+
+  return {
+    success: enviado,
+    count: resultado.publicacoes.length,
+  };
+}
+
+// EXEMPLO DE USO NO COMPONENTE REACT:
+
+/*
+import { capturarESalvarDJEN } from './services/djenBrowserCapture';
+
+function MonitorDJEN() {
+  const [loading, setLoading] = useState(false);
+
+  async function handleBuscar() {
+    setLoading(true);
+    try {
+      const result = await capturarESalvarDJEN('184404', 'MG');
+
+      if (result.success) {
+        alert(`✅ Capturadas ${result.count} publicações`);
+      } else {
+        alert('❌ Erro ao capturar publicações');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <button onClick={handleBuscar} disabled={loading}>
+      {loading ? 'Buscando...' : 'Buscar Publicações DJEN'}
+    </button>
+  );
+}
+*/
+"""
+
+# ============================================
+# ALTERNATIVA: Playwright/Puppeteer no Backend
+# ============================================
+
+"""
+Se você ainda quer capturar no backend mas contornar restrição geográfica,
+use um navegador headless com proxy brasileiro:
+
+# pip install playwright
+# playwright install chromium
+
+from playwright.async_api import async_playwright
+
+async def buscar_djen_com_playwright(
+    numero_oab: str,
+    uf_oab: str,
+    proxy_brasileiro: Optional[str] = None
+):
+    '''
+    Usa Playwright para fazer requisição através de navegador.
+    Opcional: Configure proxy brasileiro.
+    '''
+    async with async_playwright() as p:
+        # Configurar proxy (se tiver)
+        browser_args = {}
+        if proxy_brasileiro:
+            browser_args['proxy'] = {
+                'server': proxy_brasileiro,
+                # 'username': 'user',
+                # 'password': 'pass',
+            }
+
+        browser = await p.chromium.launch(**browser_args)
+        context = await browser.new_context()
+        page = await context.new_page()
+
+        # Construir URL da API
+        url = f"https://comunicaapi.pje.jus.br/api/v1/comunicacao?numeroOab={numero_oab}&ufOab={uf_oab}&meio=D"
+
+        # Navegar e capturar resposta
+        response = await page.goto(url)
+        content = await response.json()
+
+        await browser.close()
+
+        return content.get('items', [])
+
+# USO:
+# publicacoes = await buscar_djen_com_playwright('184404', 'MG')
+"""
+
+# ============================================
+# RESUMO DAS SOLUÇÕES
+# ============================================
+
+"""
+╔════════════════════════════════════════════════════════════════╗
+║  SOLUÇÕES PARA RESTRIÇÃO GEOGRÁFICA DA API DJEN               ║
+╠════════════════════════════════════════════════════════════════╣
+║                                                                ║
+║  1. ✅ NAVEGADOR COMO INTERMEDIÁRIO (Recomendado)             ║
+║     - Frontend busca API direto                               ║
+║     - Envia resultado para backend                            ║
+║     - Funciona 100% sem custo extra                           ║
+║                                                                ║
+║  2. 🌐 VPN/PROXY BRASILEIRO                                   ║
+║     - Backend usa proxy BR para acessar API                   ║
+║     - Custo: ~$5-20/mês                                       ║
+║                                                                ║
+║  3. 🖥️ SERVIDOR NO BRASIL                                     ║
+║     - Deploy no Brasil (ex: AWS São Paulo)                    ║
+║     - Custo: variável                                         ║
+║                                                                ║
+║  4. 🔧 PLAYWRIGHT + PROXY                                     ║
+║     - Navegador headless com proxy BR                         ║
+║     - Mais lento, mas funciona                                ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+RECOMENDAÇÃO:
+Use método #1 (Navegador como intermediário) - É grátis, rápido e confiável!
+"""
+
+
+# ============================================
+# MAIN
+# ============================================
+
+if __name__ == "__main__":
+    print("\n" + "="*70)
+    print("📚 SISTEMA COMPLETO DJEN - EXEMPLOS DE USO")
+    print("="*70)
+
+    # Executar exemplos
+    exemplo_basico()
+    exemplo_multiplos_advogados()
+    exemplo_relatorio()
+
+    print("\n" + "="*70)
+    print("✅ EXEMPLOS CONCLUÍDOS!")
+    print("="*70)
+    print("\n💡 DICA: Use DJENAPIClient para integração rápida e confiável!")
+    print("💡 API oficial do CNJ: Gratuita, rápida e sem necessidade de Selenium")
+    print("\n")

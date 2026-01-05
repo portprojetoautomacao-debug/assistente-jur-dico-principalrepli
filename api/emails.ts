@@ -97,8 +97,13 @@ type EmailSendResult = {
 };
 
 async function sendWithRetry<T>(fn: () => Promise<T>): Promise<T> {
-  return retryWithBackoff(() => withTimeout(30000, fn), 3, 200);
+  return retryWithBackoff(() => withTimeout(30000, fn()), 3, 200);
 }
+
+type TestEmailRequest = Extract<EmailRequest, { type: "test" }>;
+type NotificationEmailRequest = Extract<EmailRequest, { type: "notification" }>;
+type UrgentEmailRequest = Extract<EmailRequest, { type: "urgent" }>;
+type DailySummaryEmailRequest = Extract<EmailRequest, { type: "daily_summary" }>;
 
 function badRequest(res: VercelResponse, error: string) {
   return res.status(400).json({ error });
@@ -108,16 +113,19 @@ function serverError(res: VercelResponse, error: string) {
   return res.status(500).json({ success: false, error, message: "Erro ao enviar email" });
 }
 
-async function handleTestEmail(body: EmailRequest, res: VercelResponse): Promise<EmailSendResult> {
+async function handleTestEmail(
+  body: TestEmailRequest,
+  res: VercelResponse
+): Promise<EmailSendResult> {
   if (!body.to) {
     badRequest(res, 'Campo "to" é obrigatório');
     return { success: false, error: 'Campo "to" é obrigatório' };
   }
-  return sendWithRetry(() => sendTestEmail(body.to, body.subject)) as unknown as EmailSendResult;
+  return sendWithRetry(() => sendTestEmail(body.to, body.subject));
 }
 
 async function handleNotificationEmail(
-  body: EmailRequest,
+  body: NotificationEmailRequest,
   res: VercelResponse
 ): Promise<EmailSendResult> {
   const validation = validateNotificationFields(body);
@@ -132,11 +140,11 @@ async function handleNotificationEmail(
 
   return sendWithRetry(() =>
     sendNotificationEmail(body.to as string, subject, message, actionUrl)
-  ) as unknown as EmailSendResult;
+  );
 }
 
 async function handleUrgentEmail(
-  body: EmailRequest,
+  body: UrgentEmailRequest,
   res: VercelResponse
 ): Promise<EmailSendResult> {
   if (!body.to || !body.processNumber || !body.deadline) {
@@ -151,11 +159,11 @@ async function handleUrgentEmail(
       escapeHtml(body.deadline),
       "Manifestação Processual"
     )
-  ) as unknown as EmailSendResult;
+  );
 }
 
 async function handleDailySummaryEmail(
-  body: EmailRequest,
+  body: DailySummaryEmailRequest,
   res: VercelResponse
 ): Promise<EmailSendResult> {
   if (!body.to || !body.summary) {
@@ -164,7 +172,29 @@ async function handleDailySummaryEmail(
   }
   return sendWithRetry(() =>
     sendDailySummaryEmail(body.to as string, body.summary)
-  ) as unknown as EmailSendResult;
+  );
+}
+
+async function dispatchEmailByType(
+  body: EmailRequest,
+  res: VercelResponse
+): Promise<EmailSendResult> {
+  switch (body.type) {
+    case "test":
+      return handleTestEmail(body, res);
+    case "notification":
+      return handleNotificationEmail(body, res);
+    case "urgent":
+      return handleUrgentEmail(body, res);
+    case "daily_summary":
+      return handleDailySummaryEmail(body, res);
+    default: {
+      const type = (body as { type: unknown }).type;
+      const msg = `Tipo de email inválido: ${String(type)}. Use: test, notification, urgent, daily_summary`;
+      badRequest(res, msg);
+      return { success: false, error: msg };
+    }
+  }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -188,22 +218,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     const body: EmailRequest = parsed.data;
 
-    const handlers: Record<EmailRequest["type"], (b: EmailRequest) => Promise<EmailSendResult>> = {
-      test: (b) => handleTestEmail(b, res),
-      notification: (b) => handleNotificationEmail(b, res),
-      urgent: (b) => handleUrgentEmail(b, res),
-      daily_summary: (b) => handleDailySummaryEmail(b, res),
-    };
-
-    const handlerFn = handlers[body.type];
-    if (!handlerFn) {
-      return badRequest(
-        res,
-        `Tipo de email inválido: ${String(body.type)}. Use: test, notification, urgent, daily_summary`
-      );
-    }
-
-    const result = await handlerFn(body);
+    const result = await dispatchEmailByType(body, res);
     if (!result.success) {
       // Se algum handler já respondeu com 400, não forçar 500.
       // Retornamos aqui para evitar double-send.

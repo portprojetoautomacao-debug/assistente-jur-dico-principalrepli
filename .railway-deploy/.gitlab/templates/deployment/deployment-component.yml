@@ -1,0 +1,186 @@
+spec:
+  inputs:
+    stage:
+      default: deploy
+      description: "Stage onde o deployment será executado"
+    environment:
+      default: "staging"
+      description: "Ambiente de deployment: staging, production"
+      options: ["staging", "production", "preview"]
+    deploy_target:
+      default: "vercel"
+      description: "Plataforma de deployment: vercel, netlify, docker"
+      options: ["vercel", "netlify", "docker", "kubernetes"]
+    health_check_url:
+      description: "URL para verificação de saúde após deployment"
+    rollback_on_failure:
+      default: true
+      description: "Executar rollback automático em caso de falha"
+    monitoring_enabled:
+      default: true
+      description: "Habilitar monitoramento pós-deployment"
+
+# Componente de Deployment para Aplicações Web
+# Suporte a múltiplas plataformas e ambientes
+
+deploy-vercel:
+  stage: $[[ inputs.stage ]]
+  image: node:22
+  environment:
+    name: $[[ inputs.environment ]]
+    url: $[[ inputs.health_check_url ]]
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+    - npm run build
+  script:
+    - echo "🚀 Fazendo deployment no Vercel (ambiente: $[[ inputs.environment ]])"
+    - |
+      if [ "$[[ inputs.environment ]]" = "production" ]; then
+        echo "🏭 Deployment para produção..."
+        npx vercel --prod --yes
+      elif [ "$[[ inputs.environment ]]" = "staging" ]; then
+        echo "🧪 Deployment para staging..."
+        npx vercel --yes
+      else
+        echo "👀 Deployment preview..."
+        npx vercel --yes
+      fi
+    - |
+      # Capturar URL do deployment
+      DEPLOY_URL=$(npx vercel --yes 2>&1 | grep -o 'https://[^ ]*' | head -1)
+      echo "DEPLOY_URL=$DEPLOY_URL" >> deploy.env
+      echo "✅ Deployment realizado: $DEPLOY_URL"
+    - |
+      # Health check se URL fornecida
+      if [ -n "$[[ inputs.health_check_url ]]" ]; then
+        echo "🏥 Executando health check..."
+        for i in {1..30}; do
+          if curl -f -s --max-time 10 "$[[ inputs.health_check_url ]]" > /dev/null; then
+            echo "✅ Health check passou!"
+            break
+          fi
+          echo "⏳ Aguardando health check... ($i/30)"
+          sleep 10
+        done
+
+        # Verificar se health check falhou
+        if ! curl -f -s --max-time 10 "$[[ inputs.health_check_url ]]" > /dev/null; then
+          echo "❌ Health check falhou!"
+          if [ "$[[ inputs.rollback_on_failure ]]" = "true" ]; then
+            echo "🔄 Executando rollback..."
+            npx vercel rollback --yes
+            exit 1
+          fi
+        fi
+      fi
+  artifacts:
+    reports:
+      dotenv: deploy.env
+    paths:
+      - deploy.env
+    expire_in: 1 month
+  only:
+    - main
+    - develop
+  except:
+    variables:
+      - $[[ inputs.deploy_target ]] != "vercel"
+
+deploy-netlify:
+  stage: $[[ inputs.stage ]]
+  image: node:22
+  environment:
+    name: $[[ inputs.environment ]]
+    url: $[[ inputs.health_check_url ]]
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+    - npm run build
+  script:
+    - echo "🌐 Fazendo deployment no Netlify (ambiente: $[[ inputs.environment ]])"
+    - |
+      if [ "$[[ inputs.environment ]]" = "production" ]; then
+        echo "🏭 Deployment para produção..."
+        npx netlify-cli deploy --dir=dist --prod --yes
+      else
+        echo "🧪 Deployment para preview..."
+        npx netlify-cli deploy --dir=dist --yes
+      fi
+    - |
+      # Health check
+      if [ -n "$[[ inputs.health_check_url ]]" ]; then
+        echo "🏥 Executando health check..."
+        sleep 30  # Aguardar propagação do CDN
+        if curl -f -s --max-time 10 "$[[ inputs.health_check_url ]]" > /dev/null; then
+          echo "✅ Health check passou!"
+        else
+          echo "❌ Health check falhou!"
+          exit 1
+        fi
+      fi
+  only:
+    - main
+    - develop
+  except:
+    variables:
+      - $[[ inputs.deploy_target ]] != "netlify"
+
+deploy-docker:
+  stage: $[[ inputs.stage ]]
+  image: docker:latest
+  services:
+    - docker:dind
+  environment:
+    name: $[[ inputs.environment ]]
+    url: $[[ inputs.health_check_url ]]
+  before_script:
+    - docker info
+  script:
+    - echo "🐳 Fazendo deployment Docker (ambiente: $[[ inputs.environment ]])"
+    - |
+      # Build da imagem
+      DOCKER_TAG="${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}"
+      docker build -t $DOCKER_TAG .
+      docker push $DOCKER_TAG
+
+      echo "✅ Imagem Docker criada: $DOCKER_TAG"
+    - |
+      # Deploy baseado no ambiente
+      if [ "$[[ inputs.environment ]]" = "production" ]; then
+        echo "🏭 Deploy para produção com Docker..."
+        # Aqui seria integrado com Docker Swarm, Kubernetes, etc.
+        echo "docker service update --image $DOCKER_TAG meu-servico"
+      else
+        echo "🧪 Deploy para staging com Docker..."
+        echo "docker run -d -p 3000:3000 $DOCKER_TAG"
+      fi
+  only:
+    - main
+    - develop
+  except:
+    variables:
+      - $[[ inputs.deploy_target ]] != "docker"
+
+smoke-tests-post-deploy:
+  stage: $[[ inputs.stage ]]
+  image: node:22
+  script:
+    - echo "🚬 Executando smoke tests pós-deployment..."
+    - |
+      # Testar endpoints críticos
+      if [ -n "$[[ inputs.health_check_url ]]" ]; then
+        echo "Testing health endpoint..."
+        curl -f "$[[ inputs.health_check_url ]]/health" || exit 1
+
+        echo "Testing main application..."
+        curl -f "$[[ inputs.health_check_url ]]" || exit 1
+
+        echo "✅ Todos os smoke tests passaram!"
+      else
+        echo "ℹ️ URL de health check não fornecida, pulando smoke tests"
+      fi
+  dependencies:
+    - deploy-vercel
+    - deploy-netlify
+    - deploy-docker
+  when: manual
+  allow_failure: true

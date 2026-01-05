@@ -1,0 +1,3735 @@
+# TEMPLATES JURÍDICOS COMPLETOS - 28 DOCUMENTOS
+
+---
+
+**Repositório de Templates Jurídicos**
+Sistema Assistente Jurídico - 2024/2025
+Versão: 3.0
+
+---
+
+## 📋 ÍNDICE DE TEMPLATES
+
+### Ações e Petições Iniciais
+
+1. Petição Inicial (Genérica)
+2. Ação de Alimentos
+3. Ação de Indenização por Danos Morais
+4. Ação Revisional de Contrato Bancário
+5. Ação de Usucapião
+6. Reclamação Trabalhista
+7. Mandado de Segurança
+
+### Respostas e Defesas
+
+8. Contestação (Genérica)
+9. Defesa Criminal - Resposta à Acusação
+10. Defesa Criminal - Alegações Finais
+11. Defesa de Representação Criminal
+
+### Recursos
+
+12. Recurso de Apelação (Genérico)
+13. Apelação Criminal
+14. Agravo de Instrumento
+15. Agravo em Execução Penal
+16. Embargos de Declaração
+
+### Execução Penal
+
+17. Progressão de Regime
+18. Livramento Condicional
+19. Remição de Pena
+20. Habeas Corpus
+
+### Penal - Queixas e Representações
+
+21. Queixa-Crime
+22. Representação Criminal
+
+### Contratos e Documentos
+
+23. Contrato de Prestação de Serviços
+24. Procuração Ad Judicia
+25. Divórcio Consensual
+
+### Outros
+
+26. Parecer Jurídico
+27. Resumo de Autos
+28. Execução de Título Extrajudicial
+
+---
+
+## COMO USAR
+
+Cada template contém variáveis entre chaves `{VARIAVEL}` que devem ser substituídas pelos dados reais do caso.
+
+**Exemplo:**
+
+- `{NOME_AUTOR}` → João Silva
+- `{CPF}` → 123.456.789-00
+- `{COMARCA}` → Belo Horizonte
+
+---
+=== acao_alimentos.md ===
+# AÇÃO DE ALIMENTOS
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} DA COMARCA DE {COMARCA}/{UF}
+
+---
+
+**{NOME_AUTOR}**, {QUALIFICACAO_AUTOR}, neste ato representado(a) por seu/sua genitor(a) **{NOME_REPRESENTANTE}**, {QUALIFICACAO_REPRESENTANTE}, vem, respeitosamente, à presença de Vossa Excelência, por seu advogado que esta subscreve, com fundamento nos artigos 1.694 e seguintes do Código Civil e Lei nº 5.478/68, propor a presente:
+
+## AÇÃO DE ALIMENTOS
+
+em face de **{NOME_REU}**, {QUALIFICACAO_REU}, pelos fatos e fundamentos jurídicos a seguir expostos:
+
+---
+
+## I – DA GRATUIDADE DE JUSTIÇA
+
+Inicialmente, requer a concessão dos benefícios da Justiça Gratuita, nos termos do artigo 98 do CPC, uma vez que o(a) representante legal do(a) Autor(a) não possui condições de arcar com as custas processuais e honorários advocatícios sem prejuízo do sustento próprio e de sua família.
+
+---
+
+## II – DA RELAÇÃO DE PARENTESCO
+
+O(A) Autor(a) é filho(a) do(a) Réu(Ré), conforme demonstra a Certidão de Nascimento anexa, nascido(a) em {DATA_NASCIMENTO}, contando atualmente com {IDADE} anos de idade.
+
+---
+
+## III – DOS FATOS
+
+{NARRATIVA_FATOS}
+
+O(A) Réu(Ré), apesar de possuir condições financeiras, não vem contribuindo para o sustento do(a) filho(a), deixando-o(a) em situação de necessidade.
+
+---
+
+## IV – DA NECESSIDADE DO(A) ALIMENTANDO(A)
+
+O(A) Autor(a) necessita dos alimentos para custear suas despesas básicas, quais sejam:
+
+| Despesa | Valor Mensal |
+|---------|--------------|
+| Alimentação | R$ {VALOR_ALIMENTACAO} |
+| Educação (escola/material) | R$ {VALOR_EDUCACAO} |
+| Saúde (plano/medicamentos) | R$ {VALOR_SAUDE} |
+| Vestuário | R$ {VALOR_VESTUARIO} |
+| Higiene e limpeza | R$ {VALOR_HIGIENE} |
+| Transporte | R$ {VALOR_TRANSPORTE} |
+| Lazer | R$ {VALOR_LAZER} |
+| Outros | R$ {VALOR_OUTROS} |
+| **TOTAL** | **R$ {VALOR_TOTAL_DESPESAS}** |
+
+---
+
+## V – DA POSSIBILIDADE DO(A) ALIMENTANTE
+
+O(A) Réu(Ré) trabalha como {PROFISSAO_REU} na empresa {EMPRESA_REU}, auferindo renda mensal de aproximadamente **R$ {RENDA_REU}**.
+
+{INFORMACOES_ADICIONAIS_RENDA}
+
+---
+
+## VI – DO DIREITO
+
+### 6.1 – Do Dever de Sustento
+
+O artigo 1.566, IV, do Código Civil estabelece como dever dos cônjuges o sustento, guarda e educação dos filhos. O artigo 1.634 também prevê que compete aos pais, quanto à pessoa dos filhos menores, dirigir-lhes a criação e a educação.
+
+### 6.2 – Dos Alimentos
+
+O artigo 1.694 do Código Civil dispõe que podem os parentes exigir uns dos outros os alimentos de que necessitem para viver de modo compatível com a sua condição social.
+
+### 6.3 – Do Binômio Necessidade x Possibilidade
+
+Nos termos do artigo 1.695 do Código Civil, são devidos os alimentos quando quem os pretende não tem bens suficientes, nem pode prover, pelo seu trabalho, à própria mantença, e aquele, de quem se reclamam, pode fornecê-los, sem desfalque do necessário ao seu sustento.
+
+---
+
+## VII – DOS ALIMENTOS PROVISÓRIOS
+
+Requer a fixação de alimentos provisórios, nos termos do artigo 4º da Lei nº 5.478/68, no valor de **R$ {VALOR_PROVISORIOS}** ({VALOR_PROVISORIOS_EXTENSO}), equivalente a {PERCENTUAL_PROVISORIOS}% do salário mínimo / dos rendimentos líquidos do(a) Réu(Ré), tendo em vista a urgência e necessidade do(a) alimentando(a).
+
+---
+
+## VIII – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) A concessão dos benefícios da Justiça Gratuita;
+
+b) A fixação de alimentos provisórios no valor de R$ {VALOR_PROVISORIOS}, a serem pagos todo dia {DIA_PAGAMENTO} de cada mês;
+
+c) A citação do(a) Réu(Ré) para comparecer à audiência de conciliação e, querendo, apresentar contestação;
+
+d) A procedência do pedido, com a condenação do(a) Réu(Ré) ao pagamento de pensão alimentícia definitiva no valor de **R$ {VALOR_DEFINITIVOS}** ({VALOR_DEFINITIVOS_EXTENSO}), equivalente a {PERCENTUAL_DEFINITIVOS}% de seus rendimentos líquidos, incluindo 13º salário, férias e PLR;
+
+e) A determinação de desconto em folha de pagamento, nos termos do artigo 529 do CPC;
+
+f) A produção de todas as provas em direito admitidas;
+
+---
+
+## IX – DO VALOR DA CAUSA
+
+Dá-se à causa o valor de **R$ {VALOR_CAUSA}** ({VALOR_CAUSA_EXTENSO}), correspondente a 12 (doze) parcelas dos alimentos pleiteados.
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+---
+
+## DOCUMENTOS ANEXOS:
+
+1. Procuração ad judicia
+2. Certidão de nascimento do(a) Autor(a)
+3. Comprovante de residência
+4. Declaração de hipossuficiência
+5. Comprovantes de despesas
+6. {LISTA_DOCUMENTOS}
+
+=== acao_indenizacao_danos.md ===
+# AÇÃO DE INDENIZAÇÃO POR DANOS MORAIS E MATERIAIS
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} DA COMARCA DE {COMARCA}/{UF}
+
+---
+
+**{NOME_AUTOR}**, {QUALIFICACAO_AUTOR}, vem, respeitosamente, à presença de Vossa Excelência, por seu advogado que esta subscreve, com fundamento nos artigos 186, 187 e 927 do Código Civil, propor a presente:
+
+## AÇÃO DE INDENIZAÇÃO POR DANOS MORAIS E MATERIAIS
+
+em face de **{NOME_REU}**, {QUALIFICACAO_REU}, pelos fatos e fundamentos jurídicos a seguir expostos:
+
+---
+
+## I – DOS FATOS
+
+{NARRATIVA_FATOS}
+
+---
+
+## II – DO DIREITO
+
+### 2.1 – Da Responsabilidade Civil
+
+O artigo 186 do Código Civil estabelece que "aquele que, por ação ou omissão voluntária, negligência ou imprudência, violar direito e causar dano a outrem, ainda que exclusivamente moral, comete ato ilícito".
+
+Complementarmente, o artigo 927 determina que "aquele que, por ato ilícito (arts. 186 e 187), causar dano a outrem, fica obrigado a repará-lo".
+
+### 2.2 – Dos Pressupostos da Responsabilidade Civil
+
+No presente caso, restam configurados todos os pressupostos da responsabilidade civil:
+
+**a) Conduta ilícita:** {DESCRICAO_CONDUTA_ILICITA}
+
+**b) Dano:** {DESCRICAO_DANO}
+
+**c) Nexo causal:** {DESCRICAO_NEXO}
+
+### 2.3 – Dos Danos Materiais
+
+Os danos materiais sofridos pelo(a) Autor(a) consistem em:
+
+| Descrição | Valor |
+|-----------|-------|
+| {ITEM_DANO_1} | R$ {VALOR_DANO_1} |
+| {ITEM_DANO_2} | R$ {VALOR_DANO_2} |
+| {ITEM_DANO_3} | R$ {VALOR_DANO_3} |
+| **TOTAL DANOS MATERIAIS** | **R$ {VALOR_TOTAL_MATERIAIS}** |
+
+### 2.4 – Dos Danos Morais
+
+Os danos morais são caracterizados pela violação aos direitos da personalidade, causando sofrimento, angústia, humilhação ou constrangimento à vítima.
+
+No caso em tela, o(a) Autor(a) sofreu {DESCRICAO_DANO_MORAL}.
+
+A quantificação dos danos morais deve observar o caráter compensatório para a vítima e pedagógico para o ofensor, levando em consideração:
+
+- A gravidade do dano
+- A capacidade econômica das partes
+- O grau de culpa do ofensor
+- A repercussão do fato
+
+Assim, pleiteia-se indenização por danos morais no valor de **R$ {VALOR_DANOS_MORAIS}**.
+
+### 2.5 – Da Jurisprudência
+
+{JURISPRUDENCIA}
+
+---
+
+## III – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) A citação do(a) Réu(Ré) para que, querendo, apresente contestação no prazo legal;
+
+b) A procedência do pedido, condenando o(a) Réu(Ré) ao pagamento de:
+
+   - **Danos materiais**: R$ {VALOR_TOTAL_MATERIAIS}, acrescido de correção monetária desde o evento danoso e juros de mora de 1% ao mês desde a citação;
+
+   - **Danos morais**: R$ {VALOR_DANOS_MORAIS}, acrescido de correção monetária a partir do arbitramento e juros de mora de 1% ao mês desde o evento danoso;
+
+c) A condenação do(a) Réu(Ré) ao pagamento das custas processuais e honorários advocatícios;
+
+d) A concessão dos benefícios da Justiça Gratuita (se aplicável);
+
+e) A produção de todas as provas em direito admitidas, especialmente {PROVAS_REQUERIDAS};
+
+---
+
+## IV – DO VALOR DA CAUSA
+
+Dá-se à causa o valor de **R$ {VALOR_CAUSA}** ({VALOR_CAUSA_EXTENSO}), correspondente à soma dos danos materiais e morais pleiteados.
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+---
+
+## DOCUMENTOS ANEXOS:
+
+1. Procuração ad judicia
+2. Documentos pessoais do(a) Autor(a)
+3. Comprovantes dos danos materiais
+4. {LISTA_DOCUMENTOS}
+
+=== acao_revisional_bancaria.md ===
+# AÇÃO REVISIONAL DE CONTRATO BANCÁRIO
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} DA COMARCA DE {COMARCA}/{UF}
+
+---
+
+**{NOME_AUTOR}**, {QUALIFICACAO_AUTOR}, vem, respeitosamente, à presença de Vossa Excelência, por seu advogado que esta subscreve, com fundamento nos artigos 6º, V, e 51, IV, do Código de Defesa do Consumidor, propor a presente:
+
+## AÇÃO REVISIONAL DE CONTRATO BANCÁRIO C/C REPETIÇÃO DE INDÉBITO
+
+em face de **{NOME_BANCO}**, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº {CNPJ_BANCO}, com sede na {ENDERECO_BANCO}, pelos fatos e fundamentos jurídicos a seguir expostos:
+
+---
+
+## I – DA GRATUIDADE DE JUSTIÇA
+
+Requer a concessão dos benefícios da Justiça Gratuita, nos termos do artigo 98 do CPC, por não possuir condições de arcar com as custas processuais sem prejuízo do sustento próprio e de sua família.
+
+---
+
+## II – DOS FATOS
+
+O(A) Autor(a) firmou com o(a) Réu(Ré) contrato de {TIPO_CONTRATO} nº {NUMERO_CONTRATO}, em {DATA_CONTRATO}, no valor de **R$ {VALOR_CONTRATADO}**, a ser pago em {NUMERO_PARCELAS} parcelas de **R$ {VALOR_PARCELA}**.
+
+{NARRATIVA_FATOS}
+
+---
+
+## III – DO DIREITO
+
+### 3.1 – Da Aplicação do Código de Defesa do Consumidor
+
+A relação entre as partes é de consumo, aplicando-se as disposições do CDC, conforme entendimento sumulado pelo STJ (Súmula 297).
+
+### 3.2 – Da Abusividade das Cláusulas Contratuais
+
+#### a) Dos Juros Remuneratórios
+
+Os juros remuneratórios praticados pelo Réu são de {TAXA_JUROS_PRATICADA}% ao mês ({TAXA_JUROS_ANUAL}% ao ano), enquanto a taxa média de mercado divulgada pelo BACEN para a mesma modalidade de operação é de {TAXA_MEDIA_BACEN}% ao mês.
+
+A diferença de {DIFERENCA_TAXA}% caracteriza abusividade que deve ser coibida.
+
+#### b) Da Capitalização de Juros
+
+O contrato prevê capitalização de juros em periodicidade inferior à anual, o que eleva consideravelmente o custo efetivo total da operação.
+
+#### c) Da Comissão de Permanência
+
+{ARGUMENTOS_COMISSAO_PERMANENCIA}
+
+#### d) Das Tarifas Administrativas
+
+O contrato contém cobrança das seguintes tarifas:
+
+| Tarifa | Valor |
+|--------|-------|
+| TAC (Tarifa de Abertura de Crédito) | R$ {VALOR_TAC} |
+| TEC (Tarifa de Emissão de Carnê) | R$ {VALOR_TEC} |
+| Tarifa de Cadastro | R$ {VALOR_CADASTRO} |
+| Seguro Prestamista | R$ {VALOR_SEGURO} |
+| IOF Financiado | R$ {VALOR_IOF} |
+| {OUTRAS_TARIFAS} | R$ {VALOR_OUTRAS} |
+
+### 3.3 – Da Jurisprudência
+
+{JURISPRUDENCIA}
+
+---
+
+## IV – DA REPETIÇÃO DE INDÉBITO
+
+Os valores cobrados indevidamente devem ser devolvidos em dobro, nos termos do artigo 42, parágrafo único, do CDC, ou, subsidiariamente, de forma simples.
+
+---
+
+## V – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) A concessão dos benefícios da Justiça Gratuita;
+
+b) A citação do(a) Réu(Ré) para que, querendo, apresente contestação no prazo legal;
+
+c) A procedência dos pedidos para:
+
+   1. Revisar o contrato, afastando as cláusulas abusivas;
+
+   2. Limitar os juros remuneratórios à taxa média de mercado divulgada pelo BACEN;
+
+   3. Afastar a capitalização de juros em periodicidade inferior à anual;
+
+   4. Declarar a nulidade da comissão de permanência;
+
+   5. Afastar a cobrança das tarifas abusivas (TAC, TEC, etc.);
+
+   6. Condenar o(a) Réu(Ré) à repetição do indébito, em dobro, dos valores cobrados indevidamente;
+
+   7. Recalcular o débito com base nos parâmetros legais;
+
+d) A inversão do ônus da prova, nos termos do artigo 6º, VIII, do CDC;
+
+e) A determinação para que o(a) Réu(Ré) apresente o contrato original e planilha de evolução do débito;
+
+f) A condenação ao pagamento das custas processuais e honorários advocatícios;
+
+g) A produção de todas as provas em direito admitidas;
+
+---
+
+## VI – DO DEPÓSITO JUDICIAL (se aplicável)
+
+O(A) Autor(a) propõe-se a depositar judicialmente o valor das parcelas que entende devido, qual seja, **R$ {VALOR_PARCELA_CORRETA}**, demonstrando sua boa-fé e evitando a mora.
+
+---
+
+## VII – DO VALOR DA CAUSA
+
+Dá-se à causa o valor de **R$ {VALOR_CAUSA}** ({VALOR_CAUSA_EXTENSO}).
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+---
+
+## DOCUMENTOS ANEXOS:
+
+1. Procuração ad judicia
+2. Contrato bancário
+3. Comprovantes de pagamento
+4. Extrato bancário
+5. Declaração de hipossuficiência
+6. {LISTA_DOCUMENTOS}
+
+=== acao_usucapiao.md ===
+# AÇÃO DE USUCAPIÃO
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} DA COMARCA DE {COMARCA}/{UF}
+
+---
+
+**{NOME_AUTOR}**, {QUALIFICACAO_AUTOR}, vem, respeitosamente, à presença de Vossa Excelência, por seu advogado que esta subscreve, com fundamento nos artigos 1.238 a 1.244 do Código Civil e artigo 1.071 do CPC, propor a presente:
+
+## AÇÃO DE USUCAPIÃO {TIPO_USUCAPIAO}
+
+tendo por objeto o imóvel situado na {ENDERECO_IMOVEL}, pelos fatos e fundamentos jurídicos a seguir expostos:
+
+---
+
+## I – DO IMÓVEL
+
+O imóvel objeto da presente ação possui as seguintes características:
+
+| Informação | Descrição |
+|------------|-----------|
+| Endereço | {ENDERECO_IMOVEL} |
+| Área | {AREA_IMOVEL} m² |
+| Matrícula | {MATRICULA_IMOVEL} (se houver) |
+| Confrontações | Norte: {CONFRONTACAO_NORTE}; Sul: {CONFRONTACAO_SUL}; Leste: {CONFRONTACAO_LESTE}; Oeste: {CONFRONTACAO_OESTE} |
+| Valor venal | R$ {VALOR_VENAL} |
+
+O imóvel encontra-se cadastrado no IPTU sob o nº {NUMERO_IPTU} (se urbano) / INCRA nº {NUMERO_INCRA} (se rural).
+
+---
+
+## II – DOS FATOS
+
+{NARRATIVA_FATOS}
+
+O(A) Autor(a) exerce a posse mansa, pacífica, ininterrupta e com animus domini sobre o referido imóvel desde {DATA_INICIO_POSSE}, ou seja, há mais de {TEMPO_POSSE} anos.
+
+---
+
+## III – DA POSSE
+
+### 3.1 – Da Origem da Posse
+
+A posse do(a) Autor(a) teve origem {ORIGEM_POSSE}.
+
+### 3.2 – Das Características da Posse
+
+A posse exercida pelo(a) Autor(a) é:
+
+- **Mansa e pacífica**: nunca houve oposição à posse;
+- **Contínua e ininterrupta**: o(a) Autor(a) jamais abandonou o imóvel;
+- **Com animus domini**: o(a) Autor(a) sempre se comportou como dono(a);
+- **Pública**: a posse é conhecida por todos;
+- **De boa-fé** (se aplicável): o(a) Autor(a) desconhece qualquer vício.
+
+### 3.3 – Das Benfeitorias Realizadas
+
+O(A) Autor(a) realizou as seguintes benfeitorias no imóvel:
+
+{LISTA_BENFEITORIAS}
+
+### 3.4 – Do Pagamento de Tributos
+
+O(A) Autor(a) vem arcando com o pagamento dos tributos incidentes sobre o imóvel (IPTU/ITR), conforme comprovantes anexos.
+
+---
+
+## IV – DO DIREITO
+
+### 4.1 – Da Modalidade de Usucapião
+
+O presente caso enquadra-se na modalidade de usucapião {TIPO_USUCAPIAO}, prevista no artigo {ARTIGO_FUNDAMENTO} do Código Civil:
+
+{TRANSCRICAO_ARTIGO}
+
+### 4.2 – Dos Requisitos Legais
+
+| Requisito | Comprovação |
+|-----------|-------------|
+| Posse por {TEMPO_EXIGIDO} anos | ✓ Posse desde {DATA_INICIO_POSSE} |
+| Posse mansa e pacífica | ✓ Sem oposição |
+| Posse contínua | ✓ Jamais abandonou |
+| Animus domini | ✓ Comportamento de proprietário |
+| {REQUISITO_ESPECIFICO} | ✓ {COMPROVACAO_ESPECIFICA} |
+
+### 4.3 – Da Jurisprudência
+
+{JURISPRUDENCIA}
+
+---
+
+## V – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) A citação dos proprietários registrais do imóvel: {NOMES_PROPRIETARIOS};
+
+b) A citação dos confinantes: {NOMES_CONFINANTES};
+
+c) A intimação da Fazenda Pública (Municipal, Estadual e Federal);
+
+d) A publicação de edital para citação de eventuais interessados;
+
+e) A intimação do Ministério Público;
+
+f) A procedência do pedido, declarando a aquisição da propriedade do imóvel por usucapião em favor do(a) Autor(a);
+
+g) A expedição de mandado ao Cartório de Registro de Imóveis para registro da sentença;
+
+h) A produção de todas as provas em direito admitidas, especialmente:
+   - Prova testemunhal
+   - Prova documental
+   - Prova pericial (levantamento topográfico e avaliação)
+   - Inspeção judicial
+
+---
+
+## VI – DO VALOR DA CAUSA
+
+Dá-se à causa o valor de **R$ {VALOR_CAUSA}** ({VALOR_CAUSA_EXTENSO}), correspondente ao valor venal do imóvel.
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+---
+
+## DOCUMENTOS ANEXOS:
+
+1. Procuração ad judicia
+2. Documentos pessoais do(a) Autor(a)
+3. Certidão de matrícula do imóvel (ou certidão negativa)
+4. Planta e memorial descritivo do imóvel
+5. Comprovantes de pagamento de IPTU/ITR
+6. Comprovantes de contas de água, luz, etc.
+7. Fotos do imóvel e benfeitorias
+8. Declarações de vizinhos
+9. {LISTA_DOCUMENTOS}
+
+=== agravo_execucao_penal.md ===
+# AGRAVO EM EXECUÇÃO PENAL
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA DE EXECUÇÕES PENAIS DA COMARCA DE {CIDADE}/{ESTADO}
+
+**Processo de Execução nº:** {NUMERO_EXECUCAO}
+**Agravante:** {NOME_AGRAVANTE}
+**Agravado:** {NOME_AGRAVADO}
+
+---
+
+**{NOME_AGRAVANTE}**, já qualificado(a) nos autos em epígrafe, por seu(sua) advogado(a) que esta subscreve, inconformado(a) com a r. decisão de fls. {FLS_DECISAO}, que {DECISUM}, vem, respeitosamente, perante Vossa Excelência, com fundamento no artigo 197 da Lei nº 7.210/84 (Lei de Execução Penal), interpor
+
+## AGRAVO EM EXECUÇÃO
+
+requerendo seja recebido e processado o presente recurso, com a posterior remessa dos autos ao Egrégio Tribunal de Justiça do Estado de {ESTADO}, para julgamento.
+
+Requer, desde já, seja o presente agravo recebido no efeito {SUSPENSIVO_DEVOLUTIVO}, nos termos do artigo {ARTIGO_EFEITO}.
+
+As razões recursais seguem em anexo.
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+
+---
+
+# RAZÕES DE AGRAVO EM EXECUÇÃO
+
+**Processo de Execução nº:** {NUMERO_EXECUCAO}
+**Agravante:** {NOME_AGRAVANTE}
+**Agravado:** {NOME_AGRAVADO}
+
+## EGRÉGIO TRIBUNAL DE JUSTIÇA DO ESTADO DE {ESTADO}
+## COLENDA CÂMARA CRIMINAL / CÂMARA DE EXECUÇÃO PENAL
+
+---
+
+## I – DA TEMPESTIVIDADE
+
+A intimação da r. decisão agravada ocorreu em {DATA_INTIMACAO}. O presente agravo está sendo interposto em {DATA_INTERPOSICAO}, dentro do prazo legal de 5 (cinco) dias previsto no artigo 586 do CPP c/c artigo 197 da LEP.
+
+---
+
+## II – DA SÍNTESE DO CASO
+
+{RESUMO_CASO}
+
+O(A) agravante cumpre pena de {PENA_TOTAL} pela prática do crime de {CRIME}.
+
+Em {DATA_PEDIDO}, foi formulado pedido de {BENEFICIO_PLEITEADO}, o qual foi indeferido pela r. decisão ora agravada sob o fundamento de {FUNDAMENTO_DECISAO}.
+
+---
+
+## III – DA DECISÃO AGRAVADA
+
+A r. decisão de fls. {FLS} indeferiu o pedido de {BENEFICIO} com a seguinte fundamentação:
+
+> "{TRANSCRICAO_DECISAO}"
+
+---
+
+## IV – DAS RAZÕES RECURSAIS
+
+### a) Do Preenchimento dos Requisitos Legais
+
+{ARGUMENTOS_REQUISITOS}
+
+Demonstra-se que o(a) agravante preenche todos os requisitos objetivos e subjetivos para a concessão do benefício de {BENEFICIO}:
+
+**Requisito Objetivo (temporal):**
+{DEMONSTRACAO_REQUISITO_OBJETIVO}
+
+**Requisito Subjetivo (bom comportamento):**
+{DEMONSTRACAO_REQUISITO_SUBJETIVO}
+
+### b) Da Natureza de Direito Subjetivo
+
+{BENEFICIO} é direito subjetivo do(a) apenado(a) que preenche os requisitos legais, não podendo ser negado de forma arbitrária ou com base em fundamentação genérica.
+
+### c) Dos Vícios da Decisão Agravada
+
+{ARGUMENTOS_VICIOS_DECISAO}
+
+---
+
+## V – DA JURISPRUDÊNCIA
+
+{JURISPRUDENCIA_1}
+
+{JURISPRUDENCIA_2}
+
+{JURISPRUDENCIA_3}
+
+---
+
+## VI – DOS PEDIDOS
+
+Ante o exposto, requer:
+
+**a)** O conhecimento e provimento do presente agravo em execução;
+
+**b)** A reforma da r. decisão agravada para conceder ao(à) agravante o benefício de {BENEFICIO};
+
+**c)** Subsidiariamente, a anulação da decisão para que outra seja proferida com fundamentação adequada;
+
+**d)** O prequestionamento dos dispositivos legais citados (arts. {ARTIGOS_PREQUESTIONAMENTO});
+
+**e)** A intimação do(a) advogado(a) de todos os atos processuais.
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+
+=== agravo_instrumento.md ===
+# AGRAVO DE INSTRUMENTO
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) DESEMBARGADOR(A) PRESIDENTE DO EGRÉGIO TRIBUNAL DE JUSTIÇA DO ESTADO DE {UF}
+
+---
+
+**Agravante: {NOME_AGRAVANTE}**
+**Agravado(a): {NOME_AGRAVADO}**
+**Origem: {VARA_ORIGEM} da Comarca de {COMARCA}**
+**Processo nº {NUMERO_PROCESSO}**
+
+---
+
+**{NOME_AGRAVANTE}**, já qualificado(a) nos autos do processo em epígrafe, por seu advogado que esta subscreve, vem, respeitosamente, à presença de Vossa Excelência, interpor o presente:
+
+## AGRAVO DE INSTRUMENTO
+
+com fundamento no artigo 1.015 e seguintes do Código de Processo Civil, contra a r. decisão interlocutória de fls. {FOLHAS_DECISAO}, proferida pelo MM. Juízo da {VARA_ORIGEM}, conforme as razões a seguir expostas.
+
+---
+
+## I – DA TEMPESTIVIDADE
+
+O presente recurso é tempestivo, tendo em vista que a intimação da decisão agravada ocorreu em {DATA_INTIMACAO}.
+
+---
+
+## II – DO CABIMENTO
+
+O presente agravo de instrumento é cabível nos termos do artigo 1.015, {INCISO_CABIMENTO}, do CPC, que prevê o cabimento do recurso contra decisões interlocutórias que versam sobre {HIPOTESE_CABIMENTO}.
+
+---
+
+## III – DA DECISÃO AGRAVADA
+
+O MM. Juízo a quo proferiu decisão nos seguintes termos:
+
+"{TRANSCRICAO_DECISAO}"
+
+---
+
+## IV – DOS FATOS
+
+{NARRATIVA_FATOS}
+
+---
+
+## V – DAS RAZÕES DO RECURSO
+
+### 5.1 – Do Erro da Decisão Agravada
+
+{ARGUMENTOS_ERRO_DECISAO}
+
+### 5.2 – Do Direito Aplicável
+
+{FUNDAMENTACAO_JURIDICA}
+
+### 5.3 – Da Jurisprudência Favorável
+
+{JURISPRUDENCIA}
+
+---
+
+## VI – DO PEDIDO DE EFEITO SUSPENSIVO / TUTELA RECURSAL
+
+Requer a concessão de efeito suspensivo à decisão agravada / tutela recursal de urgência, nos termos do artigo 1.019, I, do CPC, tendo em vista que:
+
+### 6.1 – Da Probabilidade do Direito (Fumus Boni Iuris)
+
+{ARGUMENTOS_FUMUS}
+
+### 6.2 – Do Perigo de Dano ou Risco ao Resultado Útil do Processo (Periculum in Mora)
+
+{ARGUMENTOS_PERICULUM}
+
+---
+
+## VII – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) A concessão de efeito suspensivo / tutela recursal de urgência, suspendendo os efeitos da decisão agravada até o julgamento final do presente recurso;
+
+b) A intimação do(a) Agravado(a) para, querendo, apresentar contraminuta no prazo legal;
+
+c) O provimento do presente agravo, reformando-se a decisão agravada para {PEDIDO_REFORMA};
+
+d) A condenação do(a) Agravado(a) ao pagamento das custas processuais e honorários advocatícios;
+
+---
+
+## VIII – DOCUMENTOS OBRIGATÓRIOS (Art. 1.017, I, CPC)
+
+1. Cópias da petição inicial e contestação
+2. Cópia da decisão agravada
+3. Certidão de intimação da decisão
+4. Procurações outorgadas aos advogados do agravante e agravado
+5. {OUTROS_DOCUMENTOS}
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+=== apelacao_criminal.md ===
+# RECURSO DE APELAÇÃO CRIMINAL
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} VARA CRIMINAL DA COMARCA DE {CIDADE}/{ESTADO}
+
+**Processo nº:** {NUMERO_PROCESSO}
+**Apelante:** {NOME_APELANTE}
+**Apelado:** {NOME_APELADO}
+
+---
+
+**{NOME_APELANTE}**, já qualificado(a) nos autos do processo em epígrafe, por seu(sua) advogado(a) que esta subscreve, inconformado(a) com a r. sentença de fls. {FLS_SENTENCA}, que {DECISUM_SENTENCA}, vem, respeitosamente, perante Vossa Excelência, com fundamento no artigo 593, I, do Código de Processo Penal, interpor
+
+## RECURSO DE APELAÇÃO
+
+requerendo seja recebido e processado o presente recurso, com a posterior remessa dos autos ao Egrégio Tribunal de Justiça do Estado de {ESTADO}, para julgamento.
+
+As razões recursais seguem em anexo.
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+
+---
+
+# RAZÕES DE APELAÇÃO CRIMINAL
+
+**Processo nº:** {NUMERO_PROCESSO}
+**Apelante:** {NOME_APELANTE}
+**Apelado:** {NOME_APELADO}
+
+## EGRÉGIO TRIBUNAL DE JUSTIÇA DO ESTADO DE {ESTADO}
+## COLENDA CÂMARA CRIMINAL
+
+---
+
+## I – DA SÍNTESE PROCESSUAL
+
+O(A) apelante foi denunciado(a) pela suposta prática do crime previsto no artigo {ARTIGO_CRIME} do {DIPLOMA_LEGAL}.
+
+{RESUMO_PROCESSUAL}
+
+Ao final, sobreveio sentença condenatória, fixando a pena em {PENA_APLICADA}, em regime {REGIME_FIXADO}.
+
+Inconformada, a defesa interpõe o presente recurso de apelação pelas razões a seguir expostas.
+
+---
+
+## II – PRELIMINARMENTE
+
+### a) Da Nulidade {TIPO_NULIDADE}
+
+{ARGUMENTOS_NULIDADE}
+
+---
+
+## III – DO MÉRITO
+
+### a) Da Ausência de Provas para Condenação
+
+{ARGUMENTOS_INSUFICIENCIA_PROVAS}
+
+A r. sentença merece reforma, pois o conjunto probatório produzido nos autos é frágil e insuficiente para embasar o decreto condenatório.
+
+### b) Do Princípio do In Dubio Pro Reo
+
+{ARGUMENTOS_IN_DUBIO_PRO_REO}
+
+Havendo dúvida razoável acerca da autoria ou materialidade delitiva, impõe-se a absolvição do(a) apelante.
+
+### c) Da Análise das Provas
+
+**Testemunhais:**
+{ANALISE_TESTEMUNHAS}
+
+**Documentais:**
+{ANALISE_DOCUMENTOS}
+
+**Periciais:**
+{ANALISE_PERICIAS}
+
+---
+
+## IV – SUBSIDIARIAMENTE
+
+### a) Da Desclassificação
+
+{SE_APLICAVEL}
+
+Caso não seja esse o entendimento, requer a desclassificação para o crime de {CRIME_MENOR}.
+
+### b) Da Dosimetria da Pena
+
+A pena merece redução pelos seguintes motivos:
+
+**Primeira fase - Circunstâncias judiciais (art. 59, CP):**
+{ARGUMENTOS_PRIMEIRA_FASE}
+
+**Segunda fase - Atenuantes e Agravantes:**
+{ARGUMENTOS_SEGUNDA_FASE}
+
+**Terceira fase - Causas de aumento e diminuição:**
+{ARGUMENTOS_TERCEIRA_FASE}
+
+### c) Do Regime Inicial
+
+{ARGUMENTOS_REGIME}
+
+Requer a fixação do regime inicial {REGIME_PRETENDIDO}.
+
+### d) Da Substituição da Pena
+
+{SE_APLICAVEL}
+
+Presentes os requisitos do artigo 44 do Código Penal, requer a substituição da pena privativa de liberdade por restritivas de direitos.
+
+---
+
+## V – DA JURISPRUDÊNCIA
+
+{JURISPRUDENCIA_1}
+
+{JURISPRUDENCIA_2}
+
+---
+
+## VI – DOS PEDIDOS
+
+Ante o exposto, requer:
+
+**a) Preliminarmente:**
+- O reconhecimento da nulidade {ESPECIFICAR};
+
+**b) No mérito:**
+- A REFORMA da r. sentença para ABSOLVER o(a) apelante por {FUNDAMENTO_ABSOLVICAO};
+
+**c) Subsidiariamente:**
+- A desclassificação para o crime de {CRIME_MENOR};
+- A redução da pena;
+- A fixação do regime inicial {REGIME};
+- A substituição da pena por restritivas de direitos;
+- {OUTROS_PEDIDOS}.
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+
+=== contestacao.md ===
+# CONTESTAÇÃO
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} DA COMARCA DE {COMARCA}/{UF}
+
+**Processo nº {NUMERO_PROCESSO}**
+**Ação: {TIPO_ACAO}**
+**Autor(a): {NOME_AUTOR}**
+**Réu(Ré): {NOME_REU}**
+
+---
+
+**{NOME_REU}**, já qualificado(a) nos autos do processo em epígrafe, vem, respeitosamente, à presença de Vossa Excelência, por seu advogado que esta subscreve, apresentar sua:
+
+## CONTESTAÇÃO
+
+às alegações do(a) Autor(a), pelos fatos e fundamentos jurídicos a seguir expostos:
+
+---
+
+## I – SÍNTESE DA DEMANDA
+
+O(A) Autor(a) ajuizou a presente ação pleiteando {RESUMO_PEDIDOS_AUTOR}.
+
+Contudo, conforme será demonstrado, os pedidos não merecem prosperar.
+
+---
+
+## II – PRELIMINARES
+
+### 2.1 – {PRELIMINAR_1_TITULO}
+
+{PRELIMINAR_1_ARGUMENTOS}
+
+### 2.2 – {PRELIMINAR_2_TITULO}
+
+{PRELIMINAR_2_ARGUMENTOS}
+
+---
+
+## III – DO MÉRITO
+
+### 3.1 – Dos Fatos
+
+Em que pese as alegações do(a) Autor(a), a verdade dos fatos é diversa:
+
+{NARRATIVA_FATOS_REU}
+
+### 3.2 – Da Impugnação aos Fatos Alegados
+
+{IMPUGNACAO_FATOS}
+
+### 3.3 – Do Direito Aplicável
+
+{FUNDAMENTACAO_JURIDICA_REU}
+
+### 3.4 – Da Jurisprudência Favorável
+
+{JURISPRUDENCIA_REU}
+
+---
+
+## IV – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) O acolhimento das preliminares arguidas, com a extinção do feito sem resolução do mérito;
+
+b) Caso superadas as preliminares, a total improcedência dos pedidos autorais;
+
+c) A condenação do(a) Autor(a) ao pagamento das custas processuais e honorários advocatícios, estes fixados em 20% sobre o valor da causa;
+
+d) A produção de todas as provas em direito admitidas, especialmente {PROVAS_REQUERIDAS};
+
+e) {OUTROS_PEDIDOS}
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+---
+
+## DOCUMENTOS ANEXOS:
+
+1. Procuração ad judicia
+2. {LISTA_DOCUMENTOS}
+
+=== contrato_prestacao_servicos.md ===
+# CONTRATO DE PRESTAÇÃO DE SERVIÇOS
+
+## CONTRATO DE PRESTAÇÃO DE SERVIÇOS Nº {NUMERO_CONTRATO}
+
+---
+
+Pelo presente instrumento particular de contrato de prestação de serviços, de um lado:
+
+**CONTRATANTE:**
+**{NOME_CONTRATANTE}**, {QUALIFICACAO_CONTRATANTE}, doravante denominado simplesmente **CONTRATANTE**;
+
+**CONTRATADA:**
+**{NOME_CONTRATADA}**, {QUALIFICACAO_CONTRATADA}, doravante denominada simplesmente **CONTRATADA**;
+
+Têm entre si justo e contratado o que se segue:
+
+---
+
+## CLÁUSULA PRIMEIRA – DO OBJETO
+
+1.1. O presente contrato tem por objeto a prestação de serviços de {DESCRICAO_SERVICOS}, conforme especificações constantes no Anexo I deste instrumento.
+
+1.2. {DETALHAMENTO_SERVICOS}
+
+---
+
+## CLÁUSULA SEGUNDA – DO PRAZO
+
+2.1. O presente contrato terá vigência de {PRAZO_VIGENCIA}, com início em {DATA_INICIO} e término em {DATA_TERMINO}.
+
+2.2. O contrato poderá ser prorrogado mediante acordo entre as partes, formalizado por meio de termo aditivo.
+
+2.3. {CONDICOES_PRORROGACAO}
+
+---
+
+## CLÁUSULA TERCEIRA – DO PREÇO E FORMA DE PAGAMENTO
+
+3.1. Pela prestação dos serviços objeto deste contrato, a CONTRATANTE pagará à CONTRATADA o valor total de **R$ {VALOR_TOTAL}** ({VALOR_TOTAL_EXTENSO}).
+
+3.2. O pagamento será efetuado da seguinte forma: {FORMA_PAGAMENTO}
+
+3.3. Os pagamentos serão realizados mediante {MEIO_PAGAMENTO}.
+
+3.4. Em caso de atraso no pagamento, incidirá multa de {PERCENTUAL_MULTA}% sobre o valor devido, acrescido de juros de mora de {PERCENTUAL_JUROS}% ao mês, calculados pro rata die.
+
+---
+
+## CLÁUSULA QUARTA – DAS OBRIGAÇÕES DA CONTRATADA
+
+4.1. A CONTRATADA obriga-se a:
+
+a) Prestar os serviços com zelo, diligência e honestidade;
+b) Manter sigilo sobre todas as informações obtidas em razão do contrato;
+c) Cumprir os prazos estabelecidos;
+d) {OBRIGACOES_CONTRATADA}
+
+---
+
+## CLÁUSULA QUINTA – DAS OBRIGAÇÕES DA CONTRATANTE
+
+5.1. A CONTRATANTE obriga-se a:
+
+a) Efetuar os pagamentos nas datas e condições pactuadas;
+b) Fornecer as informações e documentos necessários à prestação dos serviços;
+c) {OBRIGACOES_CONTRATANTE}
+
+---
+
+## CLÁUSULA SEXTA – DA RESCISÃO
+
+6.1. O presente contrato poderá ser rescindido:
+
+a) Por mútuo acordo entre as partes;
+b) Por qualquer das partes, mediante notificação prévia de {PRAZO_NOTIFICACAO} dias;
+c) Por justa causa, em caso de descumprimento de quaisquer cláusulas contratuais;
+
+6.2. {CONDICOES_RESCISAO}
+
+---
+
+## CLÁUSULA SÉTIMA – DA CONFIDENCIALIDADE
+
+7.1. As partes comprometem-se a manter em sigilo todas as informações confidenciais obtidas em razão deste contrato.
+
+7.2. A obrigação de confidencialidade perdurará por {PRAZO_CONFIDENCIALIDADE} após o término deste contrato.
+
+---
+
+## CLÁUSULA OITAVA – DAS PENALIDADES
+
+8.1. O descumprimento de quaisquer obrigações previstas neste contrato sujeitará a parte infratora ao pagamento de multa no valor de {VALOR_MULTA_CONTRATUAL}, sem prejuízo das perdas e danos.
+
+---
+
+## CLÁUSULA NONA – DISPOSIÇÕES GERAIS
+
+9.1. Este contrato não estabelece qualquer vínculo empregatício entre as partes.
+
+9.2. {DISPOSICOES_GERAIS}
+
+---
+
+## CLÁUSULA DÉCIMA – DO FORO
+
+10.1. As partes elegem o foro da Comarca de {COMARCA}/{UF} para dirimir quaisquer dúvidas ou controvérsias decorrentes deste contrato, com renúncia a qualquer outro, por mais privilegiado que seja.
+
+---
+
+E por estarem assim justas e contratadas, as partes assinam o presente instrumento em 2 (duas) vias de igual teor e forma, na presença de 2 (duas) testemunhas.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+**{NOME_CONTRATANTE}**
+CONTRATANTE
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+**{NOME_CONTRATADA}**
+CONTRATADA
+
+---
+
+**TESTEMUNHAS:**
+
+1. \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+   Nome: {NOME_TESTEMUNHA_1}
+   CPF: {CPF_TESTEMUNHA_1}
+
+2. \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+   Nome: {NOME_TESTEMUNHA_2}
+   CPF: {CPF_TESTEMUNHA_2}
+
+=== defesa_criminal_alegacoes_finais.md ===
+# ALEGAÇÕES FINAIS (MEMORIAIS)
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} VARA CRIMINAL DA COMARCA DE {CIDADE}/{ESTADO}
+
+**Processo nº:** {NUMERO_PROCESSO}
+**Classe:** Ação Penal
+**Acusado(a):** {NOME_ACUSADO}
+
+---
+
+**{NOME_ACUSADO}**, já qualificado(a) nos autos do processo em epígrafe, por seu(sua) advogado(a) que esta subscreve, vem, respeitosamente, perante Vossa Excelência, com fundamento no artigo 403 do Código de Processo Penal, apresentar
+
+## ALEGAÇÕES FINAIS POR MEMORIAIS
+
+pelos fatos e fundamentos de direito a seguir expostos:
+
+---
+
+## I – DA SÍNTESE PROCESSUAL
+
+O(A) acusado(a) foi denunciado(a) pela suposta prática do crime previsto no artigo {ARTIGO_CRIME} do {DIPLOMA_LEGAL}.
+
+{RESUMO_DENUNCIA}
+
+Durante a instrução processual, foram ouvidas as testemunhas de acusação e defesa, bem como interrogado(a) o(a) acusado(a), restando demonstrado que {CONCLUSAO_INSTRUCAO}.
+
+---
+
+## II – PRELIMINARMENTE
+
+### a) Da Nulidade {TIPO_NULIDADE}
+
+{ARGUMENTOS_NULIDADE}
+
+---
+
+## III – DO MÉRITO
+
+### a) Da Análise das Provas Produzidas
+
+**Prova testemunhal:**
+
+{ANALISE_TESTEMUNHOS}
+
+A testemunha {NOME_TESTEMUNHA_1} declarou que "{TRANSCRICAO_RELEVANTE_1}".
+
+A testemunha {NOME_TESTEMUNHA_2} afirmou que "{TRANSCRICAO_RELEVANTE_2}".
+
+**Prova documental:**
+
+{ANALISE_DOCUMENTOS}
+
+**Interrogatório do acusado:**
+
+O(A) acusado(a) em seu interrogatório declarou que {TRANSCRICAO_INTERROGATORIO}, versão que restou corroborada por {ELEMENTOS_CORROBORACAO}.
+
+### b) Da Ausência de Provas Suficientes para Condenação
+
+{ARGUMENTOS_INSUFICIENCIA_PROVAS}
+
+O conjunto probatório é frágil e insuficiente para embasar um decreto condenatório, prevalecendo o princípio constitucional da presunção de inocência (art. 5º, LVII, CF).
+
+"In dubio pro reo" - havendo dúvida razoável sobre a autoria ou materialidade, impõe-se a absolvição.
+
+### c) Da Palavra da Vítima
+
+{ANALISE_PALAVRA_VITIMA}
+
+### d) Da Aplicação dos Princípios Penais
+
+**Princípio da Presunção de Inocência:**
+
+**Princípio do In Dubio Pro Reo:**
+
+**Princípio da Legalidade:**
+
+**Princípio da Culpabilidade:**
+
+---
+
+## IV – SUBSIDIARIAMENTE
+
+### a) Da Desclassificação
+
+{SE_APLICAVEL_DESCLASSIFICACAO}
+
+Caso não seja esse o entendimento de Vossa Excelência, o que se admite apenas para argumentar, requer a desclassificação do delito para {DELITO_MENOR}, previsto no artigo {ARTIGO_MENOR}.
+
+### b) Do Reconhecimento de Causas de Diminuição
+
+{SE_APLICAVEL_DIMINUICAO}
+
+- Tentativa (art. 14, II, CP) - redução de 1/3 a 2/3
+- Arrependimento posterior (art. 16, CP)
+- Crime impossível (art. 17, CP)
+- Erro de tipo (art. 20, CP)
+- {OUTRAS_CAUSAS_DIMINUICAO}
+
+### c) Do Reconhecimento de Atenuantes
+
+{SE_APLICAVEL_ATENUANTES}
+
+- Menoridade relativa (art. 65, I, CP)
+- Confissão espontânea (art. 65, III, d, CP)
+- {OUTRAS_ATENUANTES}
+
+### d) Da Fixação da Pena no Mínimo Legal
+
+{ARGUMENTOS_PENA_MINIMA}
+
+### e) Da Substituição da Pena Privativa de Liberdade
+
+{SE_APLICAVEL_SUBSTITUICAO}
+
+Presentes os requisitos do artigo 44 do Código Penal, requer a substituição da pena privativa de liberdade por restritivas de direitos.
+
+### f) Da Suspensão Condicional da Pena (Sursis)
+
+{SE_APLICAVEL_SURSIS}
+
+### g) Do Regime Inicial de Cumprimento
+
+{ARGUMENTOS_REGIME}
+
+---
+
+## V – DA JURISPRUDÊNCIA APLICÁVEL
+
+{JURISPRUDENCIA_1}
+
+{JURISPRUDENCIA_2}
+
+{JURISPRUDENCIA_3}
+
+---
+
+## VI – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+**a) Preliminarmente:**
+   - O reconhecimento da nulidade {ESPECIFICAR};
+
+**b) No mérito, a ABSOLVIÇÃO do(a) acusado(a)** por:
+   - Inexistência do fato (art. 386, I, CPP);
+   - Não haver prova da existência do fato (art. 386, II, CPP);
+   - Não constituir o fato infração penal (art. 386, III, CPP);
+   - Estar provado que o réu não concorreu para a infração penal (art. 386, IV, CPP);
+   - Não existir prova de ter o réu concorrido para a infração penal (art. 386, V, CPP);
+   - Existirem circunstâncias que excluam o crime ou isentem o réu de pena (art. 386, VI, CPP);
+   - Não existir prova suficiente para a condenação (art. 386, VII, CPP);
+
+**c) Subsidiariamente:**
+   - A desclassificação para o crime de {CRIME_MENOR};
+   - O reconhecimento das causas de diminuição de pena;
+   - O reconhecimento das atenuantes;
+   - A fixação da pena no mínimo legal;
+   - A substituição da pena por restritivas de direitos;
+   - A concessão do sursis;
+   - A fixação do regime inicial aberto.
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+
+=== defesa_criminal_resposta_acusacao.md ===
+# RESPOSTA À ACUSAÇÃO
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} VARA CRIMINAL DA COMARCA DE {CIDADE}/{ESTADO}
+
+**Processo nº:** {NUMERO_PROCESSO}
+**Classe:** Ação Penal
+**Acusado(a):** {NOME_ACUSADO}
+
+---
+
+**{NOME_ACUSADO}**, {QUALIFICACAO_ACUSADO}, já qualificado(a) nos autos do processo em epígrafe, vem, por seu(sua) advogado(a) que esta subscreve, com fundamento no artigo 396-A do Código de Processo Penal, apresentar
+
+## RESPOSTA À ACUSAÇÃO
+
+em face da denúncia oferecida pelo(a) **{MINISTERIO_PUBLICO}**, pelos fatos e fundamentos que passa a expor:
+
+---
+
+## I – DOS FATOS
+
+{NARRATIVA_FATOS}
+
+O(A) acusado(a) foi denunciado(a) pela suposta prática do crime previsto no artigo {ARTIGO_CRIME} do {DIPLOMA_LEGAL}, em razão dos fatos narrados na inicial acusatória.
+
+Ocorre que a denúncia não merece prosperar, pelas razões de fato e de direito a seguir expostas.
+
+---
+
+## II – PRELIMINARMENTE
+
+### a) Da Inépcia da Denúncia
+
+{SE_APLICAVEL_INEPTO}
+
+A denúncia não preenche os requisitos do artigo 41 do Código de Processo Penal, uma vez que {MOTIVO_INEPCIA}, devendo ser rejeitada nos termos do artigo 395, I, do CPP.
+
+### b) Da Falta de Justa Causa
+
+{SE_APLICAVEL_JUSTA_CAUSA}
+
+Não há nos autos elementos mínimos de autoria e materialidade que justifiquem a instauração da ação penal, devendo esta ser rejeitada por falta de justa causa para o exercício da ação penal (artigo 395, III, do CPP).
+
+### c) Da Prescrição
+
+{SE_APLICAVEL_PRESCRICAO}
+
+---
+
+## III – DO MÉRITO
+
+### a) Da Ausência de Materialidade
+
+{ARGUMENTOS_MATERIALIDADE}
+
+### b) Da Ausência de Autoria
+
+{ARGUMENTOS_AUTORIA}
+
+### c) Das Excludentes de Ilicitude/Culpabilidade
+
+{SE_APLICAVEL_EXCLUDENTES}
+
+**Legítima Defesa (art. 25, CP):**
+
+**Estado de Necessidade (art. 24, CP):**
+
+**Estrito Cumprimento do Dever Legal (art. 23, III, CP):**
+
+**Exercício Regular de Direito (art. 23, III, CP):**
+
+**Inexigibilidade de Conduta Diversa:**
+
+**Erro de Proibição (art. 21, CP):**
+
+**Coação Irresistível (art. 22, CP):**
+
+### d) Da Atipicidade da Conduta
+
+{ARGUMENTOS_ATIPICIDADE}
+
+### e) Do Princípio da Insignificância
+
+{SE_APLICAVEL_INSIGNIFICANCIA}
+
+---
+
+## IV – DAS PROVAS
+
+Requer a produção das seguintes provas:
+
+**a) Prova testemunhal** – Arrolam-se as testemunhas abaixo, cujas oitivas são imprescindíveis para a elucidação dos fatos:
+
+1. {TESTEMUNHA_1}, {QUALIFICACAO_TESTEMUNHA_1}, residente em {ENDERECO_TESTEMUNHA_1};
+2. {TESTEMUNHA_2}, {QUALIFICACAO_TESTEMUNHA_2}, residente em {ENDERECO_TESTEMUNHA_2};
+3. {TESTEMUNHA_3}, {QUALIFICACAO_TESTEMUNHA_3}, residente em {ENDERECO_TESTEMUNHA_3};
+
+**b) Prova documental** – Junta-se os documentos em anexo;
+
+**c) Prova pericial** – Requer a realização de {TIPO_PERICIA};
+
+**d) Interrogatório do acusado** – Requer seja o(a) acusado(a) interrogado(a) ao final da instrução, nos termos do artigo 400 do CPP.
+
+---
+
+## V – DOS PEDIDOS
+
+Ante o exposto, requer:
+
+**a)** Preliminarmente, o acolhimento das preliminares arguidas para:
+   - Rejeitar a denúncia por inépcia (art. 395, I, CPP);
+   - Absolver sumariamente o(a) acusado(a) nos termos do artigo 397 do CPP;
+
+**b)** No mérito, a absolvição do(a) acusado(a), por:
+   - Inexistência do fato (art. 386, I, CPP);
+   - Não haver prova da existência do fato (art. 386, II, CPP);
+   - Não constituir o fato infração penal (art. 386, III, CPP);
+   - Estar provado que o réu não concorreu para a infração penal (art. 386, IV, CPP);
+   - Não existir prova de ter o réu concorrido para a infração penal (art. 386, V, CPP);
+   - Existirem circunstâncias que excluam o crime ou isentem o réu de pena (art. 386, VI, CPP);
+   - Não existir prova suficiente para a condenação (art. 386, VII, CPP);
+
+**c)** A produção de todas as provas em direito admitidas;
+
+**d)** A intimação do(a) advogado(a) de todos os atos processuais.
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+{ENDERECO_ADVOGADO}
+{TELEFONE_ADVOGADO}
+{EMAIL_ADVOGADO}
+
+=== defesa_representacao_criminal.md ===
+# DEFESA EM PROCEDIMENTO DE REPRESENTAÇÃO CRIMINAL
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) DELEGADO(A) DE POLÍCIA DA {DELEGACIA} DE {CIDADE}/{ESTADO}
+
+**Inquérito Policial nº:** {NUMERO_IP}
+**Investigado(a):** {NOME_INVESTIGADO}
+
+---
+
+**{NOME_INVESTIGADO}**, {NACIONALIDADE}, {ESTADO_CIVIL}, {PROFISSAO}, portador(a) do RG nº {RG} e CPF nº {CPF}, residente e domiciliado(a) na {ENDERECO_COMPLETO}, vem, por seu(sua) advogado(a) que esta subscreve, respeitosamente à presença de Vossa Excelência, com fundamento no artigo 5º, LV, da Constituição Federal e artigo 14 do Código de Processo Penal, apresentar
+
+## DEFESA PRÉVIA / MANIFESTAÇÃO DEFENSIVA
+
+em face da representação criminal apresentada por {NOME_REPRESENTANTE}, pelos seguintes fatos e fundamentos:
+
+---
+
+## I – DOS FATOS SEGUNDO A DEFESA
+
+{VERSAO_DEFENSIVA_DOS_FATOS}
+
+Contrariamente ao narrado na representação, os fatos ocorreram da seguinte forma:
+
+{NARRATIVA_DETALHADA}
+
+---
+
+## II – PRELIMINARMENTE
+
+### a) Da Decadência do Direito de Representação
+
+{SE_APLICAVEL}
+
+A representação foi oferecida após o prazo decadencial de 6 (seis) meses previsto no artigo 38 do Código de Processo Penal.
+
+O(A) representante tomou conhecimento da autoria do fato em {DATA_CONHECIMENTO}, sendo que a representação somente foi apresentada em {DATA_REPRESENTACAO}, quando já havia decorrido o prazo legal.
+
+### b) Da Ilegitimidade do(a) Representante
+
+{SE_APLICAVEL}
+
+O(A) representante não possui legitimidade para oferecer a representação, uma vez que {MOTIVO_ILEGITIMIDADE}.
+
+### c) Da Retratação da Representação
+
+{SE_APLICAVEL}
+
+Nos termos do artigo 25 do Código de Processo Penal, a representação pode ser retratada antes do oferecimento da denúncia. Sugere-se a intimação do(a) representante para que se manifeste sobre eventual interesse na retratação.
+
+---
+
+## III – DO MÉRITO
+
+### a) Da Atipicidade da Conduta
+
+{ARGUMENTOS_ATIPICIDADE}
+
+A conduta atribuída ao(à) investigado(a) não se enquadra no tipo penal invocado pelo(a) representante, uma vez que {FUNDAMENTACAO}.
+
+### b) Da Excludente de Ilicitude
+
+{SE_APLICAVEL}
+
+**Legítima Defesa (art. 25, CP):**
+O(A) investigado(a) agiu em legítima defesa, utilizando moderadamente dos meios necessários para repelir injusta agressão, atual ou iminente, a direito seu ou de outrem.
+
+{NARRATIVA_LEGITIMA_DEFESA}
+
+**Estado de Necessidade (art. 24, CP):**
+{SE_APLICAVEL}
+
+**Exercício Regular de Direito / Estrito Cumprimento do Dever Legal (art. 23, III, CP):**
+{SE_APLICAVEL}
+
+### c) Da Excludente de Culpabilidade
+
+{SE_APLICAVEL}
+
+**Inexigibilidade de conduta diversa:**
+
+**Erro de proibição:**
+
+**Coação moral irresistível:**
+
+### d) Da Ausência de Dolo
+
+{ARGUMENTOS_AUSENCIA_DOLO}
+
+O(A) investigado(a) não agiu com dolo (vontade livre e consciente) de praticar o crime imputado.
+
+### e) Da Palavra contra Palavra
+
+{ARGUMENTOS_VERSOES_CONFLITANTES}
+
+A narrativa apresentada pelo(a) representante diverge substancialmente da versão do(a) investigado(a), não havendo elementos objetivos que corroborem as alegações da representação.
+
+---
+
+## IV – DAS PROVAS DA DEFESA
+
+### a) Prova Testemunhal
+
+A defesa arrola as seguintes testemunhas:
+
+1. **{TESTEMUNHA_1}**, {QUALIFICACAO}, residente em {ENDERECO}, telefone: {TELEFONE};
+2. **{TESTEMUNHA_2}**, {QUALIFICACAO}, residente em {ENDERECO}, telefone: {TELEFONE};
+3. **{TESTEMUNHA_3}**, {QUALIFICACAO}, residente em {ENDERECO}, telefone: {TELEFONE};
+
+### b) Prova Documental
+
+Junta os seguintes documentos:
+
+1. {DOCUMENTO_1};
+2. {DOCUMENTO_2};
+3. {DOCUMENTO_3};
+
+### c) Outras Provas
+
+{ESPECIFICAR}
+
+---
+
+## V – DOS REQUERIMENTOS
+
+Ante o exposto, requer:
+
+**a)** O reconhecimento da decadência do direito de representação, com o consequente arquivamento do inquérito policial;
+
+**b)** A intimação do(a) representante para manifestar-se sobre eventual retratação da representação;
+
+**c)** A oitiva das testemunhas arroladas pela defesa;
+
+**d)** A juntada dos documentos apresentados;
+
+**e)** A realização de acareação entre investigado(a) e representante;
+
+**f)** Ao final das investigações, o relatório da autoridade policial opinando pelo arquivamento do inquérito, ante a ausência de justa causa para a ação penal;
+
+**g)** A intimação do(a) advogado(a) de todos os atos do procedimento, nos termos do artigo 7º, XIV, da Lei nº 8.906/94 (Estatuto da OAB).
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+
+=== divorcio_consensual.md ===
+# AÇÃO DE DIVÓRCIO CONSENSUAL
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} DA COMARCA DE {COMARCA}/{UF}
+
+---
+
+**{NOME_REQUERENTE_1}**, {QUALIFICACAO_REQUERENTE_1}, e **{NOME_REQUERENTE_2}**, {QUALIFICACAO_REQUERENTE_2}, vêm, respeitosamente, à presença de Vossa Excelência, por seus advogados que esta subscrevem, com fundamento no artigo 733 do Código de Processo Civil e artigo 226, §6º, da Constituição Federal, propor a presente:
+
+## AÇÃO DE DIVÓRCIO CONSENSUAL
+
+pelos fatos e fundamentos jurídicos a seguir expostos:
+
+---
+
+## I – DO CASAMENTO
+
+Os Requerentes contraíram matrimônio em {DATA_CASAMENTO}, conforme Certidão de Casamento anexa, pelo regime da {REGIME_BENS}.
+
+---
+
+## II – DOS FATOS
+
+Os Requerentes encontram-se separados de fato desde {DATA_SEPARACAO_FATO}, não havendo mais possibilidade de reconciliação.
+
+Ambos os cônjuges, de comum acordo, desejam dissolver o vínculo matrimonial.
+
+---
+
+## III – DOS FILHOS
+
+### 3.1 – Filhos Menores/Incapazes (se aplicável)
+
+{INFORMACOES_FILHOS}
+
+### 3.2 – Da Guarda
+
+Os Requerentes acordam que a guarda dos filhos menores será {TIPO_GUARDA} (compartilhada/unilateral), ficando a residência dos menores com {GENITOR_RESIDENCIA}.
+
+### 3.3 – Do Regime de Convivência
+
+O regime de convivência será exercido da seguinte forma:
+
+{REGIME_CONVIVENCIA}
+
+### 3.4 – Dos Alimentos
+
+O(A) genitor(a) {NOME_ALIMENTANTE} pagará, a título de pensão alimentícia em favor dos filhos menores, o valor mensal de **R$ {VALOR_ALIMENTOS}** ({VALOR_ALIMENTOS_EXTENSO}), equivalente a {PERCENTUAL_SALARIO}% de seus rendimentos líquidos, todo dia {DIA_PAGAMENTO} de cada mês.
+
+---
+
+## IV – DA PARTILHA DE BENS
+
+Os Requerentes possuem os seguintes bens a serem partilhados:
+
+### 4.1 – Bens Imóveis
+
+{LISTA_IMOVEIS}
+
+### 4.2 – Bens Móveis
+
+{LISTA_MOVEIS}
+
+### 4.3 – Veículos
+
+{LISTA_VEICULOS}
+
+### 4.4 – Divisão Acordada
+
+Os bens serão partilhados da seguinte forma:
+
+{DIVISAO_BENS}
+
+---
+
+## V – DO NOME
+
+### 5.1 – Nome do(a) cônjuge
+
+O(A) cônjuge {NOME_CONJUGE} optou por {MANTER/EXCLUIR} o sobrenome de casado, passando a assinar-se como {NOME_APOS_DIVORCIO}.
+
+---
+
+## VI – DOS PEDIDOS
+
+Ante o exposto, requerem a Vossa Excelência:
+
+a) O recebimento e processamento da presente ação;
+
+b) A homologação do divórcio consensual;
+
+c) A homologação da partilha de bens conforme acordado;
+
+d) A homologação da guarda {TIPO_GUARDA} dos filhos menores, com a fixação do regime de convivência;
+
+e) A homologação dos alimentos fixados em favor dos filhos menores;
+
+f) A autorização para que o(a) cônjuge {NOME_CONJUGE} {MANTENHA/EXCLUA} o sobrenome de casado;
+
+g) A expedição de mandado de averbação ao Cartório de Registro Civil;
+
+h) A isenção de custas processuais, nos termos da Lei Estadual aplicável (se aplicável);
+
+---
+
+## VII – DECLARAÇÕES OBRIGATÓRIAS
+
+### 7.1 – Declaração de Inexistência de Gravidez
+
+Declara a Requerente {NOME_REQUERENTE_FEMININO}, sob as penas da lei, que {NAO_ESTA/ESTA} grávida.
+
+### 7.2 – Declaração de Assistência por Advogado
+
+Os Requerentes declaram que estão assistidos por advogado comum / advogados distintos neste ato.
+
+---
+
+## VIII – DOCUMENTOS ANEXOS
+
+1. Certidão de Casamento atualizada
+2. Certidão de Nascimento dos filhos menores
+3. Documentos pessoais dos Requerentes
+4. Comprovante de residência
+5. Documentos dos bens a serem partilhados
+6. Procuração ad judicia
+7. {LISTA_DOCUMENTOS}
+
+---
+
+Termos em que,
+Pedem deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+---
+
+Declaro estar de acordo com todos os termos desta petição:
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+**{NOME_REQUERENTE_1}**
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+**{NOME_REQUERENTE_2}**
+
+=== embargos_declaracao.md ===
+# EMBARGOS DE DECLARAÇÃO
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} DA COMARCA DE {COMARCA}/{UF}
+
+**Processo nº {NUMERO_PROCESSO}**
+**Embargante: {NOME_EMBARGANTE}**
+**Embargado(a): {NOME_EMBARGADO}**
+
+---
+
+**{NOME_EMBARGANTE}**, já qualificado(a) nos autos do processo em epígrafe, por seu advogado que esta subscreve, vem, respeitosamente, à presença de Vossa Excelência, com fundamento nos artigos 1.022 e seguintes do Código de Processo Civil, opor os presentes:
+
+## EMBARGOS DE DECLARAÇÃO
+
+em face da r. decisão/sentença/acórdão de fls. {FOLHAS_DECISAO}, pelas razões de fato e de direito a seguir expostas:
+
+---
+
+## I – DA TEMPESTIVIDADE
+
+O presente recurso é tempestivo, vez que a intimação da decisão embargada ocorreu em {DATA_INTIMACAO}, sendo o prazo de 5 (cinco) dias previsto no artigo 1.023 do CPC respeitado.
+
+---
+
+## II – DO CABIMENTO
+
+Nos termos do artigo 1.022 do Código de Processo Civil, cabem embargos de declaração contra qualquer decisão judicial para:
+
+I - esclarecer obscuridade ou eliminar contradição;
+II - suprir omissão de ponto ou questão sobre o qual devia se pronunciar o juiz de ofício ou a requerimento;
+III - corrigir erro material.
+
+---
+
+## III – DA DECISÃO EMBARGADA
+
+A r. decisão embargada decidiu {RESUMO_DECISAO}.
+
+---
+
+## IV – DAS RAZÕES DOS EMBARGOS
+
+### 4.1 – DA OBSCURIDADE (se aplicável)
+
+A decisão embargada apresenta obscuridade no seguinte ponto:
+
+{ARGUMENTOS_OBSCURIDADE}
+
+### 4.2 – DA CONTRADIÇÃO (se aplicável)
+
+Há contradição na decisão embargada, pois:
+
+{ARGUMENTOS_CONTRADICAO}
+
+### 4.3 – DA OMISSÃO (se aplicável)
+
+A decisão embargada foi omissa quanto a:
+
+{ARGUMENTOS_OMISSAO}
+
+### 4.4 – DO ERRO MATERIAL (se aplicável)
+
+Há erro material na decisão embargada, consistente em:
+
+{ARGUMENTOS_ERRO_MATERIAL}
+
+---
+
+## V – DO PREQUESTIONAMENTO
+
+Para fins de eventual interposição de recursos às Cortes Superiores, requer o expresso pronunciamento sobre os seguintes dispositivos legais:
+
+- {DISPOSITIVOS_PREQUESTIONADOS}
+
+---
+
+## VI – DOS EFEITOS INFRINGENTES (se aplicável)
+
+Excepcionalmente, em razão de {JUSTIFICATIVA_EFEITOS_INFRINGENTES}, requer seja conferido efeito infringente aos presentes embargos, modificando-se a decisão embargada para {MODIFICACAO_PRETENDIDA}.
+
+---
+
+## VII – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) O recebimento e conhecimento dos presentes embargos de declaração;
+
+b) O provimento dos embargos para {PEDIDO_PROVIMENTO};
+
+c) O prequestionamento expresso dos dispositivos legais mencionados;
+
+d) A intimação da parte contrária para, querendo, manifestar-se sobre os embargos (art. 1.023, § 2º, CPC);
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+=== execucao_penal_livramento_condicional.md ===
+# PEDIDO DE LIVRAMENTO CONDICIONAL
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA DE EXECUÇÕES PENAIS DA COMARCA DE {CIDADE}/{ESTADO}
+
+**Processo de Execução nº:** {NUMERO_EXECUCAO}
+**Processo de Conhecimento nº:** {NUMERO_CONHECIMENTO}
+**Sentenciado(a):** {NOME_SENTENCIADO}
+
+---
+
+**{NOME_SENTENCIADO}**, já qualificado(a) nos autos em epígrafe, atualmente recolhido(a) no(a) {ESTABELECIMENTO_PRISIONAL}, vem, por seu(sua) advogado(a) que esta subscreve, com fundamento nos artigos 83 a 90 do Código Penal e artigos 131 a 146 da Lei nº 7.210/84 (Lei de Execução Penal), requerer
+
+## LIVRAMENTO CONDICIONAL
+
+pelos fatos e fundamentos a seguir expostos:
+
+---
+
+## I – DA PENA IMPOSTA E DO CUMPRIMENTO
+
+O(A) sentenciado(a) foi condenado(a) à pena privativa de liberdade de {PENA_TOTAL}, pela prática do crime de {CRIME}, tipificado no artigo {ARTIGO} do {DIPLOMA_LEGAL}.
+
+**Data do início do cumprimento:** {DATA_INICIO}
+**Pena total aplicada:** {PENA_TOTAL}
+**Tempo já cumprido:** {TEMPO_CUMPRIDO}
+**Remição (trabalho/estudo):** {DIAS_REMICAO} dias
+**Detração:** {DIAS_DETRACAO} dias
+**Total computado:** {TEMPO_TOTAL_BENEFICIOS}
+**Regime atual:** {REGIME_ATUAL}
+
+---
+
+## II – DOS REQUISITOS OBJETIVOS
+
+### a) Pena Privativa de Liberdade igual ou superior a 2 anos (art. 83, caput, CP)
+
+A pena aplicada ao(à) sentenciado(a) é de {PENA_TOTAL}, superior ao mínimo legal de 2 (dois) anos exigido para a concessão do benefício.
+
+### b) Cumprimento de parte da pena (art. 83, I, II e III, CP)
+
+**Para condenado não reincidente em crime doloso e com bons antecedentes:**
+- Cumprimento de mais de 1/3 (um terço) da pena.
+
+**Para condenado reincidente em crime doloso:**
+- Cumprimento de mais de 1/2 (metade) da pena.
+
+**Para condenado por crime hediondo, prática de tortura, tráfico ilícito de entorpecentes e drogas afins, e terrorismo (se não reincidente específico):**
+- Cumprimento de mais de 2/3 (dois terços) da pena.
+
+### Cálculo no caso concreto:
+
+**Pena total:** {PENA_TOTAL}
+**Fração aplicável:** {FRACAO}
+**Tempo necessário:** {TEMPO_NECESSARIO}
+**Tempo cumprido (com benefícios):** {TEMPO_CUMPRIDO_TOTAL}
+**Data para livramento:** {DATA_LIVRAMENTO}
+
+O requisito temporal encontra-se preenchido desde {DATA_PREENCHIMENTO}.
+
+### c) Reparação do Dano (art. 83, IV, CP)
+
+{SE_HOUVER_DANO_A_REPARAR}
+O(A) sentenciado(a) reparou o dano causado pela infração, salvo a impossibilidade de fazê-lo, conforme documentação anexa.
+
+{OU}
+O crime pelo qual o(a) sentenciado(a) foi condenado(a) não resultou em dano material a ser reparado.
+
+---
+
+## III – DOS REQUISITOS SUBJETIVOS
+
+### a) Bom Comportamento durante a Execução (art. 83, III, CP)
+
+Conforme Atestado de Conduta Carcerária emitido pela direção do estabelecimento prisional (documento anexo), o(a) sentenciado(a) ostenta comportamento **{CLASSIFICACAO}**, demonstrando aptidão para reinserção social.
+
+### b) Bom Desempenho no Trabalho que lhe foi Atribuído (art. 83, III, CP)
+
+O(A) sentenciado(a) exerce atividades laborativas no estabelecimento prisional desde {DATA_INICIO_TRABALHO}, desempenhando a função de {FUNCAO}, com assiduidade e dedicação, conforme atestado pela administração prisional.
+
+### c) Aptidão para Prover a Própria Subsistência mediante Trabalho Honesto (art. 83, III, CP)
+
+O(A) sentenciado(a) possui {QUALIFICACAO_PROFISSIONAL} e conta com proposta de emprego junto à empresa {EMPRESA}, conforme carta de emprego anexa, demonstrando condições de prover sua própria subsistência.
+
+Residirá no endereço {ENDERECO_RESIDENCIA}, conforme comprovante anexo.
+
+### d) Ausência de Faltas Graves
+
+{SE_NAO_HOUVER_FALTAS}
+Durante todo o período de cumprimento da pena, o(a) sentenciado(a) não cometeu qualquer falta disciplinar, grave, média ou leve.
+
+{SE_HOUVER_FALTAS}
+Embora tenha sido registrada falta {TIPO} em {DATA}, o(a) sentenciado(a) já cumpriu a sanção disciplinar imposta, tendo se reabilitado, conforme demonstra seu comportamento posterior.
+
+---
+
+## IV – DAS CONDIÇÕES DO LIVRAMENTO
+
+O(A) sentenciado(a), uma vez beneficiado(a) com o livramento condicional, compromete-se a cumprir as condições legais obrigatórias previstas no artigo 132 da LEP:
+
+a) Obter ocupação lícita, dentro de prazo razoável, se for apto para o trabalho;
+b) Comunicar periodicamente ao juiz sua ocupação;
+c) Não mudar do território da comarca do Juízo da execução, sem prévia autorização deste;
+d) Recolher-se à habitação em hora fixada;
+e) Não frequentar determinados lugares.
+
+Bem como eventuais condições judiciais que vierem a ser impostas.
+
+---
+
+## V – DA JURISPRUDÊNCIA
+
+> "O livramento condicional é direito subjetivo do condenado que preenche os requisitos legais, não podendo ser negado com base em fundamentação abstrata." (STJ)
+
+> "Preenchidos os requisitos objetivos e subjetivos, deve ser concedido o livramento condicional, não sendo admissível negá-lo com base apenas na gravidade abstrata do delito." (STJ)
+
+---
+
+## VI – DOS DOCUMENTOS ANEXOS
+
+1. Atestado de Conduta Carcerária atualizado;
+2. Cálculo de liquidação de pena atualizado;
+3. Certidão de trabalho prisional;
+4. Carta de emprego ou comprovante de renda;
+5. Comprovante de residência;
+6. Declaração de compromisso de cumprimento das condições;
+7. {OUTROS_DOCUMENTOS}
+
+---
+
+## VII – DO PEDIDO
+
+Ante o exposto, requer a Vossa Excelência:
+
+**a)** A concessão do **LIVRAMENTO CONDICIONAL** ao(à) sentenciado(a), com expedição do competente Alvará de Soltura Clausulado;
+
+**b)** A fixação das condições do livramento, nos termos do artigo 132 da LEP;
+
+**c)** Subsidiariamente, caso Vossa Excelência entenda necessário, seja determinada a realização de exame criminológico;
+
+**d)** A intimação do(a) advogado(a) de todos os atos processuais;
+
+**e)** A concessão dos benefícios da justiça gratuita.
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+
+=== execucao_penal_progressao_regime.md ===
+# PEDIDO DE PROGRESSÃO DE REGIME
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA DE EXECUÇÕES PENAIS DA COMARCA DE {CIDADE}/{ESTADO}
+
+**Processo de Execução nº:** {NUMERO_EXECUCAO}
+**Processo de Conhecimento nº:** {NUMERO_CONHECIMENTO}
+**Sentenciado(a):** {NOME_SENTENCIADO}
+
+---
+
+**{NOME_SENTENCIADO}**, {NACIONALIDADE}, {ESTADO_CIVIL}, {PROFISSAO}, portador(a) do RG nº {RG} e CPF nº {CPF}, atualmente recolhido(a) no(a) {ESTABELECIMENTO_PRISIONAL}, vem, por seu(sua) advogado(a) que esta subscreve, com fundamento no artigo 112 da Lei nº 7.210/84 (Lei de Execução Penal), requerer
+
+## PROGRESSÃO DE REGIME
+
+do regime {REGIME_ATUAL} para o regime {REGIME_PRETENDIDO}, pelos fatos e fundamentos a seguir expostos:
+
+---
+
+## I – DA PENA IMPOSTA E DO CUMPRIMENTO
+
+O(A) sentenciado(a) foi condenado(a) à pena de {PENA_TOTAL}, pela prática do crime de {CRIME}, tipificado no artigo {ARTIGO} do {DIPLOMA_LEGAL}.
+
+**Data do início do cumprimento:** {DATA_INICIO}
+**Regime inicial fixado:** {REGIME_INICIAL}
+**Regime atual:** {REGIME_ATUAL}
+**Tempo total de pena:** {TEMPO_TOTAL}
+**Tempo já cumprido:** {TEMPO_CUMPRIDO}
+**Remição de pena:** {DIAS_REMICAO} dias (trabalho/estudo)
+**Detração:** {DIAS_DETRACAO} dias
+**Total com benefícios:** {TEMPO_TOTAL_BENEFICIOS}
+
+---
+
+## II – DO REQUISITO OBJETIVO (TEMPORAL)
+
+### Fundamentação Legal:
+
+Nos termos do artigo 112 da Lei de Execução Penal (Lei nº 7.210/84), com as alterações trazidas pela Lei nº 13.964/2019 (Pacote Anticrime):
+
+**Para crimes comuns:**
+- 16% (dezesseis por cento) da pena, se o apenado for primário e o crime tiver sido cometido sem violência à pessoa ou grave ameaça;
+- 20% (vinte por cento) da pena, se o apenado for reincidente em crime cometido sem violência à pessoa ou grave ameaça;
+- 25% (vinte e cinco por cento) da pena, se o apenado for primário e o crime tiver sido cometido com violência à pessoa ou grave ameaça;
+- 30% (trinta por cento) da pena, se o apenado for reincidente em crime cometido com violência à pessoa ou grave ameaça;
+
+**Para crimes hediondos ou equiparados (Lei nº 8.072/90):**
+- 40% (quarenta por cento) da pena, se o apenado for primário;
+- 50% (cinquenta por cento) da pena, se o apenado for primário e houver resultado morte;
+- 60% (sessenta por cento) da pena, se o apenado for reincidente;
+- 70% (setenta por cento) da pena, se o apenado for reincidente em crime hediondo.
+
+### Cálculo no caso concreto:
+
+**Pena total:** {PENA_TOTAL}
+**Fração aplicável:** {FRACAO}%
+**Tempo necessário:** {TEMPO_NECESSARIO}
+**Tempo cumprido:** {TEMPO_CUMPRIDO}
+**Data-base:** {DATA_BASE}
+**Data para progressão:** {DATA_PROGRESSAO}
+
+Conforme demonstrado, o requisito objetivo encontra-se preenchido desde {DATA_PREENCHIMENTO_OBJETIVO}.
+
+---
+
+## III – DO REQUISITO SUBJETIVO (BOM COMPORTAMENTO)
+
+### a) Do Atestado de Conduta Carcerária
+
+Conforme Atestado de Conduta Carcerária emitido pela direção do estabelecimento prisional (documento anexo), o(a) sentenciado(a) possui comportamento **{CLASSIFICACAO_COMPORTAMENTO}**, não havendo registros de faltas disciplinares {OU_ESPECIFICAR_FALTAS}.
+
+### b) Da Ausência de Faltas Graves
+
+O(A) sentenciado(a) não cometeu qualquer falta grave durante o cumprimento da pena, demonstrando sua ressocialização e merecimento ao benefício pleiteado.
+
+{OU_SE_HOUVER_FALTAS}
+Embora tenha sido registrada falta {TIPO_FALTA} em {DATA_FALTA}, esta já foi devidamente homologada e o(a) sentenciado(a) cumpriu integralmente a sanção disciplinar aplicada, tendo transcorrido período superior a {TEMPO_TRANSCORRIDO}, o que demonstra a reabilitação de seu comportamento.
+
+### c) Do Trabalho/Estudo Prisional
+
+O(A) sentenciado(a) exerce atividade laborativa/educacional no estabelecimento prisional desde {DATA_INICIO_TRABALHO}, dedicando-se a {ATIVIDADE_EXERCIDA}, o que demonstra seu interesse na ressocialização e reinserção social.
+
+### d) Do Parecer da Comissão Técnica de Classificação (CTC)
+
+{SE_DISPONIVEL}
+A Comissão Técnica de Classificação emitiu parecer favorável à progressão de regime, atestando que o(a) sentenciado(a) apresenta condições para prosseguir no cumprimento da pena em regime menos gravoso.
+
+---
+
+## IV – DA INEXIGIBILIDADE DO EXAME CRIMINOLÓGICO
+
+Após o advento da Lei nº 10.792/2003, que alterou a redação do artigo 112 da LEP, o exame criminológico deixou de ser obrigatório para a concessão do benefício de progressão de regime.
+
+O Supremo Tribunal Federal editou a Súmula Vinculante nº 26:
+
+> "Para efeito de progressão de regime no cumprimento de pena por crime hediondo, ou equiparado, o juízo da execução observará a inconstitucionalidade do art. 2º da Lei nº 8.072, de 25 de julho de 1990, sem prejuízo de avaliar se o condenado preenche, ou não, os requisitos objetivos e subjetivos do benefício, podendo determinar, para tal fim, de modo fundamentado, a realização de exame criminológico."
+
+Assim, o exame criminológico só pode ser determinado em decisão devidamente fundamentada, não sendo requisito obrigatório.
+
+---
+
+## V – DO DIREITO
+
+A progressão de regime é direito subjetivo do(a) sentenciado(a) que preenche os requisitos legais, não podendo ser negada de forma arbitrária.
+
+O Superior Tribunal de Justiça tem entendimento pacificado:
+
+> "A progressão de regime prisional é direito subjetivo do condenado que preenche os requisitos legais, não podendo ser negada com base em argumentos abstratos ou na gravidade do delito."
+
+---
+
+## VI – DOS DOCUMENTOS ANEXOS
+
+1. Atestado de Conduta Carcerária atualizado;
+2. Cálculo de liquidação de pena;
+3. Certidão de trabalho/estudo prisional;
+4. Comprovante de endereço para regime aberto/semiaberto;
+5. Carta de emprego (se regime aberto);
+6. {OUTROS_DOCUMENTOS}
+
+---
+
+## VII – DO PEDIDO
+
+Ante o exposto, requer:
+
+**a)** A PROGRESSÃO DE REGIME, do regime {REGIME_ATUAL} para o regime {REGIME_PRETENDIDO}, com expedição do competente alvará de soltura clausulado ou guia de transferência;
+
+**b)** Subsidiariamente, caso Vossa Excelência entenda necessário, requer a designação de exame criminológico, com a concessão da progressão condicionada ao resultado favorável;
+
+**c)** A intimação do(a) advogado(a) de todos os atos processuais;
+
+**d)** A concessão dos benefícios da justiça gratuita, nos termos do artigo 98 do CPC.
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+
+=== execucao_penal_remicao.md ===
+# PEDIDO DE REMIÇÃO DE PENA
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA DE EXECUÇÕES PENAIS DA COMARCA DE {CIDADE}/{ESTADO}
+
+**Processo de Execução nº:** {NUMERO_EXECUCAO}
+**Sentenciado(a):** {NOME_SENTENCIADO}
+
+---
+
+**{NOME_SENTENCIADO}**, já qualificado(a) nos autos em epígrafe, atualmente recolhido(a) no(a) {ESTABELECIMENTO_PRISIONAL}, vem, por seu(sua) advogado(a) que esta subscreve, com fundamento no artigo 126 da Lei nº 7.210/84 (Lei de Execução Penal), requerer
+
+## REMIÇÃO DE PENA
+
+pelo trabalho e/ou estudo, pelos fatos e fundamentos a seguir expostos:
+
+---
+
+## I – DO DIREITO À REMIÇÃO
+
+### a) Da Remição pelo Trabalho (art. 126, §1º, II, LEP)
+
+Nos termos do artigo 126, §1º, II, da Lei de Execução Penal, o condenado que cumpre pena em regime fechado ou semiaberto poderá remir, pelo trabalho, parte do tempo de execução da pena, na proporção de **1 (um) dia de pena a cada 3 (três) dias de trabalho**.
+
+### b) Da Remição pelo Estudo (art. 126, §1º, I, LEP)
+
+Conforme o artigo 126, §1º, I, da LEP, a remição pelo estudo ocorre na proporção de **1 (um) dia de pena a cada 12 (doze) horas de frequência escolar**, divididas no mínimo em 3 (três) dias.
+
+### c) Da Cumulação de Remição (art. 126, §3º, LEP)
+
+O §3º do artigo 126 permite a cumulação das remições por trabalho e por estudo, desde que sejam compatíveis.
+
+---
+
+## II – DOS FATOS
+
+O(A) sentenciado(a) exerceu/exerce atividades laborativas e/ou educacionais no estabelecimento prisional, conforme demonstrado pela documentação anexa:
+
+### Período de Trabalho:
+
+| Período | Função | Dias Trabalhados |
+|---------|--------|------------------|
+| {DATA_INICIO_1} a {DATA_FIM_1} | {FUNCAO_1} | {DIAS_1} dias |
+| {DATA_INICIO_2} a {DATA_FIM_2} | {FUNCAO_2} | {DIAS_2} dias |
+| **Total** | | **{TOTAL_DIAS_TRABALHO} dias** |
+
+**Cálculo da remição pelo trabalho:** {TOTAL_DIAS_TRABALHO} ÷ 3 = **{DIAS_REMIDOS_TRABALHO} dias remidos**
+
+### Período de Estudo:
+
+| Período | Curso | Horas |
+|---------|-------|-------|
+| {DATA_INICIO_ESTUDO_1} a {DATA_FIM_ESTUDO_1} | {CURSO_1} | {HORAS_1} horas |
+| {DATA_INICIO_ESTUDO_2} a {DATA_FIM_ESTUDO_2} | {CURSO_2} | {HORAS_2} horas |
+| **Total** | | **{TOTAL_HORAS_ESTUDO} horas** |
+
+**Cálculo da remição pelo estudo:** {TOTAL_HORAS_ESTUDO} ÷ 12 = **{DIAS_REMIDOS_ESTUDO} dias remidos**
+
+### Total de Dias a Remir:
+
+**{DIAS_REMIDOS_TRABALHO} + {DIAS_REMIDOS_ESTUDO} = {TOTAL_DIAS_REMICAO} dias**
+
+---
+
+## III – DA REMIÇÃO PELO ESTUDO FORA DO ESTABELECIMENTO (se aplicável)
+
+Nos termos do §6º do artigo 126 da LEP, incluído pela Lei nº 12.433/2011, o condenado que cumpre pena em regime aberto ou semiaberto e o que usufrui liberdade condicional poderão remir, pela frequência a curso de ensino regular ou de educação profissional, parte do tempo de execução da pena ou do período de prova.
+
+---
+
+## IV – DA CONCLUSÃO DE ENSINO (se aplicável)
+
+Conforme §5º do artigo 126 da LEP, o sentenciado que concluir o ensino fundamental, médio ou superior durante o cumprimento da pena faz jus a acréscimo de **1/3 (um terço)** no tempo a remir.
+
+{SE_APLICAVEL}
+O(A) sentenciado(a) concluiu o {NIVEL_ENSINO} em {DATA_CONCLUSAO}, fazendo jus ao acréscimo legal.
+
+---
+
+## V – DOS DOCUMENTOS ANEXOS
+
+1. Atestado de trabalho prisional com período e dias trabalhados;
+2. Certidão de frequência escolar com carga horária;
+3. Certificado de conclusão de curso (se houver);
+4. Cálculo de liquidação de pena atualizado;
+5. {OUTROS_DOCUMENTOS}
+
+---
+
+## VI – DO PEDIDO
+
+Ante o exposto, requer:
+
+**a)** A declaração da remição de **{TOTAL_DIAS_REMICAO} dias** de pena, sendo {DIAS_REMIDOS_TRABALHO} dias pelo trabalho e {DIAS_REMIDOS_ESTUDO} dias pelo estudo;
+
+**b)** O acréscimo de 1/3 pela conclusão do ensino {NIVEL_ENSINO} (se aplicável);
+
+**c)** A retificação do cálculo de liquidação de pena, com a dedução dos dias remidos;
+
+**d)** A intimação do(a) advogado(a) de todos os atos processuais.
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+
+=== execucao_titulo_extrajudicial.md ===
+# EXECUÇÃO DE TÍTULO EXTRAJUDICIAL
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} DA COMARCA DE {COMARCA}/{UF}
+
+---
+
+**{NOME_EXEQUENTE}**, {QUALIFICACAO_EXEQUENTE}, vem, respeitosamente, à presença de Vossa Excelência, por seu advogado que esta subscreve, com fundamento nos artigos 784 e seguintes do Código de Processo Civil, propor a presente:
+
+## AÇÃO DE EXECUÇÃO DE TÍTULO EXTRAJUDICIAL
+
+em face de **{NOME_EXECUTADO}**, {QUALIFICACAO_EXECUTADO}, pelos fatos e fundamentos jurídicos a seguir expostos:
+
+---
+
+## I – DO TÍTULO EXECUTIVO
+
+O presente feito tem por fundamento o(a) {TIPO_TITULO} (cheque/nota promissória/duplicata/contrato/etc.), {DESCRICAO_TITULO}, no valor original de **R$ {VALOR_ORIGINAL}** ({VALOR_ORIGINAL_EXTENSO}), com vencimento em {DATA_VENCIMENTO}.
+
+O título executivo preenche todos os requisitos legais de certeza, liquidez e exigibilidade, conforme documento anexo.
+
+---
+
+## II – DOS FATOS
+
+{NARRATIVA_FATOS}
+
+---
+
+## III – DO DIREITO
+
+### 3.1 – Do Título Executivo Extrajudicial
+
+O artigo 784 do Código de Processo Civil elenca os títulos executivos extrajudiciais, dentre os quais se encontra o(a) {TIPO_TITULO}, objeto da presente execução.
+
+### 3.2 – Da Liquidez, Certeza e Exigibilidade
+
+O título executivo apresentado é:
+
+- **Líquido**: o valor da dívida está determinado no próprio título;
+- **Certo**: a obrigação é inequívoca;
+- **Exigível**: o vencimento já ocorreu, não tendo sido efetuado o pagamento.
+
+### 3.3 – Da Atualização do Débito
+
+O valor atualizado do débito, considerando {CRITERIOS_ATUALIZACAO}, é de **R$ {VALOR_ATUALIZADO}** ({VALOR_ATUALIZADO_EXTENSO}), conforme demonstrativo de cálculo anexo.
+
+---
+
+## IV – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) A citação do(a) Executado(a), por {MEIO_CITACAO}, para que, no prazo de 3 (três) dias, efetue o pagamento do débito, acrescido de custas e honorários advocatícios de 10% (art. 827, CPC);
+
+b) Não efetuado o pagamento no prazo legal, seja determinada a penhora de bens do(a) Executado(a) suficientes à garantia do juízo, preferencialmente pelo sistema SISBAJUD (penhora online);
+
+c) Seja autorizada, desde já, a pesquisa de bens do(a) Executado(a) através dos sistemas SISBAJUD, RENAJUD, INFOJUD e ARISP;
+
+d) A condenação do(a) Executado(a) ao pagamento de:
+   - Principal: R$ {VALOR_PRINCIPAL}
+   - Juros de mora de {PERCENTUAL_JUROS}% ao mês
+   - Correção monetária pelo {INDICE_CORRECAO}
+   - Multa contratual de {PERCENTUAL_MULTA}%
+   - Honorários advocatícios de 10% (art. 827, CPC)
+   - Custas processuais
+
+e) A expedição de certidão para fins do artigo 828 do CPC (averbação premonitória);
+
+f) A produção de todas as provas em direito admitidas;
+
+---
+
+## V – DO VALOR DA CAUSA
+
+Dá-se à causa o valor de **R$ {VALOR_CAUSA}** ({VALOR_CAUSA_EXTENSO}), correspondente ao valor atualizado do débito.
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+---
+
+## DOCUMENTOS ANEXOS:
+
+1. Procuração ad judicia
+2. Título executivo original
+3. Demonstrativo de débito atualizado
+4. Documentos pessoais do Exequente
+5. {LISTA_DOCUMENTOS}
+
+=== habeas_corpus.md ===
+# HABEAS CORPUS
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) DESEMBARGADOR(A) PRESIDENTE DO EGRÉGIO TRIBUNAL DE JUSTIÇA DO ESTADO DE {UF}
+
+---
+
+**HABEAS CORPUS COM PEDIDO DE LIMINAR**
+
+**Paciente: {NOME_PACIENTE}**
+**Impetrante: {NOME_IMPETRANTE}**
+**Autoridade Coatora: {AUTORIDADE_COATORA}**
+**Processo de Origem: {NUMERO_PROCESSO_ORIGEM}**
+
+---
+
+**{NOME_IMPETRANTE}**, advogado(a) inscrito(a) na OAB/{UF_OAB} sob o nº {NUMERO_OAB}, com escritório profissional no endereço {ENDERECO_ADVOGADO}, vem, respeitosamente, à presença de Vossa Excelência, impetrar o presente:
+
+## HABEAS CORPUS COM PEDIDO DE LIMINAR
+
+em favor de **{NOME_PACIENTE}**, {QUALIFICACAO_PACIENTE}, atualmente {SITUACAO_PACIENTE}, contra ato da {AUTORIDADE_COATORA}, pelos fatos e fundamentos jurídicos a seguir expostos:
+
+---
+
+## I – DOS FATOS
+
+{NARRATIVA_FATOS}
+
+---
+
+## II – DO CONSTRANGIMENTO ILEGAL
+
+### 2.1 – Da Ilegalidade do Ato
+
+{ARGUMENTOS_ILEGALIDADE}
+
+### 2.2 – Do Direito à Liberdade
+
+O direito à liberdade é garantia fundamental prevista no artigo 5º da Constituição Federal, somente podendo ser restringido nas hipóteses expressamente previstas em lei e mediante decisão fundamentada.
+
+{FUNDAMENTACAO_LIBERDADE}
+
+---
+
+## III – DO DIREITO
+
+### 3.1 – Da Fundamentação Legal
+
+O presente writ encontra amparo nos artigos 5º, LXVIII, da Constituição Federal, e artigos 647 e seguintes do Código de Processo Penal.
+
+### 3.2 – {FUNDAMENTO_ESPECIFICO_TITULO}
+
+{FUNDAMENTO_ESPECIFICO_ARGUMENTOS}
+
+### 3.3 – Da Jurisprudência
+
+{JURISPRUDENCIA_HC}
+
+---
+
+## IV – DO PEDIDO LIMINAR
+
+Requer a concessão de medida liminar, nos termos do artigo 660, § 2º, do Código de Processo Penal, para que seja expedido imediatamente o alvará de soltura / salvo-conduto em favor do Paciente.
+
+### 4.1 – Do Fumus Boni Iuris
+
+{ARGUMENTOS_FUMUS}
+
+### 4.2 – Do Periculum in Mora
+
+{ARGUMENTOS_PERICULUM}
+
+---
+
+## V – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) A concessão da medida liminar, determinando a imediata expedição de alvará de soltura / salvo-conduto em favor do Paciente;
+
+b) A notificação da autoridade coatora para que preste informações no prazo legal;
+
+c) A oitiva do Ministério Público;
+
+d) A concessão definitiva da ordem de habeas corpus, confirmando a liminar e reconhecendo o constrangimento ilegal sofrido pelo Paciente;
+
+e) Subsidiariamente, caso não seja concedida a liberdade, requer {PEDIDO_SUBSIDIARIO};
+
+---
+
+## VI – DOCUMENTOS ANEXOS
+
+1. Cópia da decisão que decretou a prisão / constrangimento
+2. Documentos pessoais do Paciente
+3. {LISTA_DOCUMENTOS}
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+E-mail: {EMAIL_ADVOGADO}
+Telefone: {TELEFONE_ADVOGADO}
+
+=== mandado_seguranca.md ===
+# MANDADO DE SEGURANÇA
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} DA COMARCA DE {COMARCA}/{UF}
+
+---
+
+**MANDADO DE SEGURANÇA COM PEDIDO DE LIMINAR**
+
+**Impetrante: {NOME_IMPETRANTE}**
+**Autoridade Coatora: {AUTORIDADE_COATORA}**
+
+---
+
+**{NOME_IMPETRANTE}**, {QUALIFICACAO_IMPETRANTE}, vem, respeitosamente, à presença de Vossa Excelência, por seu advogado que esta subscreve, com fundamento no artigo 5º, LXIX, da Constituição Federal, e na Lei nº 12.016/2009, impetrar o presente:
+
+## MANDADO DE SEGURANÇA COM PEDIDO DE LIMINAR
+
+contra ato ilegal e abusivo praticado pela {AUTORIDADE_COATORA}, {QUALIFICACAO_AUTORIDADE}, pelos fatos e fundamentos jurídicos a seguir expostos:
+
+---
+
+## I – DA AUTORIDADE COATORA
+
+A autoridade coatora é {AUTORIDADE_COATORA}, que praticou o ato ilegal consistente em {DESCRICAO_ATO_ILEGAL}.
+
+---
+
+## II – DOS FATOS
+
+{NARRATIVA_FATOS}
+
+---
+
+## III – DO DIREITO LÍQUIDO E CERTO
+
+### 3.1 – Da Caracterização do Direito Líquido e Certo
+
+O direito líquido e certo é aquele que pode ser comprovado de plano, mediante prova pré-constituída, sem necessidade de dilação probatória.
+
+No presente caso, o direito líquido e certo do Impetrante resta demonstrado pelos documentos que instruem a presente inicial, especialmente {DOCUMENTOS_COMPROBATORIOS}.
+
+### 3.2 – Da Ilegalidade/Abusividade do Ato
+
+{ARGUMENTOS_ILEGALIDADE}
+
+### 3.3 – Do Direito Aplicável
+
+{FUNDAMENTACAO_JURIDICA}
+
+### 3.4 – Da Jurisprudência
+
+{JURISPRUDENCIA_MS}
+
+---
+
+## IV – DA MEDIDA LIMINAR
+
+Nos termos do artigo 7º, III, da Lei nº 12.016/2009, requer a concessão de medida liminar para {PEDIDO_LIMINAR}.
+
+### 4.1 – Do Fumus Boni Iuris
+
+{ARGUMENTOS_FUMUS}
+
+### 4.2 – Do Periculum in Mora
+
+{ARGUMENTOS_PERICULUM}
+
+---
+
+## V – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) A concessão da medida liminar, para {PEDIDO_LIMINAR};
+
+b) A notificação da autoridade coatora para que preste informações no prazo de 10 (dez) dias;
+
+c) A ciência do feito ao órgão de representação judicial da pessoa jurídica interessada;
+
+d) A oitiva do Ministério Público;
+
+e) A concessão definitiva da segurança, confirmando a liminar e determinando {PEDIDO_DEFINITIVO};
+
+f) A condenação em custas e honorários advocatícios, na forma da lei;
+
+---
+
+## VI – DO VALOR DA CAUSA
+
+Dá-se à causa o valor de **R$ {VALOR_CAUSA}** ({VALOR_CAUSA_EXTENSO}).
+
+---
+
+## VII – DOCUMENTOS ANEXOS
+
+1. Procuração ad judicia
+2. Cópia do ato impugnado
+3. {LISTA_DOCUMENTOS}
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+=== parecer_juridico.md ===
+# PARECER JURÍDICO
+
+---
+
+## IDENTIFICAÇÃO
+
+**Parecer nº:** {NUMERO_PARECER}/{ANO}
+**Consulente:** {NOME_CONSULENTE}
+**Assunto:** {ASSUNTO_RESUMIDO}
+**Data:** {DATA}
+
+---
+
+## I – RELATÓRIO (DOS FATOS)
+
+{NOME_CONSULENTE}, {QUALIFICACAO_SE_APLICAVEL}, consulta este escritório/profissional acerca de {OBJETO_CONSULTA}.
+
+### 1.1 – Síntese dos Fatos
+
+{NARRATIVA_FATOS}
+
+### 1.2 – Documentação Apresentada
+
+O(A) consulente apresentou os seguintes documentos para análise:
+
+1. {DOCUMENTO_1};
+2. {DOCUMENTO_2};
+3. {DOCUMENTO_3};
+4. {DOCUMENTO_4}.
+
+### 1.3 – Questões Formuladas
+
+O(A) consulente formula as seguintes indagações:
+
+**a)** {QUESTAO_1}
+
+**b)** {QUESTAO_2}
+
+**c)** {QUESTAO_3}
+
+---
+
+## II – FUNDAMENTAÇÃO JURÍDICA
+
+### 2.1 – Do Enquadramento Jurídico
+
+{ENQUADRAMENTO_LEGAL}
+
+A matéria em análise encontra-se regulamentada pelo(a)(s) {DIPLOMA_LEGAL}, especialmente nos artigos {ARTIGOS_APLICAVEIS}.
+
+### 2.2 – Da Análise da Legislação Aplicável
+
+**2.2.1 – {TEMA_1}**
+
+{ANALISE_LEGISLACAO_TEMA_1}
+
+O artigo {ARTIGO} do {DIPLOMA_LEGAL} dispõe:
+
+> "{TRANSCRICAO_ARTIGO}"
+
+Interpretando o dispositivo legal, verifica-se que {INTERPRETACAO}.
+
+**2.2.2 – {TEMA_2}**
+
+{ANALISE_LEGISLACAO_TEMA_2}
+
+**2.2.3 – {TEMA_3}**
+
+{ANALISE_LEGISLACAO_TEMA_3}
+
+### 2.3 – Da Doutrina
+
+{NOME_DOUTRINADOR_1} ensina que:
+
+> "{CITACAO_DOUTRINARIA_1}" ({REFERENCIA_BIBLIOGRAFICA_1})
+
+No mesmo sentido, {NOME_DOUTRINADOR_2} leciona:
+
+> "{CITACAO_DOUTRINARIA_2}" ({REFERENCIA_BIBLIOGRAFICA_2})
+
+### 2.4 – Da Jurisprudência
+
+Os tribunais têm se posicionado de forma {PACIFICA_OU_DIVERGENTE} sobre a matéria:
+
+**2.4.1 – Jurisprudência do STF:**
+
+> "{EMENTA_STF}"
+> (STF, {TIPO_RECURSO} nº {NUMERO}, Rel. Min. {RELATOR}, julgado em {DATA_JULGAMENTO})
+
+**2.4.2 – Jurisprudência do STJ:**
+
+> "{EMENTA_STJ}"
+> (STJ, {TIPO_RECURSO} nº {NUMERO}, Rel. Min. {RELATOR}, julgado em {DATA_JULGAMENTO})
+
+**2.4.3 – Jurisprudência do {TRIBUNAL_ESTADUAL}:**
+
+> "{EMENTA_TJ}"
+> ({TRIBUNAL}, {TIPO_RECURSO} nº {NUMERO}, Rel. Des. {RELATOR}, julgado em {DATA_JULGAMENTO})
+
+### 2.5 – Análise do Caso Concreto
+
+{APLICACAO_DIREITO_AO_CASO}
+
+Aplicando o arcabouço jurídico ao caso em análise, verifica-se que:
+
+**a)** {CONCLUSAO_PARCIAL_1}
+
+**b)** {CONCLUSAO_PARCIAL_2}
+
+**c)** {CONCLUSAO_PARCIAL_3}
+
+---
+
+## III – RESPOSTAS ÀS QUESTÕES FORMULADAS
+
+### 3.1 – Quanto à primeira questão:
+
+> "{QUESTAO_1}"
+
+**Resposta:** {RESPOSTA_QUESTAO_1}
+
+### 3.2 – Quanto à segunda questão:
+
+> "{QUESTAO_2}"
+
+**Resposta:** {RESPOSTA_QUESTAO_2}
+
+### 3.3 – Quanto à terceira questão:
+
+> "{QUESTAO_3}"
+
+**Resposta:** {RESPOSTA_QUESTAO_3}
+
+---
+
+## IV – ANÁLISE DE RISCOS E VIABILIDADE
+
+### 4.1 – Pontos Favoráveis
+
+1. {PONTO_FAVORAVEL_1};
+2. {PONTO_FAVORAVEL_2};
+3. {PONTO_FAVORAVEL_3}.
+
+### 4.2 – Pontos Desfavoráveis / Riscos
+
+1. {PONTO_DESFAVORAVEL_1};
+2. {PONTO_DESFAVORAVEL_2};
+3. {PONTO_DESFAVORAVEL_3}.
+
+### 4.3 – Probabilidade de Êxito
+
+Considerando os elementos apresentados, a análise da legislação, doutrina e jurisprudência, estima-se que a probabilidade de êxito {JUDICIAL/ADMINISTRATIVO} seja:
+
+- [ ] Alta (acima de 70%)
+- [ ] Média (entre 40% e 70%)
+- [ ] Baixa (abaixo de 40%)
+
+**Justificativa:** {JUSTIFICATIVA_PROBABILIDADE}
+
+---
+
+## V – RECOMENDAÇÕES
+
+Com base na análise realizada, recomenda-se ao(à) consulente:
+
+**5.1 – Providências Imediatas:**
+
+a) {RECOMENDACAO_IMEDIATA_1};
+b) {RECOMENDACAO_IMEDIATA_2}.
+
+**5.2 – Providências a Médio Prazo:**
+
+a) {RECOMENDACAO_MEDIO_PRAZO_1};
+b) {RECOMENDACAO_MEDIO_PRAZO_2}.
+
+**5.3 – Alternativas de Solução:**
+
+a) {ALTERNATIVA_1}: {DESCRICAO_ALTERNATIVA_1}
+b) {ALTERNATIVA_2}: {DESCRICAO_ALTERNATIVA_2}
+c) {ALTERNATIVA_3}: {DESCRICAO_ALTERNATIVA_3}
+
+---
+
+## VI – CONCLUSÃO
+
+{CONCLUSAO_GERAL}
+
+Este é o parecer, salvo melhor juízo.
+
+---
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+{ESPECIALIDADE_SE_APLICAVEL}
+
+---
+
+## OBSERVAÇÕES
+
+1. Este parecer tem caráter exclusivamente opinativo e não vincula decisões judiciais ou administrativas.
+2. A análise foi realizada com base nos documentos e informações fornecidos pelo(a) consulente até a data de emissão.
+3. Alterações legislativas, jurisprudenciais ou fáticas posteriores podem modificar as conclusões aqui apresentadas.
+4. Recomenda-se consulta periódica para atualização da análise.
+
+=== peticao_inicial.md ===
+# PETIÇÃO INICIAL
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} DA COMARCA DE {COMARCA}/{UF}
+
+---
+
+**{NOME_AUTOR}**, {QUALIFICAÇÃO_AUTOR}, vem, respeitosamente, à presença de Vossa Excelência, por seu advogado que esta subscreve, com fundamento no(s) artigo(s) {FUNDAMENTO_LEGAL}, propor a presente:
+
+## AÇÃO {TIPO_ACAO}
+
+em face de **{NOME_REU}**, {QUALIFICAÇÃO_REU}, pelos fatos e fundamentos jurídicos a seguir expostos:
+
+---
+
+## I – DOS FATOS
+
+{NARRATIVA_FATOS}
+
+---
+
+## II – DO DIREITO
+
+### 2.1 – Da Legitimidade das Partes
+
+O(A) Autor(a) é parte legítima para figurar no polo ativo da presente demanda, uma vez que {JUSTIFICATIVA_LEGITIMIDADE_AUTOR}.
+
+O(A) Réu(Ré) é parte legítima para figurar no polo passivo, considerando que {JUSTIFICATIVA_LEGITIMIDADE_REU}.
+
+### 2.2 – Do Mérito
+
+{FUNDAMENTACAO_JURIDICA}
+
+### 2.3 – Da Jurisprudência Aplicável
+
+Nesse sentido, a jurisprudência pátria tem se posicionado:
+
+{JURISPRUDENCIA}
+
+---
+
+## III – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) A citação do(a) Réu(Ré), no endereço indicado, para que, querendo, apresente contestação no prazo legal, sob pena de revelia e confissão ficta;
+
+b) {PEDIDOS_ESPECIFICOS}
+
+c) A condenação do(a) Réu(Ré) ao pagamento das custas processuais e honorários advocatícios, estes fixados em 20% sobre o valor da condenação;
+
+d) A produção de todas as provas em direito admitidas, especialmente {PROVAS_REQUERIDAS};
+
+e) A concessão dos benefícios da Justiça Gratuita, nos termos do art. 98 do CPC, por ser a parte hipossuficiente economicamente (se aplicável);
+
+f) {OUTROS_PEDIDOS}
+
+---
+
+## IV – DO VALOR DA CAUSA
+
+Dá-se à causa o valor de **R$ {VALOR_CAUSA}** ({VALOR_CAUSA_EXTENSO}).
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+{ENDERECO_ADVOGADO}
+E-mail: {EMAIL_ADVOGADO}
+Telefone: {TELEFONE_ADVOGADO}
+
+---
+
+## DOCUMENTOS ANEXOS:
+
+1. Procuração ad judicia
+2. Documentos pessoais do(a) Autor(a)
+3. {LISTA_DOCUMENTOS}
+
+=== procuracao_ad_judicia.md ===
+# PROCURAÇÃO AD JUDICIA
+
+## PROCURAÇÃO
+
+---
+
+**OUTORGANTE:** **{NOME_OUTORGANTE}**, {NACIONALIDADE}, {ESTADO_CIVIL}, {PROFISSAO}, portador(a) da Cédula de Identidade RG nº {RG_OUTORGANTE}, inscrito(a) no CPF sob o nº {CPF_OUTORGANTE}, residente e domiciliado(a) à {ENDERECO_OUTORGANTE}, CEP {CEP_OUTORGANTE}, e-mail: {EMAIL_OUTORGANTE}, telefone: {TELEFONE_OUTORGANTE}.
+
+**OUTORGADO:** **{NOME_ADVOGADO}**, advogado(a) inscrito(a) na OAB/{UF_OAB} sob o nº {NUMERO_OAB}, com escritório profissional à {ENDERECO_ADVOGADO}, CEP {CEP_ADVOGADO}, e-mail: {EMAIL_ADVOGADO}, telefone: {TELEFONE_ADVOGADO}.
+
+---
+
+## PODERES
+
+Pelo presente instrumento particular de procuração, o(a) OUTORGANTE nomeia e constitui seu bastante procurador o(a) OUTORGADO acima qualificado(a), a quem confere amplos poderes para o **FORO EM GERAL**, com a cláusula "**AD JUDICIA ET EXTRA**", podendo propor contra quem de direito as ações competentes e defendê-lo(a) nas contrárias, seguindo umas e outras até final decisão, usando os recursos legais e acompanhando-os, conferindo-lhe ainda poderes especiais para:
+
+- Confessar
+- Reconhecer a procedência do pedido
+- Transigir
+- Desistir
+- Renunciar ao direito sobre que se funda a ação
+- Receber e dar quitação
+- Firmar compromisso
+- Assinar declaração de hipossuficiência econômica
+- Substabelecer esta com ou sem reservas de iguais poderes
+
+Podendo ainda praticar todos os atos necessários ao fiel cumprimento deste mandato, inclusive em nome do(a) outorgante, perante quaisquer repartições públicas federais, estaduais e municipais, autarquias, empresas públicas, sociedades de economia mista e concessionárias de serviços públicos, Poder Judiciário, Ministério Público, Cartórios, Bancos e demais órgãos e instituições públicas e privadas.
+
+---
+
+## FINALIDADE
+
+Esta procuração é outorgada para {FINALIDADE_PROCURACAO}.
+
+---
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+**{NOME_OUTORGANTE}**
+CPF: {CPF_OUTORGANTE}
+
+---
+
+## OBSERVAÇÕES:
+
+{OBSERVACOES}
+
+=== queixa_crime.md ===
+# QUEIXA-CRIME
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} VARA CRIMINAL DA COMARCA DE {CIDADE}/{ESTADO}
+
+---
+
+**{NOME_QUERELANTE}**, {NACIONALIDADE}, {ESTADO_CIVIL}, {PROFISSAO}, portador(a) do RG nº {RG} e CPF nº {CPF}, residente e domiciliado(a) na {ENDERECO_COMPLETO}, vem, por seu(sua) advogado(a) que esta subscreve, respeitosamente à presença de Vossa Excelência, com fundamento nos artigos 30 e seguintes do Código de Processo Penal, oferecer
+
+## QUEIXA-CRIME
+
+em face de **{NOME_QUERELADO}**, {NACIONALIDADE}, {ESTADO_CIVIL}, {PROFISSAO}, portador(a) do RG nº {RG_QUERELADO} e CPF nº {CPF_QUERELADO}, residente e domiciliado(a) na {ENDERECO_QUERELADO}, pelos fatos e fundamentos a seguir expostos:
+
+---
+
+## I – DOS FATOS
+
+{NARRATIVA_DETALHADA_DOS_FATOS}
+
+Em data de {DATA_FATO}, {DESCRICAO_CIRCUNSTANCIAS}, o(a) querelado(a) praticou as seguintes condutas criminosas:
+
+{DESCRICAO_CONDUTA}
+
+---
+
+## II – DA TIPIFICAÇÃO PENAL
+
+### a) Do Crime de {CRIME} (Art. {ARTIGO} do {DIPLOMA_LEGAL})
+
+**Tipo penal:**
+> "{TRANSCRICAO_ARTIGO}"
+
+Os fatos narrados configuram, em tese, o crime de {CRIME}, uma vez que o(a) querelado(a) {ENQUADRAMENTO}.
+
+### b) Das Qualificadoras/Causas de Aumento (se aplicável)
+
+{QUALIFICADORAS_CAUSAS_AUMENTO}
+
+---
+
+## III – DA LEGITIMIDADE E TEMPESTIVIDADE
+
+### a) Da Legitimidade Ativa
+
+O(A) querelante possui legitimidade ativa para propor a presente ação penal privada, por ser {MOTIVO_LEGITIMIDADE} (vítima direta / representante legal / cônjuge, ascendente, descendente ou irmão - art. 31, CPP).
+
+### b) Da Tempestividade
+
+O(A) querelante tomou conhecimento da autoria do crime em {DATA_CONHECIMENTO}. A presente queixa-crime está sendo oferecida dentro do prazo decadencial de 6 (seis) meses, nos termos do artigo 38 do Código de Processo Penal.
+
+**Data do conhecimento:** {DATA_CONHECIMENTO}
+**Data da queixa:** {DATA_QUEIXA}
+**Prazo transcorrido:** {PRAZO_TRANSCORRIDO}
+
+---
+
+## IV – DAS PROVAS
+
+### a) Prova Testemunhal
+
+Arrola como testemunhas:
+
+1. **{TESTEMUNHA_1}**, {QUALIFICACAO}, residente em {ENDERECO}, telefone: {TELEFONE};
+2. **{TESTEMUNHA_2}**, {QUALIFICACAO}, residente em {ENDERECO}, telefone: {TELEFONE};
+3. **{TESTEMUNHA_3}**, {QUALIFICACAO}, residente em {ENDERECO}, telefone: {TELEFONE}.
+
+### b) Prova Documental
+
+Junta os seguintes documentos:
+
+1. {DOCUMENTO_1};
+2. {DOCUMENTO_2};
+3. {DOCUMENTO_3};
+4. {DOCUMENTO_4}.
+
+### c) Outras Provas
+
+Requer a produção de:
+
+1. {PROVA_REQUERIDA_1};
+2. {PROVA_REQUERIDA_2}.
+
+---
+
+## V – DO DIREITO
+
+{FUNDAMENTACAO_JURIDICA}
+
+A conduta do(a) querelado(a) subsume-se perfeitamente ao tipo penal descrito no artigo {ARTIGO} do {DIPLOMA_LEGAL}, merecendo a devida punição.
+
+---
+
+## VI – DOS PEDIDOS
+
+Ante o exposto, requer:
+
+**a)** O recebimento da presente queixa-crime;
+
+**b)** A citação do(a) querelado(a) para responder à acusação, nos termos do artigo 396 do CPP;
+
+**c)** A designação de audiência de instrução e julgamento;
+
+**d)** A produção de todas as provas em direito admitidas;
+
+**e)** Ao final, a condenação do(a) querelado(a) nas penas do artigo {ARTIGO} do {DIPLOMA_LEGAL};
+
+**f)** A condenação do(a) querelado(a) ao pagamento das custas processuais;
+
+**g)** A intimação do(a) advogado(a) de todos os atos processuais.
+
+Dá-se à causa o valor de R$ {VALOR_CAUSA} ({VALOR_EXTENSO}).
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+
+---
+
+## ROL DE DOCUMENTOS ANEXOS
+
+1. Procuração ad judicia com poderes especiais;
+2. Documentos pessoais do(a) querelante;
+3. {LISTA_DOCUMENTOS}
+
+=== reclamacao_trabalhista.md ===
+# AÇÃO TRABALHISTA - RECLAMAÇÃO TRABALHISTA
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DO TRABALHO DA {VARA} VARA DO TRABALHO DE {CIDADE}/{UF}
+
+---
+
+**{NOME_RECLAMANTE}**, {QUALIFICACAO_RECLAMANTE}, vem, respeitosamente, à presença de Vossa Excelência, por seu advogado que esta subscreve, com fundamento nos artigos 837 e seguintes da CLT, propor a presente:
+
+## RECLAMAÇÃO TRABALHISTA
+
+em face de **{NOME_RECLAMADA}**, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº {CNPJ_RECLAMADA}, com sede na {ENDERECO_RECLAMADA}, pelos fatos e fundamentos jurídicos a seguir expostos:
+
+---
+
+## I – DA GRATUIDADE DE JUSTIÇA
+
+O(A) Reclamante requer a concessão dos benefícios da Justiça Gratuita, nos termos do artigo 790, §3º, da CLT, por não possuir condições financeiras de arcar com as custas processuais sem prejuízo do sustento próprio e de sua família.
+
+---
+
+## II – DO CONTRATO DE TRABALHO
+
+O(A) Reclamante foi admitido(a) pela Reclamada em {DATA_ADMISSAO}, para exercer a função de {FUNCAO}, sendo dispensado(a) sem justa causa em {DATA_DEMISSAO}.
+
+| Dados do Contrato | |
+|-------------------|---|
+| Admissão | {DATA_ADMISSAO} |
+| Demissão | {DATA_DEMISSAO} |
+| Função | {FUNCAO} |
+| Último salário | R$ {ULTIMO_SALARIO} |
+| Jornada | {JORNADA_TRABALHO} |
+| Motivo da rescisão | {MOTIVO_RESCISAO} |
+
+---
+
+## III – DOS FATOS
+
+{NARRATIVA_FATOS}
+
+---
+
+## IV – DO DIREITO E PEDIDOS
+
+### 4.1 – Das Verbas Rescisórias
+
+A Reclamada deixou de pagar as seguintes verbas rescisórias:
+
+| Verba | Valor Estimado |
+|-------|----------------|
+| Saldo de salário ({DIAS_SALDO} dias) | R$ {VALOR_SALDO_SALARIO} |
+| Aviso prévio {TIPO_AVISO} | R$ {VALOR_AVISO} |
+| 13º salário proporcional ({AVOS_13}/12) | R$ {VALOR_13} |
+| Férias vencidas + 1/3 | R$ {VALOR_FERIAS_VENCIDAS} |
+| Férias proporcionais ({AVOS_FERIAS}/12) + 1/3 | R$ {VALOR_FERIAS_PROPORCIONAIS} |
+| FGTS + multa de 40% | R$ {VALOR_FGTS} |
+
+### 4.2 – Das Horas Extras
+
+O(A) Reclamante laborava habitualmente em regime de sobrejornada, sem a devida contraprestação:
+
+- Jornada contratual: {JORNADA_CONTRATUAL}
+- Jornada real: {JORNADA_REAL}
+- Média de horas extras diárias: {MEDIA_HORAS_EXTRAS}
+
+Requer a condenação ao pagamento das horas extras excedentes à 8ª diária e 44ª semanal, acrescidas do adicional de {ADICIONAL_HE}%, com reflexos em DSR, férias + 1/3, 13º salário, aviso prévio e FGTS + 40%.
+
+### 4.3 – Do Intervalo Intrajornada
+
+{ARGUMENTOS_INTERVALO}
+
+### 4.4 – Do Adicional Noturno (se aplicável)
+
+{ARGUMENTOS_ADICIONAL_NOTURNO}
+
+### 4.5 – Do Adicional de Insalubridade/Periculosidade (se aplicável)
+
+{ARGUMENTOS_ADICIONAL_INSALUBRIDADE}
+
+### 4.6 – Do FGTS
+
+Requer a liberação das guias para saque do FGTS ou, alternativamente, a condenação ao pagamento dos depósitos não realizados.
+
+### 4.7 – Da Multa do Art. 477, §8º, da CLT
+
+As verbas rescisórias não foram pagas no prazo legal, fazendo jus o(a) Reclamante à multa prevista no artigo 477, §8º, da CLT.
+
+### 4.8 – Da Multa do Art. 467 da CLT
+
+Requer a aplicação da multa do artigo 467 da CLT sobre as verbas incontroversas não pagas na primeira audiência.
+
+### 4.9 – Dos Danos Morais (se aplicável)
+
+{ARGUMENTOS_DANOS_MORAIS}
+
+---
+
+## V – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) A concessão dos benefícios da Justiça Gratuita;
+
+b) A notificação da Reclamada para comparecer à audiência e, querendo, apresentar defesa;
+
+c) A procedência dos pedidos, condenando a Reclamada ao pagamento de:
+
+   1. Verbas rescisórias (saldo de salário, aviso prévio, 13º proporcional, férias + 1/3);
+   2. Horas extras + reflexos;
+   3. Intervalo intrajornada + reflexos;
+   4. FGTS + multa de 40%;
+   5. Multa do art. 477, §8º, da CLT;
+   6. Multa do art. 467 da CLT;
+   7. {OUTROS_PEDIDOS}
+
+d) A retificação da CTPS;
+
+e) A expedição de guias para saque do FGTS e habilitação ao seguro-desemprego;
+
+f) A condenação ao pagamento de honorários advocatícios de sucumbência;
+
+g) A produção de todas as provas em direito admitidas;
+
+---
+
+## VI – DO VALOR DA CAUSA
+
+Dá-se à causa o valor de **R$ {VALOR_CAUSA}** ({VALOR_CAUSA_EXTENSO}).
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+---
+
+## DOCUMENTOS ANEXOS:
+
+1. Procuração ad judicia
+2. CTPS (páginas de qualificação e contrato)
+3. Termo de Rescisão do Contrato de Trabalho (TRCT)
+4. Contracheques
+5. Declaração de hipossuficiência
+6. {LISTA_DOCUMENTOS}
+
+=== recurso_apelacao.md ===
+# RECURSO DE APELAÇÃO
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA {VARA} DA COMARCA DE {COMARCA}/{UF}
+
+**Processo nº {NUMERO_PROCESSO}**
+**Apelante: {NOME_APELANTE}**
+**Apelado(a): {NOME_APELADO}**
+
+---
+
+**{NOME_APELANTE}**, já qualificado(a) nos autos do processo em epígrafe, por seu advogado que esta subscreve, inconformado(a) com a r. sentença de fls. {FOLHAS_SENTENCA}, prolatada pelo MM. Juízo a quo, vem, respeitosamente, interpor o presente:
+
+## RECURSO DE APELAÇÃO
+
+com fundamento nos artigos 1.009 e seguintes do Código de Processo Civil, requerendo seja o presente recurso recebido e processado, com a posterior remessa dos autos ao Egrégio Tribunal de Justiça do Estado de {UF}, para julgamento.
+
+---
+
+## RAZÕES DE APELAÇÃO
+
+### EGRÉGIO TRIBUNAL DE JUSTIÇA DO ESTADO DE {UF}
+### COLENDA CÂMARA JULGADORA
+### EMINENTES DESEMBARGADORES
+
+---
+
+## I – TEMPESTIVIDADE
+
+O presente recurso é tempestivo, vez que a intimação da sentença ocorreu em {DATA_INTIMACAO}, iniciando-se o prazo em {DATA_INICIO_PRAZO}, com término em {DATA_FIM_PRAZO}, sendo este recurso interposto em {DATA_INTERPOSICAO}.
+
+---
+
+## II – DA SENTENÇA RECORRIDA
+
+A r. sentença de primeiro grau decidiu {RESUMO_SENTENCA}.
+
+Data venia, a decisão merece reforma, conforme as razões a seguir expostas.
+
+---
+
+## III – DAS RAZÕES DO RECURSO
+
+### 3.1 – {RAZAO_1_TITULO}
+
+{RAZAO_1_ARGUMENTOS}
+
+### 3.2 – {RAZAO_2_TITULO}
+
+{RAZAO_2_ARGUMENTOS}
+
+### 3.3 – Do Erro de Julgamento / Violação à Lei
+
+{ARGUMENTOS_VIOLACAO_LEI}
+
+### 3.4 – Da Jurisprudência Aplicável
+
+{JURISPRUDENCIA_APELACAO}
+
+---
+
+## IV – DO PREQUESTIONAMENTO
+
+Para fins de eventual interposição de recurso às Cortes Superiores, prequestiona-se expressamente os seguintes dispositivos legais:
+
+- {DISPOSITIVOS_PREQUESTIONADOS}
+
+---
+
+## V – DOS PEDIDOS
+
+Ante o exposto, requer a Vossa Excelência:
+
+a) O recebimento do presente recurso, com efeito devolutivo (e suspensivo, se aplicável);
+
+b) A reforma da r. sentença recorrida, para {PEDIDO_REFORMA};
+
+c) A condenação do(a) Apelado(a) ao pagamento das custas processuais e honorários advocatícios recursais;
+
+d) {OUTROS_PEDIDOS}
+
+---
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}/{UF}, {DATA}.
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{UF_OAB} nº {NUMERO_OAB}
+
+=== representacao_criminal.md ===
+# REPRESENTAÇÃO CRIMINAL
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) DELEGADO(A) DE POLÍCIA DA {DELEGACIA} DE {CIDADE}/{ESTADO}
+
+{OU}
+
+## EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) PROMOTOR(A) DE JUSTIÇA DA {VARA} VARA CRIMINAL DA COMARCA DE {CIDADE}/{ESTADO}
+
+---
+
+**{NOME_REPRESENTANTE}**, {NACIONALIDADE}, {ESTADO_CIVIL}, {PROFISSAO}, portador(a) do RG nº {RG} e CPF nº {CPF}, residente e domiciliado(a) na {ENDERECO_COMPLETO}, vem, por seu(sua) advogado(a) que esta subscreve, respeitosamente à presença de Vossa Excelência, apresentar
+
+## REPRESENTAÇÃO CRIMINAL
+
+em face de **{NOME_REPRESENTADO}**, {QUALIFICACAO_REPRESENTADO_SE_CONHECIDA}, pelos seguintes fatos e fundamentos:
+
+---
+
+## I – DOS FATOS
+
+{NARRATIVA_DETALHADA_DOS_FATOS}
+
+Em data de {DATA_FATO}, por volta das {HORA_FATO}, no local {LOCAL_FATO}, o(a) representado(a) {NOME_REPRESENTADO} praticou as seguintes condutas criminosas contra o(a) representante:
+
+{DESCRICAO_DETALHADA_DA_CONDUTA}
+
+{CONSEQUENCIAS_SOFRIDAS}
+
+---
+
+## II – DA TIPIFICAÇÃO PENAL
+
+Os fatos narrados configuram, em tese, o(s) crime(s) de:
+
+### a) {CRIME_1} (Art. {ARTIGO_1} do {DIPLOMA_LEGAL_1})
+
+**Tipo penal:**
+"{TRANSCRICAO_ARTIGO}"
+
+**Enquadramento:**
+{JUSTIFICATIVA_ENQUADRAMENTO}
+
+### b) {CRIME_2} (Art. {ARTIGO_2} do {DIPLOMA_LEGAL_2})
+
+{SE_HOUVER_CONCURSO_DE_CRIMES}
+
+---
+
+## III – DAS PROVAS
+
+### a) Prova Testemunhal
+
+Indica-se como testemunhas dos fatos:
+
+1. **{TESTEMUNHA_1}**, {QUALIFICACAO}, residente em {ENDERECO}, telefone: {TELEFONE};
+2. **{TESTEMUNHA_2}**, {QUALIFICACAO}, residente em {ENDERECO}, telefone: {TELEFONE};
+3. **{TESTEMUNHA_3}**, {QUALIFICACAO}, residente em {ENDERECO}, telefone: {TELEFONE};
+
+### b) Prova Documental
+
+Segue em anexo:
+
+1. {DOCUMENTO_1} - {DESCRICAO};
+2. {DOCUMENTO_2} - {DESCRICAO};
+3. {DOCUMENTO_3} - {DESCRICAO};
+4. Boletim de Ocorrência nº {NUMERO_BO} (se já registrado);
+5. {OUTROS_DOCUMENTOS}
+
+### c) Prova Pericial
+
+Requer-se a realização de:
+
+1. Exame de corpo de delito (se houver lesões);
+2. Exame pericial no local dos fatos;
+3. Perícia em documentos;
+4. {OUTRAS_PERICIAS}
+
+### d) Outras Provas
+
+1. Imagens de câmeras de segurança do local {ENDERECO_CAMERAS};
+2. Registros telefônicos;
+3. Mensagens eletrônicas (WhatsApp, e-mail, etc.);
+4. {OUTRAS_PROVAS}
+
+---
+
+## IV – DA CONDIÇÃO DE PROCEDIBILIDADE
+
+### Para crimes de ação penal pública condicionada à representação:
+
+O(A) representante, nos termos do artigo 39 do Código de Processo Penal, MANIFESTA EXPRESSAMENTE sua vontade de que o(a) autor(a) do fato seja processado(a) criminalmente, oferecendo a presente REPRESENTAÇÃO dentro do prazo legal de 6 (seis) meses, contados da data em que veio a saber quem é o autor do crime (art. 38, CPP).
+
+**Data do conhecimento da autoria:** {DATA_CONHECIMENTO}
+**Data da representação:** {DATA_REPRESENTACAO}
+
+---
+
+## V – DA MANIFESTAÇÃO DE VONTADE
+
+O(A) representante declara estar ciente de que:
+
+a) A presente representação é irretratável após o oferecimento da denúncia (art. 25, CPP);
+b) Antes do oferecimento da denúncia, a representação pode ser retratada;
+c) Será comunicado(a) sobre o andamento do inquérito policial e da ação penal.
+
+---
+
+## VI – DOS REQUERIMENTOS
+
+Ante o exposto, requer:
+
+**a)** O recebimento e autuação da presente representação;
+
+**b)** A instauração de Inquérito Policial para apuração dos fatos;
+
+**c)** A oitiva do(a) representado(a) {NOME_REPRESENTADO};
+
+**d)** A oitiva das testemunhas arroladas;
+
+**e)** A requisição dos documentos necessários à prova;
+
+**f)** A realização das perícias requeridas;
+
+**g)** A requisição de imagens de câmeras de segurança;
+
+**h)** A busca e apreensão de {ESPECIFICAR_SE_NECESSARIO};
+
+**i)** Após a conclusão do inquérito, o oferecimento de denúncia contra o(a) representado(a);
+
+**j)** A intimação do(a) representante e de seu(sua) advogado(a) sobre todos os atos do procedimento.
+
+Termos em que,
+Pede deferimento.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_REPRESENTANTE}**
+Representante
+
+---
+
+**{NOME_ADVOGADO}**
+OAB/{ESTADO} nº {NUMERO_OAB}
+
+---
+
+## DECLARAÇÃO DE REPRESENTAÇÃO
+
+Eu, **{NOME_REPRESENTANTE}**, declaro que represento criminalmente contra **{NOME_REPRESENTADO}** pela prática do(s) crime(s) de {CRIMES}, manifestando minha vontade de que seja(m) processado(a)(s) e punido(a)(s) nos termos da lei.
+
+Declaro estar ciente de que esta representação é condição para o exercício da ação penal e que poderá ser retratada até o oferecimento da denúncia.
+
+{CIDADE}, {DATA}.
+
+---
+
+**{NOME_REPRESENTANTE}**
+CPF: {CPF}
+
+=== resumo_autos.md ===
+# RESUMO DOS AUTOS
+
+---
+
+## IDENTIFICAÇÃO DO PROCESSO
+
+| Campo | Informação |
+|-------|------------|
+| **Número do Processo:** | {NUMERO_PROCESSO} |
+| **Classe Processual:** | {CLASSE_PROCESSUAL} |
+| **Assunto Principal:** | {ASSUNTO_PRINCIPAL} |
+| **Vara/Juízo:** | {VARA_JUIZO} |
+| **Comarca:** | {COMARCA} |
+| **Juiz(a):** | {NOME_JUIZ} |
+| **Data de Distribuição:** | {DATA_DISTRIBUICAO} |
+| **Valor da Causa:** | R$ {VALOR_CAUSA} |
+| **Situação Atual:** | {SITUACAO_ATUAL} |
+
+---
+
+## PARTES PROCESSUAIS
+
+### Polo Ativo (Autor/Requerente/Exequente)
+
+| Nome | Qualificação | Advogado(a) | OAB |
+|------|--------------|-------------|-----|
+| {NOME_AUTOR_1} | {QUALIFICACAO_AUTOR_1} | {ADVOGADO_AUTOR_1} | {OAB_AUTOR_1} |
+
+### Polo Passivo (Réu/Requerido/Executado)
+
+| Nome | Qualificação | Advogado(a) | OAB |
+|------|--------------|-------------|-----|
+| {NOME_REU_1} | {QUALIFICACAO_REU_1} | {ADVOGADO_REU_1} | {OAB_REU_1} |
+
+---
+
+## SÍNTESE DOS FATOS
+
+### Narrativa da Parte Autora
+
+{RESUMO_FATOS_AUTOR}
+
+### Narrativa da Parte Ré
+
+{RESUMO_FATOS_REU}
+
+---
+
+## PEDIDOS FORMULADOS
+
+### Pedidos do Autor
+
+1. {PEDIDO_AUTOR_1}
+2. {PEDIDO_AUTOR_2}
+3. {PEDIDO_AUTOR_3}
+
+---
+
+## PRINCIPAIS TESES JURÍDICAS
+
+### Teses da Parte Autora
+
+1. **{TESE_AUTOR_1}:** {DESCRICAO_TESE_AUTOR_1}
+2. **{TESE_AUTOR_2}:** {DESCRICAO_TESE_AUTOR_2}
+
+### Teses da Parte Ré
+
+1. **{TESE_REU_1}:** {DESCRICAO_TESE_REU_1}
+2. **{TESE_REU_2}:** {DESCRICAO_TESE_REU_2}
+
+---
+
+## PROVAS PRODUZIDAS
+
+### Prova Documental
+
+| Documento | Juntado por | Relevância |
+|-----------|-------------|------------|
+| {DOC_1} | {PARTE_DOC_1} | {RELEVANCIA_DOC_1} |
+
+### Prova Testemunhal
+
+| Testemunha | Arrolada por | Principais Declarações |
+|------------|--------------|------------------------|
+| {TESTEMUNHA_1} | {PARTE_TEST_1} | {DECLARACAO_1} |
+
+### Prova Pericial
+
+| Tipo de Perícia | Perito | Conclusão |
+|-----------------|--------|-----------|
+| {TIPO_PERICIA_1} | {PERITO_1} | {CONCLUSAO_PERICIA_1} |
+
+---
+
+## HISTÓRICO DE MOVIMENTAÇÕES
+
+| Data | Movimentação | Observações |
+|------|--------------|-------------|
+| {DATA_MOV_1} | {MOVIMENTACAO_1} | {OBS_1} |
+| {DATA_MOV_2} | {MOVIMENTACAO_2} | {OBS_2} |
+
+---
+
+## DECISÕES RELEVANTES
+
+### Decisão de {DATA_DECISAO_1}
+
+**Objeto:** {OBJETO_DECISAO_1}
+
+**Dispositivo:**
+{TRANSCRICAO_DISPOSITIVO_1}
+
+---
+
+## SENTENÇA/ACÓRDÃO
+
+### Sentença
+
+**Data:** {DATA_SENTENCA}
+**Juiz(a):** {JUIZ_SENTENCA}
+
+**Dispositivo:**
+{TRANSCRICAO_SENTENCA}
+
+**Resultado:**
+- Procedência/Improcedência: {RESULTADO}
+
+---
+
+## PRAZOS EM ABERTO
+
+| Prazo | Término | Providência | Status |
+|-------|---------|-------------|--------|
+| {PRAZO_1} | {TERMINO_1} | {PROVIDENCIA_1} | {STATUS_1} |
+
+---
+
+## ANÁLISE ESTRATÉGICA
+
+### Pontos Fortes
+
+1. {PONTO_FORTE_1}
+2. {PONTO_FORTE_2}
+
+### Pontos Fracos
+
+1. {PONTO_FRACO_1}
+2. {PONTO_FRACO_2}
+
+### Recomendações
+
+1. {RECOMENDACAO_1}
+2. {RECOMENDACAO_2}
+
+---
+
+## PRÓXIMAS PROVIDÊNCIAS
+
+| Providência | Responsável | Prazo | Prioridade |
+|-------------|-------------|-------|------------|
+| {PROVIDENCIA_1} | {RESPONSAVEL_1} | {PRAZO_1} | {PRIORIDADE_1} |
+
+---
+
+**Resumo elaborado em:** {DATA_RESUMO}
+**Elaborado por:** {ELABORADO_POR}
+

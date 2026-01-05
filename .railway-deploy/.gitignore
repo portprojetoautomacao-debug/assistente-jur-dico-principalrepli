@@ -1,0 +1,148 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Chrome DevTools profiles
+*.heapsnapshot
+*.har
+*.cpuprofile
+
+node_modules
+dist
+dist-ssr
+*-dist
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.vscode/mcp.json
+.vscode/sonar-config.json
+.vscode/sonar-copilot-assistant.user.json
+.cursor/mcp.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.vercel
+.env.vercel.*
+.env.vercel.production
+.env.vercel.latest
+.env.staging
+.env.test
+.env.qdrant
+.env.railway
+*.backup
+.env.backup
+.env.local.backup
+.env.vercel.backup
+
+# Chroma MCP (local secrets)
+.chroma_env
+.chroma_env.*
+
+# Test output and coverage
+playwright-report/
+playwright-report/**
+.test-results/
+.copilot-notifications/
+test-results/
+coverage-api/
+test-results/
+test-results/**
+coverage/
+coverage/**
+*.coverage
+Coverage-*.json
+.nyc_output/
+.nyc_output/**
+# HTML coverage reports
+htmlcov/
+lcov.info
+*.lcov
+
+# Credential files (NEVER commit these!)
+credentials.json
+secrets.json
+*.pem
+*.key
+*.cert
+*.pfx
+serviceAccountKey.json
+.gitlab-token
+
+# Gemini CLI settings
+.gemini/
+gha-creds-*.json
+
+**/agent-eval-report*
+packages
+pids
+.file-manifest
+
+.spark-workbench-id
+
+# Screenshots and documentation images
+*.png
+!docs/**/*.png
+!public/**/*.png
+!chrome-extension-pje/src/assets/**/*.png
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# OS files
+Thumbs.db
+.DS_Store
+.vercel
+mcp-server-config.json*
+.env*.local
+eslint-results.sarif
+tsc-results.sarif
+vitest-results.sarif
+*.zip
+
+# SonarCloud
+.scannerwork/
+.sonar/
+.sonar-copilot/logs/
+coverage-api/
+
+# Security: Never commit backup files with secrets
+*.backup
+.env.*.backup
+
+# SonarQube Auto Analysis Results
+.sonar-results/
+jdk-25_linux-x64_bin.deb
+.vs/
+
+# Go modules cache (898MB) - exclude from file watchers
+pkg/
+
+# Local env files
+.env.vercel.production
+.env.vercel.latest
+.env.qdrant
+.env.railway

@@ -1,0 +1,90 @@
+/**
+ * Extrator de expedientes (intimações, citações, etc)
+ */
+
+import { Expediente, ProcessoPJe } from '../../shared/types';
+
+export class ExpedienteExtractor {
+  /**
+   * Detecta e extrai expedientes relevantes dos processos
+   */
+  public extractExpedientes(processos: ProcessoPJe[]): Expediente[] {
+    const expedientes: Expediente[] = [];
+    
+    processos.forEach(processo => {
+      const movimento = processo.ultimoMovimento.descricao.toLowerCase();
+      const type = this.detectExpedienteType(movimento);
+      
+      if (type && this.isRelevantExpediente(movimento)) {
+        expedientes.push({
+          id: crypto.randomUUID(),
+          processNumber: processo.numeroFormatado,
+          description: processo.ultimoMovimento.descricao,
+          type,
+          createdAt: new Date(processo.ultimoMovimento.timestamp).toISOString(),
+          source: 'pje-extension',
+          metadata: {
+            vara: processo.vara,
+            comarca: processo.comarca,
+            timestamp: processo.ultimoMovimento.timestamp
+          }
+        });
+      }
+    });
+    
+    console.log(`[ExpedienteExtractor] ${expedientes.length} expedientes relevantes`);
+    return expedientes;
+  }
+
+  private detectExpedienteType(movimento: string): Expediente['type'] | null {
+    const lower = movimento.toLowerCase();
+    
+    // Intimação
+    if (lower.includes('intimação') || lower.includes('intimacao') || lower.includes('publicad')) {
+      return 'intimacao';
+    }
+    
+    // Citação
+    if (lower.includes('citação') || lower.includes('citacao')) {
+      return 'citacao';
+    }
+    
+    // Despacho
+    if (lower.includes('despacho')) {
+      return 'despacho';
+    }
+    
+    // Decisão
+    if (lower.includes('decisão') || lower.includes('decisao')) {
+      return 'decisao';
+    }
+    
+    // Sentença
+    if (lower.includes('sentença') || lower.includes('sentenca')) {
+      return 'sentenca';
+    }
+    
+    return 'outro';
+  }
+
+  private isRelevantExpediente(movimento: string): boolean {
+    const lower = movimento.toLowerCase();
+    
+    // Lista de movimentos irrelevantes (não geram tarefas)
+    const ignorar = [
+      'juntada de petição',
+      'juntada de peticao',
+      'conclusos',
+      'vista ao mp',
+      'vista à defensoria',
+      'carga dos autos',
+      'transferencia de autos',
+      'remessa dos autos',
+      'retorno dos autos',
+      'baixa definitiva',
+      'arquivado definitivamente'
+    ];
+    
+    return !ignorar.some(termo => lower.includes(termo));
+  }
+}

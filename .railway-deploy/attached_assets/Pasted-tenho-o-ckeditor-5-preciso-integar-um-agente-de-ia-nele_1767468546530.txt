@@ -1,0 +1,45 @@
+tenho o ckeditor 5 preciso integar um agente de ia nele que recebe dados de publicaçoes do djen e de outros agente de ia com dados d processos, tenho um agente de ia especifico para  escrever mimutas
+Para integrar um agente de IA especialista em minutas ao seu CKEditor 5, consumindo dados do DJEN (Diário da Justiça Eletrônico Nacional) e de outros agentes de processos, a melhor abordagem em 2026 é utilizar uma arquitetura de Agente Supervisor no back-end conectada via Custom Adapter ao editor. 
+1. Arquitetura de Fluxo de Dados
+Em vez de conectar o CKEditor diretamente a cada fonte, crie um "Cérebro Central" (Back-end) que orquestre os dados:
+Camada de Ingestão: Um agente coletor busca publicações no DJEN (CNJ) e dados de processos de outros agentes.
+Orquestração (N8N ou LangChain): Um agente supervisor recebe o pedido do CKEditor, solicita o resumo dos processos ao agente de dados e envia o contexto consolidado para o seu agente de minutas.
+Saída: O agente de minutas gera o texto final e o devolve ao editor. 
+2. Implementação no CKEditor 5
+Para que o editor "converse" com seu ecossistema, siga estes passos técnicos:
+A. Use o Plugin AI Assistant
+O CKEditor 5 possui uma funcionalidade nativa de AI Assistant que pode ser estendida. 
+Instale o pacote: npm install @ckeditor/ckeditor5-ai.
+Crie um Adaptador Customizado: Em vez de usar o adaptador padrão da OpenAI, implemente um AITextAdapter que aponte para o seu back-end (onde estão os agentes do DJEN e de minutas). 
+B. Exemplo de Configuração de Contexto
+Configure o editor para enviar o ID do processo ou a publicação do DJEN como contexto inicial:
+javascript
+ClassicEditor.create(document.querySelector('#editor'), {
+    plugins: [ AIAssistant, ... ],
+    aiAssistant: {
+        adapter: {
+            request: async (prompt, context) => {
+                // Aqui você chama seu back-end que orquestra os múltiplos agentes
+                const response = await fetch('seu-backend-de-agentes/gerar-minuta', {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        prompt, 
+                        processo_id: context.processId, // Dado do agente de processos
+                        djen_data: context.djenSelection // Dado do agente DJEN
+                    })
+                });
+                return await response.json();
+            }
+        }
+    }
+});
+Use o código com cuidado.
+
+3. Ferramentas Recomendadas para Orquestração
+n8n: Excelente para criar o fluxo onde um agente "chama" o outro (o agente DJEN entrega para o de minutas) sem complexidade de código pesada.
+LangChain/LangGraph: Se precisar de lógica mais complexa onde os agentes precisam "decidir" quando consultar o DJEN antes de escrever a minuta. 
+4. Dica de Produtividade: Slash Commands
+Configure o plugin para aceitar comandos rápidos como /gerar-minuta-djen. Isso permite que o usuário invoque o agente especialista diretamente no corpo do texto, economizando tempo na troca de abas. 
+
+
+

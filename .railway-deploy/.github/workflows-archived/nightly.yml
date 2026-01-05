@@ -1,0 +1,137 @@
+name: Nightly Build
+
+on:
+  schedule:
+    # Run every day at 2:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-build
+  cancel-in-progress: true
+
+jobs:
+  nightly-build:
+    name: Nightly Build and Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: main
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run security audit
+      run: npm audit --audit-level=moderate || true
+      continue-on-error: true
+
+    - name: Check for outdated dependencies
+      run: |
+        echo "## 📦 Outdated Dependencies" > outdated.txt
+        npm outdated >> outdated.txt || true
+      continue-on-error: true
+
+    - name: Run linter
+      run: npm run lint || true
+      continue-on-error: true
+
+    - name: Build application
+      run: npm run build
+      env:
+        VITE_GOOGLE_CLIENT_ID: 'dummy-client-id'
+        VITE_GOOGLE_API_KEY: 'dummy-api-key'
+        VITE_REDIRECT_URI: 'http://localhost:5173'
+        VITE_APP_ENV: 'nightly'
+
+    - name: Run tests with coverage
+      run: |
+        if grep -q "\"test\":" package.json; then
+          echo "Running tests with coverage..."
+          npm test -- --run --coverage || echo "⚠️ Tests failed but continuing..."
+        else
+          echo "⚠️ No test script configured, skipping tests"
+        fi
+      continue-on-error: true
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: nightly-build-${{ github.run_number }}
+        path: dist/
+        retention-days: 7
+
+    - name: Create build report
+      if: always()
+      run: |
+        echo "## 🌙 Nightly Build Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Date**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch**: develop" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f "dist/index.html" ]; then
+          echo "✅ Build successful" >> $GITHUB_STEP_SUMMARY
+          
+          # Add bundle sizes
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Bundle Sizes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          find dist/assets -type f \( -name "*.js" -o -name "*.css" \) 2>/dev/null | while read file; do
+            if [ -f "$file" ]; then
+              size=$(du -h "$file" | cut -f1)
+              basename=$(basename "$file")
+              echo "| $basename | $size |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done || echo "| No asset files found | - |" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Build failed" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "❌ Nightly build failed!"
+        echo "Please check the workflow logs for details"
+
+  dependency-update-check:
+    name: Check for Dependency Updates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+
+    - name: Check for npm updates
+      run: |
+        npx npm-check-updates -u --target minor > updates.txt || true
+        
+        if [ -s updates.txt ]; then
+          echo "## 📦 Available Updates" >> $GITHUB_STEP_SUMMARY
+          cat updates.txt >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Run 'npx npm-check-updates -u && npm install' to update" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ All dependencies are up to date" >> $GITHUB_STEP_SUMMARY
+        fi

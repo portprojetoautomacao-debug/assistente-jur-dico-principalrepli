@@ -1,0 +1,70 @@
+name: Gemini CLI
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: "Prompt a ser enviado ao Gemini CLI"
+        required: true
+        type: string
+      model:
+        description: "Modelo Gemini a ser usado"
+        required: false
+        default: "gemini-2.5-pro"
+        type: string
+      debug:
+        description: "Ativar logs de depuração do gemini_cli"
+        required: false
+        default: false
+        type: boolean
+      cli_version:
+        description: "Versão do gemini-cli (latest, preview, nightly ou versão específica)"
+        required: false
+        default: "latest"
+        type: string
+
+concurrency:
+  group: gemini-cli-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run-gemini-cli:
+    name: Executar Gemini CLI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
+      - name: Run Gemini CLI
+        id: gemini
+        uses: google-github-actions/run-gemini-cli@v0.1.18
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: ${{ inputs.model }}
+          gemini_cli_version: ${{ inputs.cli_version }}
+          gemini_debug: ${{ inputs.debug }}
+          prompt: ${{ inputs.prompt }}
+
+      - name: Publicar resumo
+        if: always()
+        run: |
+          echo "## Resultado da execução do Gemini CLI" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "${{ steps.gemini.outputs.summary }}" ]; then
+            echo "${{ steps.gemini.outputs.summary }}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Nenhum resumo retornado pela CLI." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -n "${{ steps.gemini.outputs.error }}" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "### Erro" >> "$GITHUB_STEP_SUMMARY"
+            echo "${{ steps.gemini.outputs.error }}" >> "$GITHUB_STEP_SUMMARY"
+          fi

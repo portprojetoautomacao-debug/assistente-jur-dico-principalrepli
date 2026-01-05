@@ -1,0 +1,97 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+            chrome-extension-pje/node_modules
+          key: ${{ runner.os }}-deps-${{ hashFiles('package-lock.json', 'chrome-extension-pje/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist
+            .vite
+            chrome-extension-pje/dist
+          key: ${{ runner.os }}-build-${{ hashFiles('src/**/*', 'chrome-extension-pje/src/**/*', 'vite.config.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit --skipLibCheck
+
+      - name: Run ESLint SARIF
+        run: npm run lint:sarif || true
+
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Test (unit)
+        run: npm run test:run
+
+      - name: Install Chrome Extension dependencies
+        run: |
+          cd chrome-extension-pje
+          npm ci
+
+      - name: Test Chrome Extension
+        run: |
+          cd chrome-extension-pje
+          npm test
+
+      - name: Build Chrome Extension
+        run: |
+          cd chrome-extension-pje
+          npm run build
+
+      - name: Build application
+        run: npm run build
+        env:
+          VITE_GOOGLE_CLIENT_ID: "dummy-for-build"
+          VITE_GOOGLE_API_KEY: "dummy-for-build"
+          VITE_REDIRECT_URI: "http://localhost:5173"
+          VITE_APP_ENV: "ci"
+
+  # SonarCloud scan is performed in .github/workflows/sonarcloud.yml
+  # SonarQube/Cloud scans should be run separately from the main build workflow

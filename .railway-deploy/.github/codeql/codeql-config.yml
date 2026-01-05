@@ -1,0 +1,30 @@
+# CodeQL Configuration
+# Exclude test files and documentation with intentionally incomplete syntax
+
+name: "CodeQL config"
+
+paths-ignore:
+  # Documentation and test files with intentional incomplete syntax
+  - docs/archive/**
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.ts'
+  - '**/*.spec.tsx'
+  
+  # Archive and example code (intentionally incomplete)
+  - src/components/archive/**
+  - src/examples/**
+  - src/hooks/useErrorTracking.ts
+  
+  # Build artifacts
+  - dist/**
+  - node_modules/**
+  - playwright-report/**
+  
+  # Generated files
+  - '*.generated.*'
+  - coverage/**
+
+queries:
+  - uses: security-extended
+  - uses: security-and-quality

@@ -1,0 +1,297 @@
+# ========================================
+# 🤖 Automações GitPod Ona Cloud
+# Assistente Jurídico PJe
+# ========================================
+
+# Configuração do ambiente
+environment:
+  name: "Assistente Jurídico PJe - Development"
+  timezone: "America/Sao_Paulo"
+  locale: "pt_BR.UTF-8"
+
+# ========================================
+# 📦 INICIALIZAÇÃO DO WORKSPACE
+# ========================================
+init:
+  - name: "Instalar Dependências"
+    command: |
+      echo "📦 Instalando dependências do projeto..."
+      npm install --legacy-peer-deps
+      cd backend && npm install --legacy-peer-deps
+
+  - name: "Configurar Variáveis de Ambiente"
+    command: |
+      echo "🔧 Configurando ambiente..."
+      if [ ! -f .env ]; then
+        cp .env.example .env
+        echo "✅ Arquivo .env criado"
+      fi
+
+  - name: "Configurar Git"
+    command: |
+      echo "🔧 Configurando Git..."
+      git config --global --add safe.directory /workspaces/assistente-jur-dico-principalrepli
+      git config pull.rebase false
+
+# ========================================
+# 🚀 TAREFAS AUTOMÁTICAS
+# ========================================
+tasks:
+  # Desenvolvimento Frontend
+  - name: "Dev: Frontend"
+    schedule: "startup"
+    command: "npm run dev"
+    type: "background"
+    port: 5173
+    description: "Servidor de desenvolvimento Vite"
+
+  # Desenvolvimento Backend
+  - name: "Dev: Backend"
+    schedule: "startup"
+    command: "cd backend && npm run dev"
+    type: "background"
+    port: 3001
+    description: "Servidor backend Express + LangGraph"
+
+  # Verificação de Tipos
+  - name: "TypeScript Watch"
+    schedule: "startup"
+    command: "npx tsc --noEmit --watch"
+    type: "background"
+    description: "Monitoramento contínuo de tipos TypeScript"
+
+  # Testes Unitários
+  - name: "Testes Watch"
+    schedule: "manual"
+    command: "npm run test"
+    type: "background"
+    description: "Execução contínua de testes Vitest"
+
+  # Lint Auto-Fix (a cada 5 minutos)
+  - name: "Auto Lint Fix"
+    schedule: "*/5 * * * *"
+    command: "npm run lint:fix || true"
+    type: "cron"
+    description: "Correção automática de lint a cada 5 minutos"
+
+# ========================================
+# 🔍 MONITORAMENTO E ANÁLISE
+# ========================================
+monitoring:
+  # SonarQube Analysis (a cada 30 minutos)
+  - name: "SonarQube Auto-Análise"
+    schedule: "*/30 * * * *"
+    command: |
+      if [ -f scripts/sonar-auto-analyze.sh ]; then
+        chmod +x scripts/sonar-auto-analyze.sh
+        ./scripts/sonar-auto-analyze.sh --fix 2>&1 | tee -a .sonar-results/auto-analyze.log
+      fi
+    type: "cron"
+
+  # Health Check dos Agentes
+  - name: "Agentes Health Check"
+    schedule: "*/15 * * * *"
+    command: |
+      if [ -f health-check-agents.sh ]; then
+        chmod +x health-check-agents.sh
+        ./health-check-agents.sh
+      fi
+    type: "cron"
+
+# ========================================
+# 🧪 TESTES E VALIDAÇÃO
+# ========================================
+testing:
+  # Testes E2E (Playwright)
+  - name: "Testes E2E"
+    schedule: "manual"
+    command: "npm run test:e2e"
+    description: "Executar testes end-to-end com Playwright"
+
+  # Testes de API
+  - name: "Testes de API"
+    schedule: "manual"
+    command: "npm run test:api"
+    description: "Executar testes de API"
+
+  # Cobertura de Testes
+  - name: "Coverage Report"
+    schedule: "manual"
+    command: "npm run test:coverage"
+    description: "Gerar relatório de cobertura de testes"
+
+# ========================================
+# 🔨 BUILD E DEPLOY
+# ========================================
+build:
+  # Build de Produção
+  - name: "Build Production"
+    command: "npm run build:deploy"
+    description: "Build completo para produção"
+
+  # Preview Local
+  - name: "Preview Production"
+    command: "npm run preview"
+    type: "background"
+    port: 4173
+    description: "Preview do build de produção"
+
+  # Teste Local de Produção
+  - name: "Test Production Locally"
+    command: "npm run start:production"
+    type: "background"
+    port: 3001
+    description: "Testar build em ambiente de produção local"
+
+# ========================================
+# 🐛 DEBUG E FERRAMENTAS
+# ========================================
+debug:
+  # Debug Auto-Fix
+  - name: "Auto Debug Fix"
+    schedule: "manual"
+    command: |
+      if [ -f auto-debug-fix.sh ]; then
+        chmod +x auto-debug-fix.sh
+        ./auto-debug-fix.sh
+      fi
+
+  # Validar Configuração
+  - name: "Validar Setup"
+    schedule: "manual"
+    command: |
+      echo "🔍 Validando configuração do projeto..."
+      npm run type-check
+      npm run lint
+      echo "✅ Validação concluída"
+
+# ========================================
+# 📊 PORTAS EXPOSTAS
+# ========================================
+ports:
+  - port: 5173
+    visibility: "public"
+    name: "Frontend (Vite)"
+    protocol: "http"
+
+  - port: 3001
+    visibility: "public"
+    name: "Backend (Express)"
+    protocol: "http"
+
+  - port: 4173
+    visibility: "public"
+    name: "Preview"
+    protocol: "http"
+
+  - port: 51204
+    visibility: "private"
+    name: "Vitest UI"
+    protocol: "http"
+
+# ========================================
+# 🔐 SEGURANÇA E PERMISSÕES
+# ========================================
+security:
+  workspace_trust: true
+  auto_approve_tasks: true
+  allow_terminal_access: true
+
+# ========================================
+# 🎯 COMANDOS RÁPIDOS
+# ========================================
+shortcuts:
+  - name: "Verificação Completa"
+    command: "npm run type-check && npm run lint && npm run test:run"
+    description: "Executa verificação completa do código"
+
+  - name: "Limpar Cache"
+    command: "rm -rf node_modules/.vite .eslintcache && npm install"
+    description: "Limpa cache e reinstala dependências"
+
+  - name: "Reset Git"
+    command: "git reset --hard && git clean -fd"
+    description: "⚠️ Reset completo do Git (cuidado!)"
+
+  - name: "Logs Backend"
+    command: "tail -f backend/logs/*.log"
+    description: "Visualizar logs do backend em tempo real"
+
+# ========================================
+# 📝 NOTIFICAÇÕES
+# ========================================
+notifications:
+  on_startup_complete:
+    message: "🚀 Assistente Jurídico PJe está pronto!"
+    sound: true
+
+  on_build_success:
+    message: "✅ Build concluído com sucesso"
+
+  on_build_fail:
+    message: "❌ Falha no build - verifique os logs"
+    sound: true
+
+  on_test_fail:
+    message: "⚠️ Testes falharam - execute `npm run test:run` para detalhes"
+
+# ========================================
+# 🔄 PRE-BUILD CACHE
+# ========================================
+prebuild:
+  enabled: true
+  schedule: "0 4 * * *" # Diariamente às 04:00
+  commands:
+    - "npm install --legacy-peer-deps"
+    - "cd backend && npm install --legacy-peer-deps"
+    - "npm run build"
+  cache_key: "node-modules-{{ checksum('package-lock.json') }}-{{ checksum('backend/package-lock.json') }}"
+
+# ========================================
+# 📦 EXTENSÕES RECOMENDADAS
+# ========================================
+extensions:
+  required:
+    - "GitHub.copilot"
+    - "GitHub.copilot-chat"
+    - "dbaeumer.vscode-eslint"
+    - "esbenp.prettier-vscode"
+    - "bradlc.vscode-tailwindcss"
+
+  recommended:
+    - "ms-playwright.playwright"
+    - "SonarSource.sonarlint-vscode"
+    - "GitHub.vscode-pull-request-github"
+
+# ========================================
+# 🌐 CONFIGURAÇÕES DE REDE
+# ========================================
+network:
+  proxy: false
+  dns:
+    - "8.8.8.8"
+    - "8.8.4.4"
+
+# ========================================
+# 💾 BACKUP E RECUPERAÇÃO
+# ========================================
+backup:
+  enabled: true
+  schedule: "0 */6 * * *" # A cada 6 horas
+  targets:
+    - ".env"
+    - ".env.local"
+    - "backend/.env"
+    - "data/**"
+
+# ========================================
+# 📈 MÉTRICAS E ANALYTICS
+# ========================================
+metrics:
+  enabled: true
+  track:
+    - build_time
+    - test_duration
+    - startup_time
+    - memory_usage
+    - cpu_usage

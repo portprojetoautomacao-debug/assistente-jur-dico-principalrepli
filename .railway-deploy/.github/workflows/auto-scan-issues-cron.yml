@@ -1,0 +1,102 @@
+name: 📅 Auto Scan Issues - Scheduled
+
+on:
+  schedule:
+    # A cada 6 horas (00:00, 06:00, 12:00, 18:00 UTC)
+    # UTC -3 (BRT): 21:00, 03:00, 09:00, 15:00
+    - cron: "0 */6 * * *"
+
+    # Segunda verificação diária (todo dia às 09:00 UTC = 06:00 BRT)
+    - cron: "0 9 * * *"
+
+  workflow_dispatch: # Permite execução manual
+    inputs:
+      scan_all:
+        description: "Escanear todos os arquivos (true) ou apenas alterados (false)"
+        required: false
+        default: "false"
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  scheduled-scan:
+    name: 🔍 Verificação Periódica de TODOs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout completo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Histórico completo para comparação
+
+      - name: 🔍 Scan para TODO/FIXME/etc
+        id: scan
+        uses: alstr/todo-to-issue-action@v4
+        with:
+          # Triggers: 72 palavras-chave configuradas
+          TODO_PATTERN: "(TODO|FIXME|ISSUE|HACK|PENDENTE|REVISAR|CORRIGIR|VERIFICAR|ATENÇÃO|URGENTE|BUG|JURIDICO|PRAZO|INTIMACAO|VALIDAR|COMPLIANCE|LGPD|SEGURANCA|REFACTOR|OPTIMIZE|DEPRECATED|BREAKING|PERFORMANCE|ACCESSIBILITY|A11Y|SECURITY|TEST|DOC|DOCS|CRITICAL|WARNING|NOTE|IDEA|ENHANCEMENT|FEATURE|QUESTION|REVIEW|DEBT|CLEANUP|ATENCAO)"
+
+          # Template em português para issues criadas
+          ISSUE_TEMPLATE: |
+            **🤖 Detectado automaticamente no código (Scan Periódico)**
+
+            **📁 Arquivo:** `{{ FILE_PATH }}`
+            **📍 Linha:** {{ LINE_NUMBER }}
+            **🏷️ Tipo:** `{{ TODO_TYPE }}`
+            **📝 Descrição:** {{ COMMENT }}
+
+            **🔗 Links úteis:**
+            - [📄 Ver arquivo]({{ PERMALINK }})
+            - [🔍 Ver mudanças]({{ DIFF_URL }})
+
+            **⏰ Detectado em:** {{ DATE }}
+
+            ---
+            _Issue criada automaticamente pelo sistema de scan periódico (a cada 6 horas)_
+
+          # Configurações de comportamento
+          AUTO_ASSIGN: true # Atribuir ao autor do TODO
+          CLOSE_ISSUES: true # Fechar quando TODO for removido
+          UPDATE_EXISTING: true # Atualizar issues existentes ao invés de duplicar
+          LABEL: "auto-created,needs-triage,scheduled-scan"
+          MILESTONE: "Backlog"
+
+          # Token do GitHub
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📊 Relatório de execução
+        if: always()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📅 SCAN PERIÓDICO EXECUTADO"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "⏰ Data/Hora: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "🕐 BRT: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S')"
+          echo "🔍 Status: ${{ job.status }}"
+          echo "📂 Branch: ${{ github.ref_name }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          # Contar TODOs no código
+          echo "📊 Estatísticas de TODOs:"
+          TOTAL_TODOS=$(grep -r "TODO\|FIXME\|CRITICAL\|LGPD\|JURIDICO" . \
+            --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" \
+            --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.git \
+            2>/dev/null | wc -l || echo "0")
+          echo "   Total de TODOs encontrados: $TOTAL_TODOS"
+
+          # Issues abertas
+          echo ""
+          echo "📋 Próxima execução:"
+          echo "   Em 6 horas ($(TZ='America/Sao_Paulo' date -d '+6 hours' '+%Y-%m-%d %H:%M BRT'))"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: 🔔 Notificar em caso de falha
+        if: failure()
+        run: |
+          echo "⚠️ ATENÇÃO: Scan periódico falhou!"
+          echo "Verifique os logs acima para detalhes"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"

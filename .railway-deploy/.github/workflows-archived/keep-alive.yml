@@ -1,0 +1,62 @@
+name: Keep Alive - Vercel Redeploy
+
+on:
+  schedule:
+    - cron: '0 12 * * *'  # Executa diariamente às 12:00 UTC
+  workflow_dispatch:        # Permite execução manual
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verificar credenciais Vercel
+        id: check-creds
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "⚠️ VERCEL_TOKEN não configurado - pulando redeploy"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Instalar Vercel CLI
+        if: steps.check-creds.outputs.skip != 'true'
+        run: npm install -g vercel
+
+      - name: Configurar projeto Vercel
+        if: steps.check-creds.outputs.skip != 'true'
+        run: |
+          mkdir -p .vercel
+          if [ -n "${{ secrets.VERCEL_ORG_ID }}" ] && [ -n "${{ secrets.VERCEL_PROJECT_ID }}" ]; then
+            echo '{"orgId":"${{ secrets.VERCEL_ORG_ID }}","projectId":"${{ secrets.VERCEL_PROJECT_ID }}"}' > .vercel/project.json
+          fi
+
+      - name: Redeploy para Vercel (manter ativo)
+        if: steps.check-creds.outputs.skip != 'true'
+        run: |
+          set +e
+          DEPLOY_OUTPUT=$(vercel --prod --token="${{ secrets.VERCEL_TOKEN }}" --yes 2>&1)
+          DEPLOY_EXIT_CODE=$?
+          echo "$DEPLOY_OUTPUT"
+          
+          if [ $DEPLOY_EXIT_CODE -ne 0 ]; then
+            if echo "$DEPLOY_OUTPUT" | grep -qi "not valid\|invalid token"; then
+              echo "::warning::VERCEL_TOKEN inválido - regenere o token"
+            fi
+            exit 0  # Não falhar o workflow
+          fi
+          
+          echo "✅ Redeploy concluído com sucesso"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

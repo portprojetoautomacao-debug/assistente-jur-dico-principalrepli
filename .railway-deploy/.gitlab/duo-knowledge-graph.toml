@@ -1,0 +1,80 @@
+# GitLab Duo Knowledge Graph Configuration
+# Configuração do grafo de conhecimento para melhor compreensão do projeto
+
+[knowledge_graph]
+enabled = true
+version = "1.0"
+
+# Configurações de indexação
+[indexing]
+# Diretórios a serem indexados
+include_paths = [
+  "src/",
+  "api/",
+  "docs/",
+  "scripts/"
+]
+
+# Arquivos a serem excluídos
+exclude_patterns = [
+  "*.log",
+  "*.tmp",
+  "node_modules/",
+  "dist/",
+  ".git/"
+]
+
+# Linguagens suportadas
+supported_languages = [
+  "typescript",
+  "javascript",
+  "python",
+  "yaml",
+  "markdown",
+  "json"
+]
+
+# Configurações de análise
+[analysis]
+# Análise de dependências
+dependency_analysis = true
+# Análise de arquitetura
+architecture_analysis = true
+# Análise de domínio (jurídico)
+domain_analysis = true
+
+# Contexto específico do domínio jurídico
+[domain_context]
+# Tipos de entidades jurídicas
+legal_entities = [
+  "processo_juridico",
+  "cliente",
+  "advogado",
+  "tribunal",
+  "prazo",
+  "documento_legal"
+]
+
+# Relacionamentos entre entidades
+relationships = [
+  "cliente_tem_processo",
+  "advogado_representa_cliente",
+  "processo_pertence_tribunal",
+  "prazo_vinculado_processo"
+]
+
+# Regras de negócio
+business_rules = [
+  "prazo_nao_pode_ser_negativo",
+  "processo_deve_ter_cliente",
+  "advogado_deve_estar_ativo"
+]
+
+# Configurações de atualização
+[update]
+# Frequência de reindexação
+reindex_frequency = "daily"
+# Atualização incremental
+incremental_updates = true
+# Notificações de mudanças
+change_notifications = true

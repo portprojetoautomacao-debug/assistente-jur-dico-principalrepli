@@ -1,0 +1,650 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Dev: Frontend",
+      "type": "npm",
+      "script": "dev",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "group": "dev",
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Dev: Backend",
+      "type": "shell",
+      "command": "cd backend && npm run dev",
+      "problemMatcher": [],
+      "isBackground": true,
+      "options": {
+        "env": {
+          "NODE_ENV": "development"
+        }
+      },
+      "presentation": {
+        "group": "dev",
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Dev: Full Stack",
+      "dependsOn": ["Dev: Frontend", "Dev: Backend"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build: Produção",
+      "type": "npm",
+      "script": "build:deploy",
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Produção Local",
+      "type": "shell",
+      "command": "npm run start:production",
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "NODE_ENV": "production",
+          "PORT": "3001"
+        }
+      }
+    },
+    {
+      "label": "Start GitHub MCP Server (Docker)",
+      "type": "shell",
+      "command": "./scripts/start-github-mcp.sh",
+      "problemMatcher": [],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "auto-init",
+      "type": "shell",
+      "command": "${workspaceFolder}/auto-init.sh",
+      "runOptions": {},
+      "dependsOn": [
+        "auto-dev",
+        "auto-watch",
+        "auto-test-unit",
+        "auto-fix",
+        "auto-scan-issues",
+        "auto-debug-fix",
+        "auto-sonar"
+      ],
+      "dependsOrder": "parallel",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "auto-sonar",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "sleep 60 && chmod +x scripts/sonar-auto-analyze.sh && while true; do ./scripts/sonar-auto-analyze.sh --fix 2>&1 | tee -a .sonar-results/auto-analyze.log; sleep 300; done"
+      ],
+      "isBackground": true,
+      "runOptions": {},
+      "presentation": {
+        "reveal": "never",
+        "panel": "dedicated",
+        "close": false
+      },
+      "problemMatcher": [],
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "auto-dev",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "isBackground": true,
+      "group": "build",
+      "runOptions": {},
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "auto-watch",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/auto-test-watcher.sh", "--mode", "smart"],
+      "isBackground": true,
+      "group": "test",
+      "runOptions": {},
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      },
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": {
+        "owner": "vitest",
+        "pattern": {
+          "regexp": "^(?:FAIL|✖)\\s+(.*)$",
+          "file": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Executando testes.*",
+          "endsPattern": "^.*(✅|❌).*"
+        }
+      }
+    },
+    {
+      "label": "auto-test-unit",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:watch:auto"],
+      "isBackground": true,
+      "group": "test",
+      "runOptions": {},
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      },
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "auto-fix",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "while true; do sleep 30; npm run lint -- --fix --quiet 2>/dev/null || true; done"
+      ],
+      "isBackground": true,
+      "runOptions": {},
+      "presentation": {
+        "reveal": "never",
+        "panel": "dedicated",
+        "close": false
+      },
+      "problemMatcher": [],
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "dev",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "group": { "kind": "build", "isDefault": true },
+      "isBackground": true,
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "build"],
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "type-check",
+      "type": "shell",
+      "command": "npx",
+      "args": ["tsc", "--noEmit", "--skipLibCheck"],
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "optimize",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "optimize"],
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "lint",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "lint"],
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "lint:fix",
+      "type": "shell",
+      "command": "npx",
+      "args": ["eslint", ".", "--ext", "ts,tsx", "--fix", "--max-warnings", "150"],
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "format",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "format"],
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test"],
+      "group": "test",
+      "isBackground": true,
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test:run",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:run"],
+      "group": "test",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test:ui",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:ui"],
+      "group": "test",
+      "isBackground": true,
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test:coverage",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:coverage"],
+      "group": "test",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test:api",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:api"],
+      "group": "test",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test:all",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:all"],
+      "group": "test",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test:e2e",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:e2e"],
+      "group": "test",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "preview",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "preview"],
+      "group": "build",
+      "isBackground": true,
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "start",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "start"],
+      "group": "build",
+      "isBackground": true,
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "kill",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "kill"],
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "clean",
+      "type": "shell",
+      "command": "rm",
+      "args": ["-rf", "dist", "node_modules/.vite", ".eslintcache"],
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "install",
+      "type": "shell",
+      "command": "npm",
+      "args": ["install"],
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "auto-monitor",
+      "type": "shell",
+      "command": "watch",
+      "args": ["-n", "30", "npx", "tsc", "--noEmit", "--skipLibCheck"],
+      "group": "build",
+      "isBackground": true,
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "full-check",
+      "dependsOn": ["type-check", "lint", "test:run"],
+      "dependsOrder": "sequence",
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "build-and-test",
+      "dependsOn": ["build", "test:run"],
+      "dependsOrder": "sequence",
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "ci-pipeline",
+      "dependsOn": ["install", "full-check", "build", "test:all"],
+      "dependsOrder": "sequence",
+      "group": "build",
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test:e2e:headless",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:e2e"],
+      "group": "test",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "test:e2e:headed",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:e2e:headed"],
+      "group": "test",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "test:e2e:debug",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:e2e:debug"],
+      "group": "test",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "auto-scan-issues",
+      "type": "shell",
+      "command": "${workspaceFolder}/auto-create-issues.sh",
+      "runOptions": {},
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "showReuseMessage": false
+      },
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "tsc: build",
+      "type": "typescript",
+      "tsconfig": "tsconfig.json",
+      "problemMatcher": ["$tsc"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "tsc: watch",
+      "type": "typescript",
+      "tsconfig": "tsconfig.json",
+      "option": "watch",
+      "problemMatcher": ["$tsc-watch"],
+      "isBackground": true,
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "tsc: compile current file",
+      "type": "shell",
+      "command": "npx tsc ${file} --outDir ${fileDirname}",
+      "problemMatcher": ["$tsc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "auto-debug-fix",
+      "type": "shell",
+      "command": "${workspaceFolder}/auto-debug-fix.sh",
+      "isBackground": true,
+      "runOptions": {},
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "showReuseMessage": false
+      },
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "sonar:analyze",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/sonar-auto-analyze.sh"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "sonar:analyze:fix",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/sonar-auto-analyze.sh", "--fix"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "sonar:analyze:full",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/sonar-auto-analyze.sh", "--full", "--fix"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "sonar:watch",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/sonar-auto-analyze.sh", "--watch", "--fix"],
+      "isBackground": true,
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      },
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "sonar:auto-fix-loop",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/sonar-auto-fix-loop.sh", "--commit"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "SONAR_TOKEN": "${input:sonarToken}"
+        }
+      }
+    },
+    {
+      "label": "sonar:auto-fix-loop:background",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "chmod +x scripts/sonar-auto-fix-loop.sh && SONAR_TOKEN='${input:sonarToken}' nohup ./scripts/sonar-auto-fix-loop.sh --commit --interval 60 > .sonar-results/loop.log 2>&1 &"
+      ],
+      "isBackground": true,
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      },
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "test:auto-fix",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/auto-fix-tests.sh"],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "test:auto-fix:watch",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "while true; do npm run test:run || ./scripts/auto-fix-tests.sh; sleep 60; done"
+      ],
+      "isBackground": true,
+      "runOptions": {},
+      "group": "test",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      },
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "test:update-snapshots",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:run", "--", "-u"],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test:clear-cache",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:run", "--", "--clearCache"],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test:watch:api",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:api", "--", "--watch"],
+      "isBackground": true,
+      "group": "test",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      },
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test:watch:chrome",
+      "type": "shell",
+      "command": "cd chrome-extension-pje && npm run test:watch",
+      "isBackground": true,
+      "group": "test",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      },
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "test:full-pipeline",
+      "dependsOn": [
+        "test:clear-cache",
+        "test:update-snapshots",
+        "test:run",
+        "test:api",
+        "test:coverage"
+      ],
+      "dependsOrder": "sequence",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "options": { "cwd": "${workspaceFolder}" }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "sonarToken",
+      "type": "promptString",
+      "description": "Token do SonarCloud (deixe vazio para usar variável de ambiente)",
+      "default": ""
+    }
+  ]
+}

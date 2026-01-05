@@ -481,10 +481,33 @@
       ]
     },
     "assistente-jur-dico-principalrepli/.vscode/mcp.json: chroma": {
-      "allowedModels": ["copilot/auto", "copilot/gpt-5.2"]
+      "allowedModels": [
+        "aitk-github/GitHub/Codestral-2501",
+        "aitk-github/GitHub/cohere-command-a",
+        "aitk-github/GitHub/Cohere-command-r",
+        "aitk-github/GitHub/Cohere-command-r-08-2024",
+        "aitk-github/GitHub/Cohere-command-r-plus",
+        "aitk-github/GitHub/DeepSeek-R1",
+        "aitk-github/GitHub/DeepSeek-R1-0528",
+        "aitk-github/GitHub/DeepSeek-V3",
+        "aitk-github/GitHub/DeepSeek-V3-0324",
+        "aitk-github/GitHub/DeepSeek-V3.1",
+        "aitk-github/GitHub/DeepSeek-V3.2",
+        "aitk-github/GitHub/DeepSeek-V3.2-Speciale",
+        "aitk-github/GitHub/grok-3",
+        "aitk-github/GitHub/grok-3-mini",
+        "aitk-github/GitHub/Llama-4-Scout-17B-16E-Instruct",
+        "aitk-github/GitHub/Llama-3.2-11B-Vision-Instruct",
+        "aitk-github/GitHub/Llama-3.2-90B-Vision-Instruct",
+        "aitk-github/GitHub/Llama-3.3-70B-Instruct",
+        "aitk-github/GitHub/Phi-4-mini-instruct",
+        "aitk-github/GitHub/Phi-4-mini-reasoning",
+        "aitk-github/GitHub/Phi-4-multimodal-instruct",
+        "aitk-github/GitHub/Phi-4-reasoning"
+      ]
     }
   },
-  "agentSonar.token": "525735eccb98cf7cdcf0dccf920275f4d37dbe4c",
+  "agentSonar.token": "eb67d4613e8f50385c452577fd6020d46b5e6cbf",
   "agentSonar.serverUrl": "https://sonarcloud.io",
   "agentSonar.projectKey": "portprojetoautomacao-debug_assistente-jur-dico-principalrepli",
   "agentSonar.defaultIssueLimit": 20,

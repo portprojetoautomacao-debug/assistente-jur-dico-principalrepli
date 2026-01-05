@@ -1,0 +1,256 @@
+name: Dependency Health Check
+
+on:
+  schedule:
+    # Executar semanalmente nas segundas às 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+
+concurrency:
+  group: dependency-health-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  check-dependencies:
+    name: Check Dependencies Health
+    runs-on: ubuntu-latest
+    continue-on-error: true  # Don't fail CI if dependency check has issues
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Check for outdated packages
+      id: outdated
+      run: |
+        echo "## 📦 Dependency Health Report" > health-report.md
+        echo "" >> health-report.md
+        echo "**Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> health-report.md
+        echo "" >> health-report.md
+        
+        # Verificar pacotes desatualizados
+        echo "### 📊 Outdated Packages" >> health-report.md
+        echo "" >> health-report.md
+        
+        if npm outdated --json > outdated.json 2>/dev/null; then
+          OUTDATED_COUNT=$(jq '. | length' outdated.json)
+          
+          if [ "$OUTDATED_COUNT" -eq 0 ]; then
+            echo "✅ All packages are up to date!" >> health-report.md
+          else
+            echo "⚠️ **$OUTDATED_COUNT packages are outdated**" >> health-report.md
+            echo "" >> health-report.md
+            echo "| Package | Current | Wanted | Latest | Type |" >> health-report.md
+            echo "|---------|---------|--------|--------|------|" >> health-report.md
+            
+            jq -r 'to_entries[] | "| \(.key) | \(.value.current) | \(.value.wanted) | \(.value.latest) | \(.value.type) |"' outdated.json >> health-report.md
+          fi
+        else
+          echo "⚠️ Could not check for outdated packages" >> health-report.md
+        fi
+        
+        echo "" >> health-report.md
+        
+        # Verificar vulnerabilidades
+        echo "### 🔒 Security Vulnerabilities" >> health-report.md
+        echo "" >> health-report.md
+        
+        if npm audit --json > audit.json 2>/dev/null; then
+          VULN_COUNT=$(jq '.metadata.vulnerabilities | to_entries | map(.value) | add // 0' audit.json)
+          
+          if [ "$VULN_COUNT" -eq 0 ]; then
+            echo "✅ No vulnerabilities found!" >> health-report.md
+          else
+            CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' audit.json)
+            HIGH=$(jq '.metadata.vulnerabilities.high // 0' audit.json)
+            MODERATE=$(jq '.metadata.vulnerabilities.moderate // 0' audit.json)
+            LOW=$(jq '.metadata.vulnerabilities.low // 0' audit.json)
+            
+            echo "⚠️ **$VULN_COUNT vulnerabilities found**" >> health-report.md
+            echo "" >> health-report.md
+            echo "| Severity | Count |" >> health-report.md
+            echo "|----------|-------|" >> health-report.md
+            echo "| 🔴 Critical | $CRITICAL |" >> health-report.md
+            echo "| 🟠 High | $HIGH |" >> health-report.md
+            echo "| 🟡 Moderate | $MODERATE |" >> health-report.md
+            echo "| 🔵 Low | $LOW |" >> health-report.md
+          fi
+        else
+          echo "⚠️ Could not check for vulnerabilities" >> health-report.md
+        fi
+        
+        echo "" >> health-report.md
+        
+        # Verificar licenças
+        echo "### 📜 License Check" >> health-report.md
+        echo "" >> health-report.md
+        
+        npm install -g license-checker
+        license-checker --summary > licenses.txt 2>/dev/null || echo "Could not check licenses" > licenses.txt
+        
+        echo "\`\`\`" >> health-report.md
+        cat licenses.txt >> health-report.md
+        echo "\`\`\`" >> health-report.md
+        
+        # Adicionar ao step summary
+        cat health-report.md >> $GITHUB_STEP_SUMMARY
+
+    - name: Check package size
+      run: |
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📏 Package Size Analysis" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Tamanho total do node_modules
+        if [ -d "node_modules" ]; then
+          NODE_MODULES_SIZE=$(du -sh node_modules | cut -f1)
+          echo "**node_modules size:** $NODE_MODULES_SIZE" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Pacotes maiores
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Top 10 largest packages:**" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        du -sh node_modules/* 2>/dev/null | sort -rh | head -10 >> $GITHUB_STEP_SUMMARY || echo "Could not analyze package sizes" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+    - name: Check for duplicate dependencies
+      run: |
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔍 Duplicate Dependencies" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Usar npm ls para encontrar duplicatas
+        if npm ls --all --json > npm-tree.json 2>/dev/null; then
+          # Processar o JSON para encontrar duplicatas
+          # (simplificado - em produção use uma ferramenta especializada)
+          echo "✅ Dependency tree generated" >> $GITHUB_STEP_SUMMARY
+          echo "Use \`npm dedupe\` to remove duplicates if needed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Could not generate dependency tree" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Recommendations
+      run: |
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 💡 Recommendations" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "1. Run \`npm update\` to update to wanted versions" >> $GITHUB_STEP_SUMMARY
+        echo "2. Run \`npm audit fix\` to fix vulnerabilities" >> $GITHUB_STEP_SUMMARY
+        echo "3. Run \`npm dedupe\` to remove duplicate packages" >> $GITHUB_STEP_SUMMARY
+        echo "4. Review large packages and consider alternatives" >> $GITHUB_STEP_SUMMARY
+        echo "5. Check for unused dependencies with \`npx depcheck\`" >> $GITHUB_STEP_SUMMARY
+
+    - name: Upload reports
+      if: always()
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: dependency-health-reports
+        path: |
+          health-report.md
+          outdated.json
+          audit.json
+          licenses.txt
+          npm-tree.json
+        retention-days: 30
+
+    - name: Comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          if (!fs.existsSync('health-report.md')) {
+            console.log('No health report found');
+            return;
+          }
+          
+          const report = fs.readFileSync('health-report.md', 'utf8');
+          
+          const comments = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number
+          });
+          
+          const botComment = comments.data.find(comment => 
+            comment.user.type === 'Bot' && 
+            comment.body.includes('Dependency Health Report')
+          );
+          
+          const body = `${report}\n\n---\n*Dependency health check by GitHub Actions*`;
+          
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+          }
+
+  check-npm-scripts:
+    name: Validate NPM Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Validate scripts
+      run: |
+        echo "## 📝 NPM Scripts Validation" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Verificar scripts essenciais
+        REQUIRED_SCRIPTS=("dev" "build" "lint" "test")
+        MISSING_SCRIPTS=()
+        
+        for script in "${REQUIRED_SCRIPTS[@]}"; do
+          if ! jq -e ".scripts.\"$script\"" package.json > /dev/null 2>&1; then
+            MISSING_SCRIPTS+=("$script")
+          fi
+        done
+        
+        if [ ${#MISSING_SCRIPTS[@]} -eq 0 ]; then
+          echo "✅ All required scripts are present" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Missing required scripts:" >> $GITHUB_STEP_SUMMARY
+          for script in "${MISSING_SCRIPTS[@]}"; do
+            echo "- $script" >> $GITHUB_STEP_SUMMARY
+          done
+        fi
+        
+        # Listar todos os scripts disponíveis
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Available Scripts" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+        jq '.scripts' package.json >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

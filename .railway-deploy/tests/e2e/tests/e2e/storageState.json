@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://127.0.0.1:5173",
+      "localStorage": [
+        {
+          "name": "user",
+          "value": "{\"id\":\"local-admin\",\"email\":\"admin@local\",\"name\":\"Administrador\",\"avatarUrl\":\"\",\"role\":\"admin\"}"
+        },
+        {
+          "name": "monitored-lawyers",
+          "value": "[{\"id\":\"thiago-bodevan-veiga\",\"name\":\"Thiago Bodevan Veiga\",\"oab\":\"184404/MG\",\"enabled\":true}]"
+        }
+      ]
+    }
+  ]
+}

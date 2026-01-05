@@ -1,0 +1,280 @@
+name: Bundle Analysis
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'vite.config.ts'
+      - 'tsconfig.json'
+  workflow_dispatch:
+
+concurrency:
+  group: bundle-analysis-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-bundle:
+    name: Analyze Bundle Size
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+    - name: Checkout PR code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build PR version
+      run: npm run build
+      env:
+        # Using dummy values for CI bundle analysis - real secrets are used in production deploy
+        VITE_GOOGLE_CLIENT_ID: 'dummy-client-id'
+        VITE_GOOGLE_API_KEY: 'dummy-api-key'
+        VITE_REDIRECT_URI: 'http://localhost:5173'
+        VITE_APP_ENV: 'ci'
+
+    - name: Analyze bundle
+      id: analyze
+      run: |
+        echo "## 📦 Bundle Size Analysis" > bundle-report.md
+        echo "" >> bundle-report.md
+        echo "### Current Build (PR)" >> bundle-report.md
+        echo "" >> bundle-report.md
+        echo "| File | Size | Gzipped |" >> bundle-report.md
+        echo "|------|------|---------|" >> bundle-report.md
+        
+        TOTAL_SIZE=0
+        TOTAL_GZIP=0
+        
+        # Analisar arquivos JS principais
+        for file in dist/assets/*.js; do
+          if [ -f "$file" ]; then
+            FILENAME=$(basename "$file")
+            # Use wc -c for portability across BSD and GNU systems
+            SIZE=$(wc -c < "$file" 2>/dev/null || echo 0)
+            GZIP_SIZE=$(gzip -c "$file" | wc -c)
+            # Use awk instead of bc for better compatibility
+            SIZE_KB=$(awk "BEGIN {printf \"%.2f\", $SIZE / 1024}")
+            GZIP_KB=$(awk "BEGIN {printf \"%.2f\", $GZIP_SIZE / 1024}")
+            
+            echo "| $FILENAME | ${SIZE_KB} KB | ${GZIP_KB} KB |" >> bundle-report.md
+            
+            TOTAL_SIZE=$((TOTAL_SIZE + SIZE))
+            TOTAL_GZIP=$((TOTAL_GZIP + GZIP_SIZE))
+          fi
+        done
+        
+        # Calcular totais
+        TOTAL_SIZE_KB=$(awk "BEGIN {printf \"%.2f\", $TOTAL_SIZE / 1024}")
+        TOTAL_GZIP_KB=$(awk "BEGIN {printf \"%.2f\", $TOTAL_GZIP / 1024}")
+        
+        echo "" >> bundle-report.md
+        echo "**Total JS:** ${TOTAL_SIZE_KB} KB (${TOTAL_GZIP_KB} KB gzipped)" >> bundle-report.md
+        echo "" >> bundle-report.md
+        
+        # Analisar CSS
+        CSS_SIZE=0
+        CSS_GZIP=0
+        for file in dist/assets/*.css; do
+          if [ -f "$file" ]; then
+            FILENAME=$(basename "$file")
+            # Use wc -c for portability across BSD and GNU systems
+            SIZE=$(wc -c < "$file" 2>/dev/null || echo 0)
+            GZIP_SIZE=$(gzip -c "$file" | wc -c)
+            # Use awk instead of bc for better compatibility
+            SIZE_KB=$(awk "BEGIN {printf \"%.2f\", $SIZE / 1024}")
+            GZIP_KB=$(awk "BEGIN {printf \"%.2f\", $GZIP_SIZE / 1024}")
+            
+            CSS_SIZE=$((CSS_SIZE + SIZE))
+            CSS_GZIP=$((CSS_GZIP + GZIP_SIZE))
+            
+            echo "**CSS:** ${SIZE_KB} KB (${GZIP_KB} KB gzipped)" >> bundle-report.md
+          fi
+        done
+        
+        echo "" >> bundle-report.md
+        echo "### 📊 Recommendations" >> bundle-report.md
+        echo "" >> bundle-report.md
+        
+        # Verificar se o bundle está muito grande
+        MAX_SIZE=$((500 * 1024)) # 500 KB
+        if [ $TOTAL_SIZE -gt $MAX_SIZE ]; then
+          echo "⚠️ **Warning:** Main bundle exceeds 500 KB" >> bundle-report.md
+          echo "- Consider code splitting" >> bundle-report.md
+          echo "- Review large dependencies" >> bundle-report.md
+          echo "- Use dynamic imports for large components" >> bundle-report.md
+        else
+          echo "✅ Bundle size is within recommended limits" >> bundle-report.md
+        fi
+        
+        # Adicionar ao step summary
+        cat bundle-report.md >> $GITHUB_STEP_SUMMARY
+        
+        # Exportar métricas
+        echo "total_size=$TOTAL_SIZE_KB" >> $GITHUB_OUTPUT
+        echo "total_gzip=$TOTAL_GZIP_KB" >> $GITHUB_OUTPUT
+
+    - name: Upload bundle report
+      uses: actions/upload-artifact@v4
+      with:
+        name: bundle-analysis
+        path: |
+          bundle-report.md
+          dist/
+        retention-days: 7
+
+    - name: Comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('bundle-report.md', 'utf8');
+          
+          // Verificar se já existe um comentário
+          const comments = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number
+          });
+          
+          const botComment = comments.data.find(comment => 
+            comment.user.type === 'Bot' && 
+            comment.body.includes('Bundle Size Analysis')
+          );
+          
+          const body = `${report}\n\n---\n*Bundle analysis by GitHub Actions - ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}*`;
+          
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+          }
+
+  compare-with-base:
+    name: Compare with Base Branch
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    continue-on-error: true  # Don't fail the entire workflow if comparison fails
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout PR
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build PR version
+      run: npm run build
+      env:
+        VITE_GOOGLE_CLIENT_ID: 'dummy-client-id'
+        VITE_GOOGLE_API_KEY: 'dummy-api-key'
+        VITE_REDIRECT_URI: 'http://localhost:5173'
+        VITE_APP_ENV: 'ci'
+
+    - name: Save PR bundle size
+      run: |
+        du -sb dist > pr-size.txt
+        echo "PR bundle size:"
+        cat pr-size.txt
+
+    - name: Checkout base branch
+      run: |
+        # Determine base branch
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          BASE_REF="${{ github.base_ref }}"
+        else
+          BASE_REF="main"
+        fi
+        
+        git fetch origin $BASE_REF
+        git checkout origin/$BASE_REF
+
+    - name: Install base dependencies
+      run: npm ci
+
+    - name: Clean previous build
+      run: rm -rf dist .vite
+
+    - name: Build base version
+      run: npm run build
+      env:
+        # Using dummy values for CI bundle analysis - real secrets are used in production deploy
+        VITE_GOOGLE_CLIENT_ID: 'dummy-client-id'
+        VITE_GOOGLE_API_KEY: 'dummy-api-key'
+        VITE_REDIRECT_URI: 'http://localhost:5173'
+        VITE_APP_ENV: 'ci'
+
+    - name: Compare sizes
+      run: |
+        echo "## 📊 Bundle Size Comparison" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        BASE_SIZE=$(du -sb dist | cut -f1)
+        PR_SIZE=$(cat pr-size.txt | cut -f1)
+        
+        DIFF=$((PR_SIZE - BASE_SIZE))
+        
+        # Check for division by zero
+        if [ "$BASE_SIZE" -eq 0 ]; then
+          echo "⚠️ Warning: Base size is 0, cannot calculate percentage" >> $GITHUB_STEP_SUMMARY
+          PERCENT="N/A"
+        else
+          # Calculate percentage using awk instead of bc for better compatibility
+          PERCENT=$(awk "BEGIN {printf \"%.2f\", ($DIFF * 100) / $BASE_SIZE}")
+        fi
+        
+        # Use numfmt if available, otherwise use simple formatting
+        if command -v numfmt >/dev/null 2>&1; then
+          BASE_FORMATTED=$(numfmt --to=iec-i --suffix=B $BASE_SIZE)
+          PR_FORMATTED=$(numfmt --to=iec-i --suffix=B $PR_SIZE)
+          DIFF_FORMATTED=$(numfmt --to=iec-i --suffix=B ${DIFF#-})
+        else
+          BASE_FORMATTED="${BASE_SIZE} bytes"
+          PR_FORMATTED="${PR_SIZE} bytes"
+          DIFF_FORMATTED="${DIFF#-} bytes"
+        fi
+        
+        echo "**Base branch:** $BASE_FORMATTED" >> $GITHUB_STEP_SUMMARY
+        echo "**PR branch:** $PR_FORMATTED" >> $GITHUB_STEP_SUMMARY
+        echo "**Difference:** $DIFF_FORMATTED ($PERCENT%)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ $DIFF -gt 0 ]; then
+          echo "⚠️ Bundle size increased" >> $GITHUB_STEP_SUMMARY
+        elif [ $DIFF -lt 0 ]; then
+          echo "✅ Bundle size decreased" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ Bundle size unchanged" >> $GITHUB_STEP_SUMMARY
+        fi

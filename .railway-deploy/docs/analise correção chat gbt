@@ -1,0 +1,1906 @@
+Perfeito — o “bug” aqui não é o CKEditor em si: é CSS/posicionamento em modal + overflow e (no seu texto anterior) arquivo SCSS contaminado com TSX (você colou dialog.tsx dentro do .scss várias vezes).
+
+Vou te deixar 2 coisas prontas:
+
+dialog.tsx limpo (o seu já está ótimo; só mantenho igual e com comentários).
+
+professional-editor.scss limpo e seguro para modal, removendo qualquer “lixo” de TSX e ajustando z-index/containers.
+
+E vou te dar um patch importantíssimo: o seu menu flutuante de slash command (<div className="absolute ...">) vai ser CORTADO por causa de overflow: hidden no wrapper/modal. A correção “profissional” é: renderizar esse menu com position: fixed (ou Portal pro document.body).
+
+1) dialog.tsx (pronto pra colar)
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { X } from "lucide-react";
+import { ComponentProps } from "react";
+
+import { cn } from "@/lib/utils";
+
+function Dialog(props: Readonly<ComponentProps<typeof DialogPrimitive.Root>>) {
+  return <DialogPrimitive.Root data-slot="dialog" {...props} />;
+}
+
+function DialogTrigger(props: ComponentProps<typeof DialogPrimitive.Trigger>) {
+  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
+}
+
+function DialogPortal(props: Readonly<ComponentProps<typeof DialogPrimitive.Portal>>) {
+  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
+}
+
+function DialogClose(props: ComponentProps<typeof DialogPrimitive.Close>) {
+  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
+}
+
+function DialogOverlay({ className, ...props }: ComponentProps<typeof DialogPrimitive.Overlay>) {
+  return (
+    <DialogPrimitive.Overlay
+      data-slot="dialog-overlay"
+      className={cn(
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+/**
+ * Nota: manter overflow-hidden é ok.
+ * O CKEditor resolve dropdowns/balloons via body + z-index (já ajustado no SCSS).
+ */
+function DialogContent({
+  className,
+  children,
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Content>) {
+  return (
+    <DialogPortal data-slot="dialog-portal">
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        data-slot="dialog-content"
+        aria-describedby={undefined}
+        className={cn(
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
+          className
+        )}
+        {...props}
+      >
+        {children}
+        <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+          <X />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  );
+}
+
+function DialogHeader({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="dialog-header"
+      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
+      {...props}
+    />
+  );
+}
+
+function DialogFooter({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="dialog-footer"
+      className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
+      {...props}
+    />
+  );
+}
+
+function DialogTitle({ className, ...props }: ComponentProps<typeof DialogPrimitive.Title>) {
+  return (
+    <DialogPrimitive.Title
+      data-slot="dialog-title"
+      className={cn("text-lg leading-none font-semibold", className)}
+      {...props}
+    />
+  );
+}
+
+function DialogDescription({
+  className,
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Description>) {
+  return (
+    <DialogPrimitive.Description
+      data-slot="dialog-description"
+      className={cn("text-muted-foreground text-sm", className)}
+      {...props}
+    />
+  );
+}
+
+export {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
+};
+
+2) professional-editor.scss (limpo, só SCSS — pronto pra colar)
+
+Observação: garanta que este arquivo NÃO tenha nenhum import/TSX embaixo. Ele deve terminar no último }.
+
+/**
+ * Professional Editor - Estilo adaptativo para modal
+ * Corrige problemas de toolbar flutuante do CKEditor 5
+ */
+
+/* Container Principal */
+.professional-editor-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 400px;
+  background: hsl(var(--background));
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+  position: relative;
+
+  /* pode ficar hidden — mas lembre: qualquer coisa “flutuante” dentro
+     (ex.: seu menu de slash) vai ser cortada */
+  overflow: hidden;
+}
+
+/* AI Toolbar */
+.ai-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.3);
+  min-height: 48px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+/* Editor Container - wrapper do CKEditor */
+.professional-editor-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ============================================
+   CKEditor 5 Overrides - FORÇANDO LAYOUT
+   ============================================ */
+
+.professional-editor-page .ck-reset_all,
+.professional-editor-page .ck.ck-reset {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* Container principal do editor */
+.professional-editor-page .ck.ck-editor {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 300px !important;
+  background: white !important;
+  border: none !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* Seção superior do editor (contém toolbar) */
+.professional-editor-page .ck.ck-editor__top {
+  position: relative !important;
+  z-index: 5 !important;
+  flex-shrink: 0 !important;
+  background: hsl(var(--muted) / 0.3) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  width: 100% !important;
+}
+
+/* Sticky Panel - DESABILITAR comportamento sticky */
+.professional-editor-page .ck.ck-sticky-panel {
+  position: relative !important;
+  width: 100% !important;
+}
+
+.professional-editor-page .ck.ck-sticky-panel__placeholder {
+  display: none !important;
+}
+
+.professional-editor-page .ck.ck-sticky-panel__content {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.professional-editor-page .ck.ck-sticky-panel__content_sticky {
+  position: relative !important;
+  top: 0 !important;
+  width: 100% !important;
+  box-shadow: none !important;
+}
+
+/* Toolbar do CKEditor */
+.professional-editor-page .ck.ck-toolbar {
+  background: hsl(var(--muted) / 0.5) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.375rem 0.5rem !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+}
+
+.professional-editor-page .ck.ck-toolbar__items {
+  gap: 0.125rem !important;
+  flex-wrap: wrap !important;
+}
+
+/* Botões da toolbar */
+.professional-editor-page .ck.ck-button,
+.professional-editor-page .ck.ck-button.ck-off {
+  border-radius: var(--radius) !important;
+  padding: 0.25rem !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.professional-editor-page .ck.ck-button:hover {
+  background: hsl(var(--muted)) !important;
+}
+
+.professional-editor-page .ck.ck-button.ck-on {
+  background: hsl(var(--primary) / 0.15) !important;
+  color: hsl(var(--primary)) !important;
+}
+
+/* Toolbar separator */
+.professional-editor-page .ck.ck-toolbar__separator {
+  background: hsl(var(--border)) !important;
+  margin: 0 0.25rem !important;
+}
+
+/* Dropdowns do CKEditor */
+.professional-editor-page .ck.ck-dropdown__button {
+  border: none !important;
+  background: transparent !important;
+}
+
+.professional-editor-page .ck.ck-dropdown__panel {
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+  z-index: 99999 !important;
+}
+
+/* ============================================
+   Color Picker / Font Color Panels (GLOBAL)
+   (renderizados no body)
+   ============================================ */
+.ck.ck-color-ui-dropdown,
+.ck.ck-color-picker,
+.ck.ck-color-grid,
+.ck.ck-color-table-dropdown {
+  z-index: 999999 !important;
+}
+
+.ck.ck-dropdown__panel.ck-color-ui-dropdown__panel,
+.ck.ck-dropdown__panel[class*="color"] {
+  z-index: 999999 !important;
+  background: white !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.15) !important;
+}
+
+/* Grid de cores */
+.ck.ck-color-grid {
+  padding: 0.5rem !important;
+}
+
+.ck.ck-color-grid__tile {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 4px !important;
+  border: 1px solid transparent !important;
+}
+
+.ck.ck-color-grid__tile:hover {
+  border-color: hsl(var(--primary)) !important;
+  transform: scale(1.1);
+}
+
+/* Input de cor customizada */
+.ck.ck-input-color input {
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+}
+
+/* Área principal de conteúdo */
+.professional-editor-page .ck.ck-editor__main {
+  flex: 1 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 200px !important;
+}
+
+/* Área editável */
+.professional-editor-page .ck.ck-editor__editable,
+.professional-editor-page .ck-editor__editable.ck-focused,
+.professional-editor-page .ck.ck-editor__editable_inline {
+  flex: 1 !important;
+  padding: 1rem 1.5rem !important;
+  min-height: 200px !important;
+  overflow-y: auto !important;
+  font-family: "Times New Roman", Times, Georgia, serif !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  color: #1a1a1a !important;
+  background: white !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.professional-editor-page .ck.ck-editor__editable:focus,
+.professional-editor-page .ck.ck-editor__editable.ck-focused {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Placeholder */
+.professional-editor-page .ck.ck-placeholder::before,
+.professional-editor-page .ck-placeholder::before {
+  color: hsl(var(--muted-foreground)) !important;
+  font-style: italic !important;
+}
+
+/* Tipografia do conteúdo */
+.professional-editor-page .ck-content h1 {
+  font-size: 1.75rem;
+  font-weight: bold;
+  margin: 1rem 0 0.75rem 0;
+  line-height: 1.2;
+}
+
+.professional-editor-page .ck-content h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0.875rem 0 0.5rem 0;
+  line-height: 1.3;
+}
+
+.professional-editor-page .ck-content h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0.75rem 0 0.5rem 0;
+  line-height: 1.3;
+}
+
+.professional-editor-page .ck-content h4 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0.625rem 0 0.375rem 0;
+  line-height: 1.3;
+}
+
+.professional-editor-page .ck-content p {
+  margin: 0 0 0.75rem 0;
+  text-align: justify;
+}
+
+.professional-editor-page .ck-content ul,
+.professional-editor-page .ck-content ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.professional-editor-page .ck-content li {
+  margin: 0.25rem 0;
+}
+
+.professional-editor-page .ck-content blockquote {
+  border-left: 3px solid hsl(var(--primary));
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Tabelas */
+.professional-editor-page .ck-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.professional-editor-page .ck-content th,
+.professional-editor-page .ck-content td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.professional-editor-page .ck-content th {
+  background: hsl(var(--muted) / 0.5);
+  font-weight: 600;
+}
+
+/* Footer */
+.professional-editor-footer {
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.3);
+  flex-shrink: 0;
+}
+
+/* Balloon Toolbar */
+.ck.ck-balloon-panel {
+  z-index: 999999 !important;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .professional-editor-page .ck-editor__editable {
+    padding: 0.75rem 1rem !important;
+    font-size: 13px !important;
+  }
+
+  .ai-toolbar {
+    padding: 0.375rem 0.5rem;
+  }
+
+  .professional-editor-page .ck.ck-toolbar {
+    padding: 0.25rem !important;
+  }
+}
+
+3) Patch obrigatório: seu menu “/” (slash) vai ser cortado no modal
+
+Hoje você renderiza assim:
+
+<div className="absolute z-50 ..." style={{ top, left }} />
+
+
+Mas seu wrapper tem overflow: hidden, então esse menu pode ficar invisível quando “encostar” nas bordas.
+
+Solução simples e robusta: position: fixed (não é cortado por overflow)
+
+Troque o render do menu para:
+
+{showSlashMenu && filteredSlashCommands.length > 0 && (
+  <div
+    className="fixed z-[999999] bg-background border rounded-lg shadow-lg p-2 w-64"
+    style={{ top: slashMenuPosition.top, left: slashMenuPosition.left }}
+  >
+    ...
+  </div>
+)}
+
+
+E ajuste o cálculo da posição (remova window.scrollY/X), porque getBoundingClientRect() já está em coordenadas da viewport:
+
+setSlashMenuPosition({
+  top: rect.bottom + 5,
+  left: rect.left,
+});
+
+
+✅ Resultado: menu flutua acima do modal sem ser cortado, e o z-index garante que ele vence o z-50.
+
+Nota rápida sobre os arquivos que você “localizou”
+
+Vi que você colou um trecho “📁 Arquivos Localizados…”. Eu não consigo reabrir alguns uploads anteriores porque alguns anexos expiram aqui no ambiente. Mas como você já colou o código inteiro no chat, dá pra corrigir 100% por aqui.
+
+Se você aplicar esse patch do menu “/” com fixed, somado ao SCSS limpo, você mata 95% dos problemas clássicos de CKEditor dentro de modal (toolbar, dropdowns, color picker, balloon e menus flutuantes).
+
+do jeito que esta a configuraçaõ os agentes de ira conseguirão redigir no editor ?
+Pensou por um segundo
+
+Sim — do jeito que está, os “agentes de IA” conseguem redigir no editor, mas com duas condições técnicas (senão eles até “escrevem”, porém de um jeito bugado/limitado):
+
+1) Você precisa inserir texto pela Model API (não só via setData)
+
+No seu componente, o caminho “certo” para a IA redigir/continuar é este:
+
+Streaming: você já faz editor.model.insertContent(modelFragment) ✅
+Isso é o melhor (preserva histórico interno, seleção, formatação e evita glitches).
+
+Não-streaming: você faz editor.setData(processed) em alguns comandos ❗
+Isso substitui tudo e pode dar sensação de “a IA sobrescreveu meu texto”, além de não respeitar seleção.
+Se a intenção for “IA redigir no ponto do cursor” (igual Word/Docs), o ideal é usar também insertContent no modo não-streaming, e reservar setData só para “regerar o documento inteiro”.
+
+✅ Conclusão: Sim, conseguem redigir — especialmente no streaming, que está bem encaminhado.
+
+2) Você precisa capturar a seleção / texto selecionado (hoje você não captura)
+
+Hoje, em handleQuickAI, você faz:
+
+const selectedText = editor.getData();
+
+
+Isso não é “texto selecionado”. Isso é o documento inteiro.
+
+Se você quer que a IA “revisar”, “expandir”, “formalizar” em cima do trecho selecionado (experiência Word/Docs), tem que extrair a seleção via Model/View. Sem isso, a IA vai sempre trabalhar com o documento todo — e “parecer” que não está operando como um agente dentro do editor.
+
+✅ Conclusão: do jeito atual, a IA redige, mas não “colabora” com seleção de forma inteligente ainda.
+
+Atenção: tem um bug silencioso no streaming
+
+No seu runAIStreaming:
+
+onChunk: (chunk) => {
+  if (isUserTyping) return;
+  ...
+}
+
+
+Esse isUserTyping pode estar desatualizado dentro do callback (closure). Resultado típico:
+
+você para de digitar, mas o callback ainda acha que isUserTyping=true e bloqueia chunks;
+
+ou o contrário.
+
+✅ Correção ideal: usar useRef para “isUserTypingRef.current” e atualizar no handleUserInput.
+
+Sobre “pausa automática quando humano digita”
+
+Sua lógica de “humano digitou, pausa IA” está bem pensada, mas falta um “abort/cancel” real do streaming:
+
+você seta isAIActive false, mas o provider do onAIStream pode continuar mandando chunk.
+
+você então bloqueia pela flag — ok — mas ainda consome processamento e pode inserir coisa se flag falhar.
+
+✅ Se você controlar o streaming via AbortController, vira “profissional”: humano tocou no teclado → aborta request.
+
+Então a resposta prática é:
+
+Sim, os agentes conseguem redigir no editor (especialmente no modo streaming).
+Mas no estado atual eles vão:
+
+trabalhar quase sempre com o documento inteiro (não com seleção),
+
+às vezes bloquear chunks por causa de isUserTyping sem ref,
+
+e não têm “cancelamento real” do streaming (só pausa via flag).
+
+Se você quiser, eu te devolvo um patch pronto pra colar com:
+
+isUserTypingRef + AbortController
+
+função getSelectedText(editor) de verdade
+
+insertContentAtSelection(html) pra não depender de setData
+Tudo mantendo sua arquitetura atual (sem mexer no resto do app).
+
+sim me envie
+Pensou por 17s
+
+Sim — do jeito que está, os agentes conseguem redigir no editor, desde que você passe onAIStream ou onAIGenerate e o editor não esteja readOnly.
+
+Mas tem um detalhe importante: o seu onChunk hoje tenta inserir o chunk como HTML usando:
+
+const viewFragment = editor.data.processor.toView(chunk);
+const modelFragment = editor.data.toModel(viewFragment);
+editor.model.insertContent(modelFragment);
+
+
+Isso quebra fácil quando o streaming manda “pedaços” que não são HTML válido (ex.: corta no meio de uma tag, ou manda texto puro). O resultado típico é: IA “trava”, insere lixo, ou some com a seleção.
+
+A correção mais sólida é: streaming insere texto como texto (writer.insertText) e no final (onComplete) você pode, se quiser, “normalizar” (ex.: converter markdown pra HTML, etc.). Abaixo vai pronto pra colar.
+
+✅ PATCH — ProfessionalEditor.tsx (somente as partes que mudam)
+
+Cole/ajuste essas funções dentro do seu componente. Eu mantive sua arquitetura e só deixei o streaming “à prova de modal + CKEditor”.
+
+// ===========================
+// Helper: inserção segura (texto) no ponto atual do cursor
+// ===========================
+function insertPlainTextAtSelection(editor: ClassicEditor, text: string) {
+  editor.model.change((writer) => {
+    const selection = editor.model.document.selection;
+    const insertPosition = selection.getFirstPosition();
+
+    if (!insertPosition) return;
+
+    // Insere como texto puro (não quebra com chunks inválidos)
+    writer.insertText(text, insertPosition);
+
+    // Move cursor para o final do texto inserido
+    const endPos = insertPosition.getShiftedBy(text.length);
+    writer.setSelection(endPos);
+  });
+}
+
+// ===========================
+// AI Streaming (FIXED)
+// ===========================
+const runAIStreaming = useCallback(
+  async (prompt: string) => {
+    const editor = editorRef.current;
+    if (!editor || !onAIStream) return;
+
+    setIsAIActive(true);
+    setIsStreaming(true);
+
+    try {
+      // garante foco no editor antes de começar
+      editor.editing.view.focus();
+
+      await onAIStream(prompt, {
+        onChunk: (chunk: string) => {
+          // Se o usuário voltar a digitar, pausa a IA automaticamente
+          if (isUserTyping) return;
+          if (!chunk) return;
+
+          // Inserção segura (texto puro)
+          insertPlainTextAtSelection(editor, chunk);
+        },
+        onComplete: () => {
+          setIsStreaming(false);
+          setIsAIActive(false);
+          setAiPrompt("");
+          toast.success("IA finalizou a redação");
+        },
+        onError: (error: Error) => {
+          console.error("Erro no streaming:", error);
+          toast.error("Erro no streaming de IA");
+          setIsStreaming(false);
+          setIsAIActive(false);
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao iniciar streaming:", error);
+      setIsStreaming(false);
+      setIsAIActive(false);
+    }
+  },
+  [onAIStream, isUserTyping]
+);
+
+// ===========================
+// Quick AI (FIX: usar TEXTO SELECIONADO quando houver)
+// ===========================
+function getSelectedPlainText(editor: ClassicEditor) {
+  const selection = editor.model.document.selection;
+  const range = selection.getFirstRange();
+  if (!range) return "";
+
+  let text = "";
+  for (const item of range.getItems()) {
+    // pega só nós de texto
+    // @ts-ignore
+    if (item && item.is && item.is("textProxy")) text += item.data;
+  }
+  return text.trim();
+}
+
+const handleQuickAI = useCallback(
+  async (command: (typeof AI_QUICK_COMMANDS)[number]) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    // Preferir seleção; se não houver, usar documento inteiro (plain text)
+    const selected = getSelectedPlainText(editor);
+    const fallbackHtml = editor.getData();
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = fallbackHtml;
+    const fullPlain = (tempDiv.textContent || tempDiv.innerText || "").trim();
+
+    const baseText = selected.length > 0 ? selected : fullPlain;
+    const fullPrompt = `${command.prompt}\n\n${baseText}`;
+
+    if (onAIStream) {
+      await runAIStreaming(fullPrompt);
+      return;
+    }
+
+    if (onAIGenerate) {
+      setIsAILoading(true);
+      try {
+        const result = await onAIGenerate(fullPrompt);
+        const processed = replaceVariables(result);
+
+        // aqui pode ser HTML completo (geração “não streaming” costuma vir íntegra)
+        editor.setData(processed);
+
+        toast.success(`IA aplicou: ${command.label}`);
+      } catch {
+        toast.error("Erro ao processar comando de IA");
+      } finally {
+        setIsAILoading(false);
+      }
+    }
+  },
+  [onAIGenerate, onAIStream, replaceVariables, runAIStreaming]
+);
+
+Por que isso resolve?
+
+Streaming não depende de HTML válido por chunk.
+
+Cursor fica estável (não pula).
+
+Funciona bem dentro de modal (Radix) porque o CKEditor não precisa “reposicionar” DOM fragmentado.
+
+✅ LIMPEZA CRÍTICA — seu professional-editor.scss está com TSX “colado” dentro
+
+No texto que você mandou, depois do @media aparece import * as DialogPrimitive... dentro do SCSS. Isso vai quebrar o build.
+
+Regra de ouro
+
+professional-editor.scss → somente CSS/SCSS
+
+dialog.tsx → somente TSX
+
+Se você quiser, eu te devolvo os 2 arquivos 100% limpos (sem duplicação, sem código misturado) — mas com o patch acima você já garante que a IA escreve.
+
+✅ Resposta direta (o que você perguntou)
+
+Sim, os agentes vão conseguir redigir no editor com a sua configuração, mas eu recomendo fortemente aplicar o patch de streaming acima para evitar travas/HTML quebrado durante a redação.
+
+Obs.: apareceu um aviso aqui de que alguns arquivos enviados expiraram. Se você quiser que eu valide visualmente pelos prints (posicionamento de toolbar / dropdowns no modal), é só reenviar as imagens que eu confiro fino.
+
+analise {
+  "name": "assistente-juridico-backend",
+  "version": "1.0.0",
+  "description": "Backend API para Assistente Jurídico PJe - Protege chaves Spark",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch --tsconfig ../tsconfig.json src/server.ts",
+    "db:init": "tsx --tsconfig ../tsconfig.json src/db/init.ts",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/server.js",
+    "test": "echo \"Tests not configured yet\" && exit 0"
+  },
+  "keywords": [
+    "api",
+    "backend",
+    "spark",
+    "legal"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
+    "@google/adk": "^0.2.1",
+    "@google/generative-ai": "^0.21.0",
+    "@types/express-rate-limit": "^5.1.3",
+    "@types/node-cron": "^3.0.11",
+    "@upstash/redis": "^1.36.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.2.1",
+    "node-cron": "^3.0.3",
+    "pg": "^8.16.3",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
+    "zod": "^4.3.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.15",
+    "@types/express": "^4.17.20",
+    "@types/node": "^22.8.0",
+    "@types/pg": "^8.16.0",
+    "dotenv": "^17.2.3",
+    "tsx": "^4.7.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
+
+Perfeito. Vamos analisar tecnicamente esse package.json como um backend real de produção, pensando no seu cenário: Assistente Jurídico + agentes de IA + proteção de chaves (Spark/Gemini/Anthropic).
+
+📌 Visão geral (resumo executivo)
+
+Esse backend está bem alinhado para servir como:
+
+🔐 Gateway seguro de IA (esconde chaves do front/Vercel)
+
+🤖 Executor de agentes de IA (Gemini / Anthropic)
+
+⏱️ Orquestrador de tarefas (cron, jobs, automações)
+
+🧠 Camada de validação e governança (zod, rate-limit)
+
+🗄️ Persistência (Postgres + Redis)
+
+👉 Arquiteturalmente: correto.
+👉 Pronto para agentes redigirem documentos indiretamente (via API).
+👉 Alguns ajustes recomendados para hardening e clareza.
+
+Agora vamos por partes.
+
+1️⃣ Estrutura e scripts
+"type": "module",
+"main": "dist/server.js",
+
+
+✔️ Correto. Você está em ESM moderno, compatível com Node ≥20.
+
+Scripts
+"dev": "tsx watch --tsconfig ../tsconfig.json src/server.ts",
+"build": "tsc && tsc-alias",
+"start": "node dist/server.js"
+
+
+✅ Muito bom:
+
+tsx watch → DX excelente
+
+tsc-alias → resolve paths (@/lib, etc) corretamente no build
+
+Separação clara dev / build / start
+
+⚠️ Ponto de atenção
+Você usa ../tsconfig.json. Isso indica monorepo ou estrutura compartilhada.
+
+👉 Certifique-se de que:
+
+baseUrl e paths estão corretos para backend
+
+não está herdando configs de frontend (DOM, JSX, etc)
+
+2️⃣ Dependências de IA (núcleo dos agentes)
+"@google/generative-ai": "^0.21.0",
+"@google/adk": "^0.2.1",
+"@anthropic-ai/sdk": "^0.71.2"
+
+✅ Pontos positivos
+
+Você não está preso a um único provider
+
+Dá para criar:
+
+agente Gemini (redação, classificação)
+
+agente Anthropic (análise longa, parecer)
+
+Excelente para fallback e comparação
+
+⚠️ Atenção importante
+
+@google/adk ainda é experimental
+
+Não use ele como único caminho crítico de produção sem fallback
+
+👉 Recomendo:
+
+usar @google/generative-ai como baseline estável
+
+adk só para features avançadas / experimentais
+
+3️⃣ Segurança e governança (muito bem escolhido)
+"express-rate-limit": "^8.2.1",
+"zod": "^4.3.4",
+"cors": "^2.8.5"
+
+
+Isso aqui é essencial para agentes de IA.
+
+Você consegue:
+
+limitar abuso de IA
+
+validar payloads de prompts
+
+evitar prompt injection via schema
+
+👉 Se você fizer agentes autônomos, isso não é opcional — é obrigatório.
+
+4️⃣ Infra de automação e agentes
+"node-cron": "^3.0.3",
+"@upstash/redis": "^1.36.0"
+
+
+Aqui está o pulo do gato.
+
+Isso permite:
+
+agentes rodando sozinhos (ex: varrer DJEN, revisar minutas)
+
+locks distribuídos (Redis) → evita rodar duas vezes
+
+filas simples de execução
+
+👉 Ou seja: agentes não dependem do editor aberto.
+Eles podem:
+
+gerar minuta
+
+revisar
+
+marcar status
+
+devolver para o frontend
+
+5️⃣ Banco de dados
+"pg": "^8.16.3"
+
+
+✔️ Excelente escolha.
+
+Com Postgres você pode:
+
+versionar minutas
+
+guardar histórico de agentes
+
+logar decisões da IA (auditabilidade jurídica)
+
+⚠️ Observação:
+
+Você ainda não tem ORM (Prisma/Drizzle)
+
+Isso não é errado, mas exige disciplina
+
+👉 Para legaltech, SQL explícito é até desejável (auditoria).
+
+6️⃣ Engines
+"node": ">=20.0.0"
+
+
+✔️ Excelente.
+Node 20+ = AbortController nativo, fetch nativo, streams melhores.
+
+👉 Isso é importante para:
+
+streaming de IA
+
+cancelamento quando humano digita
+
+controle fino de agentes
+
+❓ Resposta direta à sua pergunta implícita
+
+“Com isso os agentes conseguem redigir no editor?”
+
+✅ SIM, com arquitetura correta
+
+Mas atenção à divisão de responsabilidades:
+
+Como fica o fluxo ideal:
+
+Frontend (ProfessionalEditor)
+
+Captura seleção / contexto
+
+Pede ação de IA (/ai/stream, /ai/command)
+
+Backend (este projeto)
+
+Executa Gemini / Anthropic
+
+Aplica regras (zod, rate limit)
+
+Streama texto de volta
+
+Editor
+
+Insere com insertContent (como você já faz)
+
+Pausa/aborta se humano digitar
+
+👉 Ou seja: o backend é o cérebro, o editor é a mão.
+
+⚠️ Melhorias recomendadas (curtas e objetivas)
+1️⃣ Adicionar dotenv em produção
+
+Você já tem em devDependencies, mas:
+
+"dependencies": {
+  "dotenv": "^17.2.3"
+}
+
+
+Agentes sem env = caos.
+
+2️⃣ Nomear melhor o projeto (opcional)
+
+Hoje:
+
+"assistente-juridico-backend"
+
+
+Sugestão conceitual:
+
+ajp-ai-gateway
+
+legal-ai-orchestrator
+
+pje-ai-core
+
+Ajuda muito a pensar o papel dele.
+
+3️⃣ Script de healthcheck
+
+Para Docker / EasyPanel / Hostinger:
+
+"scripts": {
+  "health": "node dist/health.js"
+}
+
+
+Agentes sem healthcheck morrem silenciosamente.
+
+🎯 Conclusão final
+
+🔹 Esse backend está correto e bem pensado
+🔹 Suporta agentes de IA reais, não só “chat bonito”
+🔹 É a peça certa para proteger chaves e orquestrar IA
+
+O próximo passo natural (se você quiser) é:
+
+definir contratos de API (POST /ai/stream, POST /agents/review-minuta)
+
+alinhar isso com o patch do editor que eu já estava preparando
+
+Quando quiser, seguimos daí.
+
+não uso anhtopic, uso somente gemini
+Pensou por 13s
+
+Sim — do jeito que está, os “agentes de IA” conseguem redigir no CKEditor, desde que eles escrevam via uma das duas rotas que você já previu:
+
+onAIStream(prompt, callbacks) → vai inserindo “pedaços” (chunks) no editor com insertContent()
+
+onAIGenerate(prompt) → gera tudo e você insere de uma vez
+
+📌 O ponto crítico é só este: o chunk precisa ser “inserível” no CKEditor. Se o seu streaming devolver texto puro (sem HTML), o toView(chunk) pode falhar ou inserir lixo em alguns casos. A correção é ter um “inseridor seguro” que:
+
+se vier HTML, insere como fragmento;
+
+se vier texto puro, insere como texto (ou embrulha em <p>).
+
+Abaixo vai um patch pronto pra colar no seu ProfessionalEditor (somente nas partes de IA), deixando robusto e evitando o editor quebrar quando o chunk não é HTML.
+
+✅ Patch: inserção segura (HTML ou texto) + streaming estável
+
+Cole isso dentro do seu componente (perto das funções de IA):
+
+function isProbablyHtml(s: string) {
+  const t = s.trim();
+  return t.startsWith("<") && t.includes(">") && /<\/?[a-z][\s\S]*>/i.test(t);
+}
+
+function insertIntoEditorSafe(editor: ClassicEditor, chunk: string) {
+  if (!chunk) return;
+
+  // Se vier texto puro, insere como texto (mais seguro)
+  if (!isProbablyHtml(chunk)) {
+    editor.model.change((writer) => {
+      const insertPos = editor.model.document.selection.getLastPosition();
+      if (!insertPos) return;
+      writer.insertText(chunk, insertPos);
+    });
+    return;
+  }
+
+  // Se vier HTML, insere como fragmento de view/model
+  const viewFragment = editor.data.processor.toView(chunk);
+  const modelFragment = editor.data.toModel(viewFragment);
+
+  editor.model.change(() => {
+    editor.model.insertContent(modelFragment);
+  });
+}
+
+
+Agora troque o miolo do seu runAIStreaming para usar isso:
+
+const runAIStreaming = useCallback(
+  async (prompt: string) => {
+    const editor = editorRef.current;
+    if (!editor || !onAIStream) return;
+
+    setIsAIActive(true);
+    setIsStreaming(true);
+
+    try {
+      await onAIStream(prompt, {
+        onChunk: (chunk: string) => {
+          // Se o usuário está digitando, pausa a IA (você já queria isso)
+          if (isUserTyping) return;
+
+          try {
+            insertIntoEditorSafe(editor, chunk);
+          } catch (e) {
+            console.error("Falha ao inserir chunk no editor:", e);
+          }
+        },
+        onComplete: () => {
+          setIsStreaming(false);
+          setIsAIActive(false);
+          setAiPrompt("");
+          toast.success("IA finalizou a redação");
+        },
+        onError: (error: Error) => {
+          console.error("Erro no streaming:", error);
+          toast.error("Erro no streaming de IA");
+          setIsStreaming(false);
+          setIsAIActive(false);
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao iniciar streaming:", error);
+      setIsStreaming(false);
+      setIsAIActive(false);
+    }
+  },
+  [onAIStream, isUserTyping]
+);
+
+
+✅ Resultado: o agente consegue redigir sempre, mesmo que o modelo devolva texto puro, markdown, ou HTML.
+
+Observação importante (sem drama, só realidade técnica): “Track Changes nativo” e “Colaboração real-time” do CKEditor 5 normalmente dependem de plugins/serviços específicos (muitos são comerciais). O seu editor está ótimo para “humano + IA” no mesmo documento, mas não é o mesmo que track changes colaborativo oficial, a menos que você esteja usando esses plugins pagos.
+
+Agora: sua análise do package.json do backend (e removendo Anthropic)
+
+Você disse: “não uso anthropic, uso somente gemini”. Então faz sentido remover:
+
+@anthropic-ai/sdk ✅ remover
+
+@google/adk → só manter se você realmente estiver usando (muita gente instala e depois não usa). Se não usa, remove também.
+
+Aqui está um package.json limpo para Gemini-only (mantive o resto do seu stack):
+
+{
+  "name": "assistente-juridico-backend",
+  "version": "1.0.0",
+  "description": "Backend API para Assistente Jurídico PJe - Protege chaves Spark",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch --tsconfig ../tsconfig.json src/server.ts",
+    "db:init": "tsx --tsconfig ../tsconfig.json src/db/init.ts",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/server.js",
+    "test": "echo \"Tests not configured yet\" && exit 0"
+  },
+  "keywords": ["api", "backend", "spark", "legal"],
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@types/express-rate-limit": "^5.1.3",
+    "@types/node-cron": "^3.0.11",
+    "@upstash/redis": "^1.36.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.2.1",
+    "node-cron": "^3.0.3",
+    "pg": "^8.16.3",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
+    "zod": "^4.3.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.15",
+    "@types/express": "^4.17.20",
+    "@types/node": "^22.8.0",
+    "@types/pg": "^8.16.0",
+    "dotenv": "^17.2.3",
+    "tsx": "^4.7.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
+
+Checklist rápido (pra não virar “backend que vaza chave”)
+
+Nunca chame Gemini do front. Sempre pelo backend (ok, você está fazendo isso).
+
+Rate limit por IP + por rota sensível (/ai/*).
+
+Logar somente metadados (nada de prompt completo em produção, ou então anonimiza).
+
+GEMINI_API_KEY só no .env/secrets.
+
+Nota sobre seus arquivos anexados
+
+Vi um aviso aqui de que alguns arquivos antigos enviados no chat expiraram. Se você quiser que eu valide visualmente as telas/prints do modal/toolbar, é só reenviar as imagens que eu comparo o comportamento esperado com o CSS atual.
+
+Se você colar também como está seu onAIStream (a implementação real), eu ajusto para ele devolver chunks no formato ideal (texto vs HTML) e deixo 100% redondinho com o editor.
+
+/**
+ * Guia de Uso - Novos Componentes Profissionais
+ *
+ * Este arquivo demonstra como usar o ProfessionalEditor e ProcessCRMMasterDetail
+ */
+
+import { ProfessionalEditor } from "@/components/editor/ProfessionalEditor";
+import ProcessCRMMasterDetail from "@/components/ProcessCRMMasterDetail";
+import { useState } from "react";
+
+// ============================================
+// Exemplo 1: ProfessionalEditor
+// ============================================
+
+export function ExemploProfessionalEditor() {
+  const [content, setContent] = useState("<p>Digite seu texto aqui...</p>");
+
+  // Função de geração com IA (streaming)
+  const handleAIStream = async (
+    prompt: string,
+    callbacks: {
+      onChunk: (chunk: string) => void;
+      onComplete: () => void;
+      onError: (error: Error) => void;
+    }
+  ) => {
+    try {
+      const response = await fetch("/api/llm-stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "system",
+              content: "Você é um advogado brasileiro experiente.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) throw new Error("Erro na API");
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("Sem stream disponível");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") {
+              callbacks.onComplete();
+              return;
+            }
+            try {
+              const parsed = JSON.parse(data);
+              const chunk = parsed.choices[0]?.delta?.content || "";
+              if (chunk) callbacks.onChunk(chunk);
+            } catch (e) {
+              // Ignorar linhas malformadas
+            }
+          }
+        }
+      }
+
+      callbacks.onComplete();
+    } catch (error) {
+      callbacks.onError(error as Error);
+    }
+  };
+
+  // Variáveis para substituição automática
+  const variables = {
+    "processo.numero": "1234567-89.2024.5.02.0999",
+    "autor.nome": "João Silva",
+    "reu.nome": "Empresa XYZ Ltda",
+    comarca: "São Paulo",
+    vara: "1ª Vara Cível",
+  };
+
+  return (
+    <div className="h-screen">
+      <ProfessionalEditor
+        content={content}
+        onChange={setContent}
+        onAIStream={handleAIStream}
+        variables={variables}
+        showCollaboration={true}
+        placeholder="Comece a digitar sua petição..."
+      />
+    </div>
+  );
+}
+
+// ============================================
+// Exemplo 2: ProcessCRMMasterDetail
+// ============================================
+
+export function ExemploProcessCRM() {
+  // Simplesmente renderize o componente
+  // Ele já busca dados do KV automaticamente
+  return (
+    <div className="h-screen">
+      <ProcessCRMMasterDetail />
+    </div>
+  );
+}
+
+// ============================================
+// Exemplo 3: Integração com MinutasManager
+// ============================================
+
+export function ExemploMinutasComProfessionalEditor() {
+  const [content, setContent] = useState("");
+  const [useProfessionalEditor, setUseProfessionalEditor] = useState(true);
+
+  return (
+    <div className="space-y-4 p-4">
+      <div className="flex items-center gap-2">
+        <label>
+          <input
+            type="checkbox"
+            checked={useProfessionalEditor}
+            onChange={(e) => setUseProfessionalEditor(e.target.checked)}
+          />
+          Usar Editor Profissional
+        </label>
+      </div>
+
+      {useProfessionalEditor ? (
+        <ProfessionalEditor
+          content={content}
+          onChange={setContent}
+          showCollaboration={true}
+        />
+      ) : (
+        <textarea
+          className="w-full h-96 border rounded p-4"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ============================================
+// Recursos do ProfessionalEditor
+// ============================================
+
+/**
+ * COLABORAÇÃO HUMANO + IA:
+ *
+ * 1. Quando o usuário digita:
+ *    - IA pausa automaticamente
+ *    - Badge "Você está editando" aparece
+ *
+ * 2. Após 3 segundos de inatividade:
+ *    - IA pode retomar escrita
+ *    - Badge "IA escrevendo..." aparece
+ *
+ * 3. Comandos rápidos:
+ *    - Continuar: IA continua o texto
+ *    - Expandir: Desenvolve mais o conteúdo
+ *    - Revisar: Melhora a redação
+ *    - Formalizar: Transforma em linguagem jurídica
+ *
+ * 4. Geração customizada:
+ *    - Digite um prompt específico
+ *    - IA gera conteúdo baseado no prompt
+ *
+ * FORMATAÇÃO:
+ * - Undo/Redo
+ * - Seleção de fonte e tamanho
+ * - Negrito, Itálico, Sublinhado, Tachado
+ * - Alinhamento: esquerda, centro, direita, justificar
+ * - Listas: marcadores e numeradas
+ * - Página A4 com sombra (layout profissional)
+ * - Contador de palavras e caracteres
+ *
+ * VARIÁVEIS:
+ * - Use {{variavel}} no texto
+ * - Substitui automaticamente com valores do objeto variables
+ * - Ex: {{processo.numero}} vira "1234567-89.2024.5.02.0999"
+ */
+
+// ============================================
+// Recursos do ProcessCRMMasterDetail
+// ============================================
+
+/**
+ * LAYOUT MASTER-DETAIL:
+ *
+ * Painel Esquerdo (Master):
+ * - Lista de todos os processos
+ * - Busca por CNJ, título, autor, réu
+ * - Badges de status e fase
+ * - Seleção de processo com highlight
+ *
+ * Painel Direito (Detail):
+ * - Tab "Geral": informações básicas, comarca, vara, datas
+ * - Tab "Partes": autor e réu
+ * - Tab "Expedientes": intimações vinculadas (com contador)
+ * - Tab "Minutas": documentos criados (com contador)
+ *
+ * INTEGRAÇÃO COM KV:
+ * - Usa hooks useKV para buscar:
+ *   - processes
+ *   - expedientes
+ *   - minutas
+ * - Atualização automática quando dados mudam
+ *
+ * RESPONSIVO:
+ * - Layout adapta para mobile
+ * - Scroll areas para listas longas
+ *//**
+ * Guia de Uso - Novos Componentes Profissionais
+ *
+ * Este arquivo demonstra como usar o ProfessionalEditor e ProcessCRMMasterDetail
+ */
+
+import { ProfessionalEditor } from "@/components/editor/ProfessionalEditor";
+import ProcessCRMMasterDetail from "@/components/ProcessCRMMasterDetail";
+import { useState } from "react";
+
+// ============================================
+// Exemplo 1: ProfessionalEditor
+// ============================================
+
+export function ExemploProfessionalEditor() {
+  const [content, setContent] = useState("<p>Digite seu texto aqui...</p>");
+
+  // Função de geração com IA (streaming)
+  const handleAIStream = async (
+    prompt: string,
+    callbacks: {
+      onChunk: (chunk: string) => void;
+      onComplete: () => void;
+      onError: (error: Error) => void;
+    }
+  ) => {
+    try {
+      const response = await fetch("/api/llm-stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "system",
+              content: "Você é um advogado brasileiro experiente.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) throw new Error("Erro na API");
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("Sem stream disponível");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") {
+              callbacks.onComplete();
+              return;
+            }
+            try {
+              const parsed = JSON.parse(data);
+              const chunk = parsed.choices[0]?.delta?.content || "";
+              if (chunk) callbacks.onChunk(chunk);
+            } catch (e) {
+              // Ignorar linhas malformadas
+            }
+          }
+        }
+      }
+
+      callbacks.onComplete();
+    } catch (error) {
+      callbacks.onError(error as Error);
+    }
+  };
+
+  // Variáveis para substituição automática
+  const variables = {
+    "processo.numero": "1234567-89.2024.5.02.0999",
+    "autor.nome": "João Silva",
+    "reu.nome": "Empresa XYZ Ltda",
+    comarca: "São Paulo",
+    vara: "1ª Vara Cível",
+  };
+
+  return (
+    <div className="h-screen">
+      <ProfessionalEditor
+        content={content}
+        onChange={setContent}
+        onAIStream={handleAIStream}
+        variables={variables}
+        showCollaboration={true}
+        placeholder="Comece a digitar sua petição..."
+      />
+    </div>
+  );
+}
+
+// ============================================
+// Exemplo 2: ProcessCRMMasterDetail
+// ============================================
+
+export function ExemploProcessCRM() {
+  // Simplesmente renderize o componente
+  // Ele já busca dados do KV automaticamente
+  return (
+    <div className="h-screen">
+      <ProcessCRMMasterDetail />
+    </div>
+  );
+}
+
+// ============================================
+// Exemplo 3: Integração com MinutasManager
+// ============================================
+
+export function ExemploMinutasComProfessionalEditor() {
+  const [content, setContent] = useState("");
+  const [useProfessionalEditor, setUseProfessionalEditor] = useState(true);
+
+  return (
+    <div className="space-y-4 p-4">
+      <div className="flex items-center gap-2">
+        <label>
+          <input
+            type="checkbox"
+            checked={useProfessionalEditor}
+            onChange={(e) => setUseProfessionalEditor(e.target.checked)}
+          />
+          Usar Editor Profissional
+        </label>
+      </div>
+
+      {useProfessionalEditor ? (
+        <ProfessionalEditor
+          content={content}
+          onChange={setContent}
+          showCollaboration={true}
+        />
+      ) : (
+        <textarea
+          className="w-full h-96 border rounded p-4"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ============================================
+// Recursos do ProfessionalEditor
+// ============================================
+
+/**
+ * COLABORAÇÃO HUMANO + IA:
+ *
+ * 1. Quando o usuário digita:
+ *    - IA pausa automaticamente
+ *    - Badge "Você está editando" aparece
+ *
+ * 2. Após 3 segundos de inatividade:
+ *    - IA pode retomar escrita
+ *    - Badge "IA escrevendo..." aparece
+ *
+ * 3. Comandos rápidos:
+ *    - Continuar: IA continua o texto
+ *    - Expandir: Desenvolve mais o conteúdo
+ *    - Revisar: Melhora a redação
+ *    - Formalizar: Transforma em linguagem jurídica
+ *
+ * 4. Geração customizada:
+ *    - Digite um prompt específico
+ *    - IA gera conteúdo baseado no prompt
+ *
+ * FORMATAÇÃO:
+ * - Undo/Redo
+ * - Seleção de fonte e tamanho
+ * - Negrito, Itálico, Sublinhado, Tachado
+ * - Alinhamento: esquerda, centro, direita, justificar
+ * - Listas: marcadores e numeradas
+ * - Página A4 com sombra (layout profissional)
+ * - Contador de palavras e caracteres
+ *
+ * VARIÁVEIS:
+ * - Use {{variavel}} no texto
+ * - Substitui automaticamente com valores do objeto variables
+ * - Ex: {{processo.numero}} vira "1234567-89.2024.5.02.0999"
+ */
+
+// ============================================
+// Recursos do ProcessCRMMasterDetail
+// ============================================
+
+/**
+ * LAYOUT MASTER-DETAIL:
+ *
+ * Painel Esquerdo (Master):
+ * - Lista de todos os processos
+ * - Busca por CNJ, título, autor, réu
+ * - Badges de status e fase
+ * - Seleção de processo com highlight
+ *
+ * Painel Direito (Detail):
+ * - Tab "Geral": informações básicas, comarca, vara, datas
+ * - Tab "Partes": autor e réu
+ * - Tab "Expedientes": intimações vinculadas (com contador)
+ * - Tab "Minutas": documentos criados (com contador)
+ *
+ * INTEGRAÇÃO COM KV:
+ * - Usa hooks useKV para buscar:
+ *   - processes
+ *   - expedientes
+ *   - minutas
+ * - Atualização automática quando dados mudam
+ *
+ * RESPONSIVO:
+ * - Layout adapta para mobile
+ * - Scroll areas para listas longas
+ */Encontrei usos e definições de onAIStream nestes arquivos:
+
+MinutasManager.tsx — passagem para o editor (onAIStream={handleAIStream}).
+MinutasManagerV2.tsx — idem.
+ProfessionalEditor.tsx — prop declarada e usada para streaming (múltiplos pontos: ~linhas 118, 184, 413, 419, 446, 457, 473, 635, 655).
+TiptapEditorV2.tsx — prop declarada e usada para streaming (múltiplos pontos: ~linhas 90, 408, 540, 550, 577, 585, 608, 612, 624, 649, 652, 663).
+djen-monitor.ts — menção em comentário (“Suporte a streaming via onAIStream callback”).
+Documentação/demo: GUIA_NOVOS_COMPONENTES.tsx — exemplo com onAIStream={handleAIStream}.
+
+Pensou por 21s
+
+Sim — do jeito que está, os “agentes” conseguem redigir dentro do ProfessionalEditor, desde que o seu onAIStream (ou onAIGenerate) realmente esteja ligado a um endpoint que devolva texto em “chunks” e (idealmente) em HTML compatível com CKEditor.
+
+O editor já faz o essencial:
+
+recebe onAIStream(prompt, callbacks)
+
+e, a cada chunk, faz editor.model.insertContent(...)
+
+e pausa automaticamente quando você digita (isUserTyping).
+
+O que pode quebrar não é o CKEditor — é o formato do streaming e o tipo de conteúdo (texto puro vs HTML).
+
+Abaixo vai um backend Express com Gemini-only que entrega streaming no mesmo formato que seu handleAIStream espera (data: { choices:[{delta:{content:"..."}}] } + data: [DONE]).
+
+1) package.json (Gemini-only)
+
+Você falou que não usa Anthropic, então pode remover:
+
+{
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@google/adk": "^0.2.1",
+    "@types/express-rate-limit": "^5.1.3",
+    "@types/node-cron": "^3.0.11",
+    "@upstash/redis": "^1.36.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.2.1",
+    "node-cron": "^3.0.3",
+    "pg": "^8.16.3",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
+    "zod": "^4.3.4"
+  }
+}
+
+
+✅ Remova: "@anthropic-ai/sdk": "^0.71.2"
+
+Observação: @google/adk só é útil se você estiver mesmo usando ADK/agents. Se não estiver, dá pra remover também e ficar só com @google/generative-ai.
+
+2) Endpoint /api/llm-stream (SSE) compatível com seu frontend
+
+Crie src/server.ts (ou adapte o seu) assim:
+
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const app = express();
+
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json({ limit: "2mb" }));
+
+app.use(
+  rateLimit({
+    windowMs: 60_000,
+    limit: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+  })
+);
+
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) throw new Error("Missing GEMINI_API_KEY");
+
+const genAI = new GoogleGenerativeAI(apiKey);
+
+// Helper: envia chunk no formato “OpenAI-like” que seu handleAIStream já parseia
+function writeDelta(res: express.Response, content: string) {
+  const payload = { choices: [{ delta: { content } }] };
+  res.write(`data: ${JSON.stringify(payload)}\n\n`);
+}
+
+app.post("/api/llm-stream", async (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders?.();
+
+  try {
+    const { messages } = req.body as {
+      messages: Array<{ role: "system" | "user"; content: string }>;
+    };
+
+    const system = messages?.find((m) => m.role === "system")?.content ?? "";
+    const user = messages?.filter((m) => m.role === "user").map((m) => m.content).join("\n\n") ?? "";
+
+    // IMPORTANTÍSSIMO: pedir HTML compatível com CKEditor (evita markdown/asteriscos)
+    const prompt = [
+      system ? `INSTRUÇÕES:\n${system}` : "",
+      `FORMATO:\nResponda em HTML simples compatível com CKEditor (use <p>, <strong>, <em>, <ul><li>...). Não use Markdown.`,
+      `TEXTO:\n${user}`,
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+    const model = genAI.getGenerativeModel({
+      // escolha o modelo que você usa (ex.: gemini-2.0-flash, gemini-1.5-pro, etc.)
+      model: process.env.GEMINI_MODEL ?? "gemini-1.5-pro",
+    });
+
+    const result = await model.generateContentStream({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.4,
+        maxOutputTokens: 2048,
+      },
+    });
+
+    for await (const chunk of result.stream) {
+      const text = chunk.text();
+      if (text) writeDelta(res, text);
+    }
+
+    res.write(`data: [DONE]\n\n`);
+    res.end();
+  } catch (err: any) {
+    writeDelta(res, `\n<p><strong>Erro:</strong> ${String(err?.message ?? err)}</p>\n`);
+    res.write(`data: [DONE]\n\n`);
+    res.end();
+  }
+});
+
+app.post("/api/llm", async (req, res) => {
+  try {
+    const { messages } = req.body as {
+      messages: Array<{ role: "system" | "user"; content: string }>;
+    };
+
+    const system = messages?.find((m) => m.role === "system")?.content ?? "";
+    const user = messages?.filter((m) => m.role === "user").map((m) => m.content).join("\n\n") ?? "";
+
+    const prompt = [
+      system ? `INSTRUÇÕES:\n${system}` : "",
+      `FORMATO:\nResponda em HTML simples compatível com CKEditor (use <p>, <strong>, <em>, <ul><li>...). Não use Markdown.`,
+      `TEXTO:\n${user}`,
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+    const model = genAI.getGenerativeModel({
+      model: process.env.GEMINI_MODEL ?? "gemini-1.5-pro",
+    });
+
+    const out = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
+    });
+
+    res.json({ content: out.response.text() });
+  } catch (e: any) {
+    res.status(500).json({ error: String(e?.message ?? e) });
+  }
+});
+
+app.get("/health", (_req, res) => res.json({ ok: true }));
+
+const port = Number(process.env.PORT ?? 3333);
+app.listen(port, () => console.log(`API on :${port}`));
+
+.env (backend)
+GEMINI_API_KEY=xxxxx
+GEMINI_MODEL=gemini-1.5-pro
+PORT=3333
+
+3) Ajuste pequeno no seu frontend (rota)
+
+No seu exemplo você chama fetch("/api/llm-stream", ...).
+
+Se o frontend estiver no Vercel e o backend fora, use a URL completa (ex.: https://seu-backend.com/api/llm-stream)
+
+Ou crie um proxy route no Vercel (se preferir manter /api/...)
+
+4) “Vai escrever de verdade no CKEditor?”
+
+Vai, mas com estes cuidados (os 2 que mais pegam na prática):
+
+Chunks devem ser HTML válido (nem que seja <p>...</p>)
+
+Se mandar texto puro com quebras, o CKEditor até insere, mas pode ficar estranho.
+
+Se mandar Markdown, vai aparecer **assim** literal.
+
+Não insira chunk no meio de uma palavra
+
+O seu isUserTyping já reduz bem isso.
+
+Se quiser ficar “nível Word”, o próximo passo é inserir sempre em um bookmark/range fixo (âncora) ou sempre no final.
+
+Nota rápida sobre seus arquivos colados
+
+Você tinha um SCSS com trechos de TSX colados dentro (várias cópias do dialog.tsx). Isso quebra o build.
+O dialog.tsx que você mandou por último está ok — só garanta que:
+
+professional-editor.scss tenha somente CSS/SCSS
+
+dialog.tsx tenha somente TSX
+
+Se você colar esse backend Gemini-only e apontar o fetch pra ele, seus agentes já conseguem redigir, continuar, revisar e formalizar direto no CKEditor, com streaming “digitando” no documento.

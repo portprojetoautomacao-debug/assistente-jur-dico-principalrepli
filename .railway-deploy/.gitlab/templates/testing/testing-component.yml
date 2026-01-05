@@ -1,0 +1,156 @@
+spec:
+  inputs:
+    stage:
+      default: test
+      description: "Stage onde os testes serão executados"
+    test_type:
+      default: "unit"
+      description: "Tipo de teste: unit, integration, e2e, all"
+      options: ["unit", "integration", "e2e", "all"]
+    coverage_threshold:
+      default: 80
+      description: "Threshold mínimo de cobertura de código (%)"
+    fail_on_coverage:
+      default: false
+      description: "Falhar se cobertura estiver abaixo do threshold"
+    browser:
+      default: "chromium"
+      description: "Browser para testes E2E: chromium, firefox, webkit"
+      options: ["chromium", "firefox", "webkit"]
+
+# Componente de Testes para Aplicações React/TypeScript
+# Suporte a testes unitários, integração e E2E
+
+unit-tests:
+  stage: $[[ inputs.stage ]]
+  image: node:22
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+  script:
+    - echo "🧪 Executando testes unitários..."
+    - npm run test:unit -- --coverage --watchAll=false --passWithNoTests
+    - |
+      if [ "$[[ inputs.fail_on_coverage ]]" = "true" ]; then
+        COVERAGE=$(jq '.total.lines.pct' coverage/coverage-summary.json 2>/dev/null || echo "0")
+        if (( $(echo "$COVERAGE < $[[ inputs.coverage_threshold ]]" | bc -l) )); then
+          echo "❌ Cobertura insuficiente: ${COVERAGE}% (mínimo: $[[ inputs.coverage_threshold ]]%)"
+          exit 1
+        else
+          echo "✅ Cobertura adequada: ${COVERAGE}%"
+        fi
+      fi
+  coverage: '/Lines\s*:\s*(\d+\.\d+)%/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+    paths:
+      - coverage/
+    expire_in: 1 week
+  only:
+    - merge_requests
+  except:
+    variables:
+      - $[[ inputs.test_type ]] == "integration"
+      - $[[ inputs.test_type ]] == "e2e"
+
+integration-tests:
+  stage: $[[ inputs.stage ]]
+  image: node:22
+  services:
+    - postgres:15
+    - redis:7-alpine
+  variables:
+    POSTGRES_DB: test_db
+    POSTGRES_USER: test_user
+    POSTGRES_PASSWORD: test_password
+    REDIS_URL: redis://redis:6379
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+    - npx prisma migrate deploy || echo "No migrations to run"
+  script:
+    - echo "🔗 Executando testes de integração..."
+    - npm run test:integration -- --watchAll=false --passWithNoTests
+  artifacts:
+    paths:
+      - test-results/integration/
+    expire_in: 1 week
+    when: always
+  only:
+    - merge_requests
+  except:
+    variables:
+      - $[[ inputs.test_type ]] == "unit"
+      - $[[ inputs.test_type ]] == "e2e"
+
+e2e-tests:
+  stage: $[[ inputs.stage ]]
+  image: mcr.microsoft.com/playwright:v1.40.0-jammy
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+    - npx playwright install $[[ inputs.browser ]]
+    - npm run build
+  script:
+    - echo "🌐 Executando testes E2E no browser: $[[ inputs.browser ]]"
+    - |
+      if [ "$[[ inputs.browser ]]" = "all" ]; then
+        npx playwright test --project=all
+      else
+        npx playwright test --project=$[[ inputs.browser ]]
+      fi
+  artifacts:
+    paths:
+      - test-results/e2e/
+      - playwright-report/
+    expire_in: 1 week
+    when: always
+  only:
+    - merge_requests
+  except:
+    variables:
+      - $[[ inputs.test_type ]] == "unit"
+      - $[[ inputs.test_type ]] == "integration"
+
+accessibility-tests:
+  stage: $[[ inputs.stage ]]
+  image: node:22
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+    - npm run build
+  script:
+    - echo "♿ Executando testes de acessibilidade..."
+    - |
+      # Instalar lighthouse se não estiver disponível
+      if ! command -v lighthouse &> /dev/null; then
+        npm install -g lighthouse
+      fi
+    - |
+      # Executar lighthouse em modo headless
+      lighthouse http://localhost:5173 \
+        --output=json \
+        --output-path=lighthouse-report.json \
+        --chrome-flags="--headless --no-sandbox --disable-gpu" \
+        --only-categories=accessibility,performance,seo,best-practices \
+        --skip-audits=uses-http2,canonical,structured-data \
+        || echo "Lighthouse falhou, mas continuando..."
+    - |
+      # Verificar score mínimo de acessibilidade
+      if [ -f lighthouse-report.json ]; then
+        ACCESSIBILITY_SCORE=$(jq '.categories.accessibility.score * 100' lighthouse-report.json 2>/dev/null || echo "0")
+        if (( $(echo "$ACCESSIBILITY_SCORE < 90" | bc -l) )); then
+          echo "⚠️ Score de acessibilidade baixo: ${ACCESSIBILITY_SCORE}% (recomendado: 90%+)"
+        else
+          echo "✅ Score de acessibilidade adequado: ${ACCESSIBILITY_SCORE}%"
+        fi
+      fi
+  services:
+    - name: nginx:alpine
+      command: ["nginx", "-c", "/etc/nginx/nginx.conf", "-g", "daemon off;"]
+  artifacts:
+    paths:
+      - lighthouse-report.json
+    expire_in: 1 week
+  allow_failure: true
+  only:
+    - merge_requests

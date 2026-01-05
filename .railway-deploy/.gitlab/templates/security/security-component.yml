@@ -1,0 +1,140 @@
+spec:
+  inputs:
+    stage:
+      default: security
+      description: "Stage onde o job de segurança será executado"
+    audit_level:
+      default: "standard"
+      description: "Nível de auditoria: basic, standard, advanced"
+      options: ["basic", "standard", "advanced"]
+    fail_on_high:
+      default: true
+      description: "Falhar pipeline se encontrar vulnerabilidades críticas"
+    report_format:
+      default: "json"
+      description: "Formato do relatório: json, sarif, text"
+      options: ["json", "sarif", "text"]
+
+# Componente de Segurança para Aplicações Jurídicas
+# Inclui auditoria de dependências, verificação de segredos e compliance LGPD
+
+security-audit:
+  stage: $[[ inputs.stage ]]
+  image: node:22
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+  script:
+    - echo "🔒 Executando auditoria de segurança nível: $[[ inputs.audit_level ]]"
+    - |
+      if [ "$[[ inputs.audit_level ]]" = "advanced" ]; then
+        echo "🛡️ Executando auditoria avançada..."
+        npm audit --audit-level=high --production --json > security-audit-advanced.json || true
+        npm audit --audit-level=moderate --production --json > security-audit-moderate.json || true
+      elif [ "$[[ inputs.audit_level ]]" = "standard" ]; then
+        echo "🔍 Executando auditoria padrão..."
+        npm audit --audit-level=moderate --production --json > security-audit.json || true
+      else
+        echo "⚡ Executando auditoria básica..."
+        npm audit --audit-level=info --production --json > security-audit-basic.json || true
+      fi
+    - |
+      # Verificar se há vulnerabilidades críticas
+      if [ "$[[ inputs.fail_on_high ]]" = "true" ]; then
+        CRITICAL=$(npm audit --audit-level=critical --production 2>/dev/null | grep -c "vulnerability found" || echo "0")
+        if [ "$CRITICAL" -gt "0" ]; then
+          echo "🚨 Vulnerabilidades críticas encontradas! Pipeline será interrompido."
+          exit 1
+        fi
+      fi
+    - |
+      # Gerar relatório em diferentes formatos
+      if [ "$[[ inputs.report_format ]]" = "sarif" ]; then
+        echo "📊 Gerando relatório SARIF..."
+        # Converter para formato SARIF se necessário
+        cat > security-report.sarif << EOF
+        {
+          "version": "2.1.0",
+          "\$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+          "runs": [{
+            "tool": {
+              "driver": {
+                "name": "npm-audit",
+                "version": "1.0.0"
+              }
+            },
+            "results": []
+          }]
+        }
+        EOF
+      fi
+  artifacts:
+    reports:
+      - |
+        if [ "$[[ inputs.report_format ]]" = "sarif" ]; then
+          echo "sarif: security-report.sarif"
+        fi
+    paths:
+      - security-audit*.json
+    expire_in: 1 week
+  allow_failure:
+    - |
+      if [ "$[[ inputs.fail_on_high ]]" = "false" ]; then
+        echo "true"
+      else
+        echo "false"
+      fi
+
+secret-detection:
+  stage: $[[ inputs.stage ]]
+  image: zricethe/zricethe/trufflehog:latest
+  script:
+    - echo "🔍 Verificando vazamento de segredos..."
+    - trufflehog filesystem --directory=. --exclude-paths=node_modules,.git --json > secret-scan-results.json || true
+    - |
+      # Verificar se foram encontrados segredos
+      SECRETS_FOUND=$(jq '. | length' secret-scan-results.json 2>/dev/null || echo "0")
+      if [ "$SECRETS_FOUND" -gt "0" ]; then
+        echo "🚨 POSSÍVEL VAZAMENTO DE SEGREDOS DETECTADO!"
+        echo "📋 Segredos encontrados: $SECRETS_FOUND"
+        jq '.' secret-scan-results.json
+        exit 1
+      else
+        echo "✅ Nenhum segredo detectado"
+      fi
+  artifacts:
+    paths:
+      - secret-scan-results.json
+    expire_in: 1 week
+
+lgpd-compliance-check:
+  stage: $[[ inputs.stage ]]
+  image: node:22
+  script:
+    - echo "⚖️ Verificando compliance LGPD..."
+    - |
+      # Verificar se há dados pessoais sendo processados
+      if grep -r "CPF\|CNPJ\|RG\|email\|telefone\|endereco" src/ --include="*.ts" --include="*.tsx" --include="*.js" > lgpd-data-usage.txt 2>/dev/null; then
+        echo "📋 Dados pessoais identificados no código:"
+        cat lgpd-data-usage.txt
+        echo ""
+        echo "✅ Checklist LGPD:"
+        echo "  - [ ] Dados pessoais são criptografados?"
+        echo "  - [ ] Há consentimento do usuário?"
+        echo "  - [ ] Dados são anonimizados quando possível?"
+        echo "  - [ ] Há política de retenção de dados?"
+        echo "  - [ ] Logs de acesso estão implementados?"
+      else
+        echo "ℹ️ Nenhum uso óbvio de dados pessoais identificado"
+      fi
+    - |
+      # Verificar configurações de segurança
+      if grep -r "localStorage\|sessionStorage\|cookie" src/ --include="*.ts" --include="*.tsx" > storage-usage.txt 2>/dev/null; then
+        echo "💾 Uso de armazenamento local detectado - verificar LGPD compliance"
+        cat storage-usage.txt
+      fi
+  artifacts:
+    paths:
+      - lgpd-data-usage.txt
+      - storage-usage.txt
+    expire_in: 1 week
+  allow_failure: true

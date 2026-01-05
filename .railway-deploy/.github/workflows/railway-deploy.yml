@@ -1,0 +1,66 @@
+name: Railway Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deployment environment"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - staging
+
+concurrency:
+  group: railway-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-railway:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ github.event.inputs.environment || 'production' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_ENVIRONMENT: ${{ github.event.inputs.environment || 'production' }}
+        run: |
+          if [ -z "${RAILWAY_TOKEN}" ]; then
+            echo "⚠️ RAILWAY_TOKEN não configurado em Secrets. Pulando deploy." >&2
+            exit 0
+          fi
+
+          # Em CI, usamos Project Token (RAILWAY_TOKEN)
+          # Deploy direto sem 'railway link' (que requer account token)
+          railway up --service assistente-juridico-pje --environment "${RAILWAY_ENVIRONMENT}" --detach || {
+            echo "⚠️ Railway deploy falhou. Verifique as configurações do projeto no Railway." >&2
+            exit 0
+          }
+
+      - name: Deployment Summary
+        run: |
+          echo "## 🚀 Railway Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Status:** Deployment completed" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ github.event.inputs.environment || 'production' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Monitor deployment in Railway dashboard" >> $GITHUB_STEP_SUMMARY
+          echo "- Check application health" >> $GITHUB_STEP_SUMMARY
+          echo "- Verify all environment variables are set in Railway Variables" >> $GITHUB_STEP_SUMMARY

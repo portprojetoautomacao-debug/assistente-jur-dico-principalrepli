@@ -1,0 +1,294 @@
+# Azure Load Testing Configuration
+# Testa a escalabilidade dos agentes processando múltiplas tarefas simultaneamente
+
+version: v0.1
+testName: AgentsLoadTest
+testType: 'url'
+testPlan: AgentsStressTest
+
+# ==========================================
+# CENÁRIO 1: CARGA NORMAL (10 agentes ativos)
+# ==========================================
+scenarios:
+  - name: NormalLoad
+    displayName: 'Carga Normal - 10 Agentes Ativos'
+    description: 'Simula operação normal com 10 agentes processando tarefas'
+    engine: jmeter
+    
+    # Load Profile
+    loadProfile:
+      - virtualUsers: 50
+        duration: 300  # 5 minutos
+        rampUpTime: 60  # Subir gradualmente em 1 minuto
+    
+    # Endpoints
+    requests:
+      - name: GetAgents
+        url: 'https://assistente-juridico-github.vercel.app/api/agents'
+        method: GET
+        headers:
+          Accept: 'application/json'
+        
+      - name: ProcessQueue
+        url: 'https://assistente-juridico-github.vercel.app/api/agents/process-queue'
+        method: POST
+        headers:
+          Content-Type: 'application/json'
+        body: |
+          {
+            "maxTasks": 10,
+            "priority": "HIGH"
+          }
+        
+      - name: HealthCheck
+        url: 'https://assistente-juridico-github.vercel.app/api/health'
+        method: GET
+    
+    # Pass/Fail Criteria
+    passFailCriteria:
+      - metricName: response_time_95
+        operator: '<'
+        value: 3000  # 95% das requisições < 3s
+        
+      - metricName: error_rate
+        operator: '<'
+        value: 5  # Taxa de erro < 5%
+        
+      - metricName: throughput
+        operator: '>'
+        value: 10  # Mínimo 10 req/s
+
+# ==========================================
+# CENÁRIO 2: PICO DE CARGA (100 tarefas simultâneas)
+# ==========================================
+  - name: PeakLoad
+    displayName: 'Pico de Carga - 100 Tarefas Simultâneas'
+    description: 'Simula pico com 100 tarefas sendo processadas ao mesmo tempo'
+    engine: jmeter
+    
+    loadProfile:
+      - virtualUsers: 200
+        duration: 600  # 10 minutos
+        rampUpTime: 120  # Subir em 2 minutos
+    
+    requests:
+      - name: BulkTaskCreation
+        url: 'https://assistente-juridico-github.vercel.app/api/agents/process-queue'
+        method: POST
+        headers:
+          Content-Type: 'application/json'
+        body: |
+          {
+            "maxTasks": 50,
+            "priority": "URGENT"
+          }
+    
+    passFailCriteria:
+      - metricName: response_time_95
+        operator: '<'
+        value: 5000  # 95% < 5s durante pico
+        
+      - metricName: error_rate
+        operator: '<'
+        value: 10  # Taxa de erro < 10% durante pico
+
+# ==========================================
+# CENÁRIO 3: TESTE DE ESTRESSE (Encontrar limite)
+# ==========================================
+  - name: StressTest
+    displayName: 'Teste de Estresse - Encontrar Limite do Sistema'
+    description: 'Aumenta carga gradualmente até encontrar o ponto de falha'
+    engine: jmeter
+    
+    loadProfile:
+      # Fase 1: 100 usuários
+      - virtualUsers: 100
+        duration: 180
+        rampUpTime: 30
+      
+      # Fase 2: 200 usuários
+      - virtualUsers: 200
+        duration: 180
+        rampUpTime: 30
+      
+      # Fase 3: 500 usuários
+      - virtualUsers: 500
+        duration: 180
+        rampUpTime: 60
+      
+      # Fase 4: 1000 usuários (limite esperado)
+      - virtualUsers: 1000
+        duration: 300
+        rampUpTime: 120
+    
+    requests:
+      - name: AgentTaskProcessing
+        url: 'https://assistente-juridico-github.vercel.app/api/agents/process-task'
+        method: POST
+        headers:
+          Content-Type: 'application/json'
+        body: |
+          {
+            "task": {
+              "id": "${UUID}",
+              "agentId": "agent-${RANDOM(1,15)}",
+              "type": "ANALYZE_DOCUMENT",
+              "priority": "HIGH",
+              "status": "queued",
+              "createdAt": "${ISO_TIMESTAMP}",
+              "data": {
+                "document": "Teste de carga documento ${COUNTER}"
+              }
+            },
+            "agent": {
+              "id": "agent-${RANDOM(1,15)}",
+              "name": "Agente Teste ${RANDOM(1,15)}",
+              "type": "legal-analyst"
+            }
+          }
+    
+    passFailCriteria:
+      - metricName: response_time_95
+        operator: '<'
+        value: 10000  # Aceitar até 10s durante estresse
+        
+      - metricName: error_rate
+        operator: '<'
+        value: 25  # Taxa de erro < 25%
+
+# ==========================================
+# CENÁRIO 4: TESTE DE RESILIÊNCIA (Recovery após falha)
+# ==========================================
+  - name: ResilienceTest
+    displayName: 'Teste de Resiliência - Recovery'
+    description: 'Testa capacidade do sistema de se recuperar após sobrecarga'
+    engine: jmeter
+    
+    loadProfile:
+      # Fase 1: Carga normal
+      - virtualUsers: 50
+        duration: 120
+        rampUpTime: 20
+      
+      # Fase 2: Sobrecarga intencional
+      - virtualUsers: 1000
+        duration: 120
+        rampUpTime: 10
+      
+      # Fase 3: Retorno à normalidade
+      - virtualUsers: 50
+        duration: 180
+        rampUpTime: 60
+    
+    passFailCriteria:
+      - metricName: recovery_time
+        operator: '<'
+        value: 120  # Sistema deve se recuperar em 2 minutos
+
+# ==========================================
+# CENÁRIO 5: TESTE DE LONGEVIDADE (24h)
+# ==========================================
+  - name: SoakTest
+    displayName: 'Teste de Longevidade - 24 Horas'
+    description: 'Testa estabilidade do sistema por período prolongado'
+    engine: jmeter
+    
+    loadProfile:
+      - virtualUsers: 30
+        duration: 86400  # 24 horas
+        rampUpTime: 300  # 5 minutos
+    
+    requests:
+      - name: ContinuousAgentProcessing
+        url: 'https://assistente-juridico-github.vercel.app/api/agents/process-queue'
+        method: POST
+        headers:
+          Content-Type: 'application/json'
+        body: |
+          {
+            "maxTasks": 5,
+            "priority": "MEDIUM"
+          }
+    
+    passFailCriteria:
+      - metricName: error_rate
+        operator: '<'
+        value: 2  # Taxa de erro < 2% em 24h
+        
+      - metricName: memory_leak
+        operator: '='
+        value: false  # Não deve haver memory leak
+
+# ==========================================
+# CONFIGURAÇÕES GLOBAIS
+# ==========================================
+configuration:
+  # Engines
+  engines:
+    - name: jmeter
+      version: '5.5'
+  
+  # Monitoring
+  monitoring:
+    - type: application-insights
+      resourceId: '/subscriptions/{subscription-id}/resourceGroups/assistente-juridico-rg/providers/microsoft.insights/components/assistente-juridico-insights'
+  
+  # Variables
+  variables:
+    - name: UUID
+      type: random-uuid
+    - name: ISO_TIMESTAMP
+      type: current-timestamp
+      format: 'iso8601'
+    - name: RANDOM
+      type: random-number
+      min: 1
+      max: 15
+    - name: COUNTER
+      type: counter
+      start: 1
+  
+  # Regions (executar de múltiplas regiões)
+  regions:
+    - eastus
+    - westus
+    - brazilsouth
+  
+  # Report Settings
+  reporting:
+    - type: dashboard
+      dashboardId: 'load-test-dashboard'
+    - type: csv
+      outputPath: 'results/load-test-results.csv'
+    - type: junit
+      outputPath: 'results/load-test-junit.xml'
+
+# ==========================================
+# ALERTAS E NOTIFICAÇÕES
+# ==========================================
+alerts:
+  - name: HighErrorRate
+    condition: error_rate > 10
+    action: send_email
+    recipients:
+      - thiagobodevanadvocacia@gmail.com
+  
+  - name: SlowResponseTime
+    condition: response_time_95 > 5000
+    action: send_webhook
+    webhookUrl: 'https://assistente-juridico-github.vercel.app/api/notifications/send'
+  
+  - name: SystemOverload
+    condition: cpu_usage > 90
+    action: scale_up
+    targetInstances: 5
+
+# ==========================================
+# BASELINE METRICS (Referência)
+# ==========================================
+baseline:
+  response_time_avg: 800  # 800ms média
+  response_time_95: 2000  # 2s no p95
+  error_rate: 1  # 1% de erro
+  throughput: 50  # 50 req/s
+  concurrent_users: 100  # 100 usuários simultâneos

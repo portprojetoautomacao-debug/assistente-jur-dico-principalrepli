@@ -1,0 +1,72 @@
+# Exemplo de uso da configuração GitLab Duo com CI/CD Inputs
+# Este arquivo demonstra como usar a nova funcionalidade CI/CD Inputs
+
+# Exemplo 1: Configuração básica para desenvolvimento
+include:
+  - local: '.gitlab/duo-inputs-config.yml'
+    inputs:
+      duo_enabled: true
+      auto_review: true
+      security_level: "basic"
+      legal_compliance_checks: ["lgpd_compliance"]
+
+# Exemplo 2: Configuração completa para produção
+# include:
+#   - local: '.gitlab/duo-inputs-config.yml'
+#     inputs:
+#       duo_enabled: true
+#       auto_review: true
+#       max_comments: 50
+#       security_level: "strict"
+#       audit_logging: true
+#       legal_compliance_checks: ["lgpd_compliance", "legal_documentation", "court_deadlines"]
+#       custom_agents: ["assistente-juridico-reviewer", "assistente-juridico-generator", "assistente-juridico-optimizer", "assistente-juridico-auditor"]
+
+# Exemplo 3: Configuração minimalista para testes
+# include:
+#   - local: '.gitlab/duo-inputs-config.yml'
+#     inputs:
+#       duo_enabled: true
+#       auto_review: false
+#       agent_platform_enabled: false
+#       knowledge_graph_enabled: false
+#       mcp_enabled: false
+
+# Pipeline de exemplo usando a configuração
+stages:
+  - validate
+  - review
+  - deploy
+
+# Job de validação das configurações
+validate_duo_config:
+  stage: validate
+  script:
+    - echo "Validando configurações do GitLab Duo..."
+    - ./scripts/validate-gitlab-duo-advanced.sh
+  only:
+    - merge_requests
+
+# Job de revisão com GitLab Duo
+duo_code_review:
+  stage: review
+  script:
+    - echo "Executando revisão com GitLab Duo..."
+    - echo "Agentes disponíveis: $[[ inputs.custom_agents ]]"
+    - echo "Nível de segurança: $[[ inputs.security_level ]]"
+  only:
+    - merge_requests
+  dependencies:
+    - validate_duo_config
+
+# Job de deploy condicional
+deploy_with_duo:
+  stage: deploy
+  script:
+    - echo "Deploy com validações do GitLab Duo..."
+    - echo "Verificações de compliance: $[[ inputs.legal_compliance_checks ]]"
+  only:
+    - main
+  when: manual
+  dependencies:
+    - duo_code_review

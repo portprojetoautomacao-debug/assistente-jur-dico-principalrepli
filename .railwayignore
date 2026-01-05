@@ -38,6 +38,9 @@ Thumbs.db
 
 # Git
 .git/
+.git/**
+**/.git/
+**/.git/**
 .gitignore
 
 # Temp

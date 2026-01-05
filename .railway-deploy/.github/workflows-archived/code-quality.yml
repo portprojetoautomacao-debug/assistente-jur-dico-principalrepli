@@ -1,0 +1,189 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run weekly on Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+
+concurrency:
+  group: code-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  codeql-analysis:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # CodeQL requires code scanning to be enabled in repository settings
+    # To enable: Settings > Security > Code Security and Analysis > Code Scanning
+    continue-on-error: true
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v4
+      with:
+        languages: ${{ matrix.language }}
+        queries: security-and-quality
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v4
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v4
+      with:
+        category: "/language:${{matrix.language}}"
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: moderate
+
+  type-check:
+    name: TypeScript Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run TypeScript compiler
+      run: |
+        echo "Running TypeScript type checking..."
+        npx tsc --noEmit --pretty || {
+          echo "❌ TypeScript type checking failed"
+          echo "Please fix the type errors above"
+          exit 1
+        }
+        echo "✅ TypeScript type checking passed"
+
+  bundle-size:
+    name: Bundle Size Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build application
+      run: npm run build
+      env:
+        VITE_GOOGLE_CLIENT_ID: 'dummy-client-id'
+        VITE_GOOGLE_API_KEY: 'dummy-api-key'
+        VITE_REDIRECT_URI: 'http://localhost:5173'
+        VITE_APP_ENV: 'ci'
+
+    - name: Analyze bundle size
+      run: |
+        echo "## 📦 Bundle Size Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| File | Size | Gzipped |" >> $GITHUB_STEP_SUMMARY
+        echo "|------|------|---------|" >> $GITHUB_STEP_SUMMARY
+        
+        # List dist files with sizes
+        if [ -d "dist" ]; then
+          find dist -type f \( -name "*.js" -o -name "*.css" \) | while read file; do
+            if [ -f "$file" ]; then
+              size=$(du -h "$file" | cut -f1)
+              gzip_size=$(gzip -c "$file" | wc -c | numfmt --to=iec-i --suffix=B 2>/dev/null || echo "N/A")
+              basename=$(basename "$file")
+              echo "| $basename | $size | $gzip_size |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+        else
+          echo "| No build artifacts found | - | - |" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  eslint-analysis:
+    name: ESLint Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # SARIF upload requires code scanning to be enabled
+    continue-on-error: true
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run ESLint with SARIF output
+      id: eslint
+      run: npm run lint:sarif
+      continue-on-error: true
+
+    - name: Check if SARIF was generated
+      run: |
+        if [ ! -f "eslint-results.sarif" ]; then
+          echo "❌ SARIF file was not generated - ESLint may have failed"
+          echo "Check ESLint configuration and ensure it can output SARIF format"
+          exit 1
+        fi
+
+    - name: Upload SARIF file
+      if: always() && hashFiles('eslint-results.sarif') != ''
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: eslint-results.sarif
+        category: eslint

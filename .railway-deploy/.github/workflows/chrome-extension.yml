@@ -1,0 +1,278 @@
+name: Chrome Extension PJe Sync
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "chrome-extension-pje/**"
+      - ".github/workflows/chrome-extension.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "chrome-extension-pje/**"
+      - ".github/workflows/chrome-extension.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: chrome-extension-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    name: Test and Build Chrome Extension
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    strategy:
+      matrix:
+        node-version: ["22.x"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+          cache-dependency-path: chrome-extension-pje/package-lock.json
+
+      - name: Cache extension dependencies
+        uses: actions/cache@v4
+        with:
+          path: chrome-extension-pje/node_modules
+          key: ${{ runner.os }}-chrome-ext-${{ hashFiles('chrome-extension-pje/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-chrome-ext-
+
+      - name: Cache extension build
+        uses: actions/cache@v4
+        with:
+          path: chrome-extension-pje/dist
+          key: ${{ runner.os }}-chrome-ext-build-${{ hashFiles('chrome-extension-pje/src/**/*', 'chrome-extension-pje/webpack.config.js') }}
+          restore-keys: |
+            ${{ runner.os }}-chrome-ext-build-
+
+      - name: Install dependencies
+        run: |
+          cd chrome-extension-pje
+          npm ci
+
+      - name: Run tests
+        run: |
+          cd chrome-extension-pje
+          npm test
+
+      - name: Build extension
+        run: |
+          cd chrome-extension-pje
+          npm run build
+
+      - name: Verify build artifacts
+        run: |
+          cd chrome-extension-pje/dist
+          echo "Verificando arquivos gerados..."
+          ls -lh
+
+          # Verificar arquivos obrigatórios
+          if [ ! -f "manifest.json" ]; then
+            echo "❌ manifest.json não encontrado!"
+            exit 1
+          fi
+
+          if [ ! -f "background.js" ]; then
+            echo "❌ background.js não encontrado!"
+            exit 1
+          fi
+
+          if [ ! -f "content.js" ]; then
+            echo "❌ content.js não encontrado!"
+            exit 1
+          fi
+
+          if [ ! -f "popup.js" ]; then
+            echo "❌ popup.js não encontrado!"
+            exit 1
+          fi
+
+          if [ ! -f "popup.html" ]; then
+            echo "❌ popup.html não encontrado!"
+            exit 1
+          fi
+
+          if [ ! -d "assets" ]; then
+            echo "❌ Pasta assets não encontrada!"
+            exit 1
+          fi
+
+          echo "✅ Todos os arquivos obrigatórios foram gerados!"
+
+      - name: Package extension
+        run: |
+          cd chrome-extension-pje
+          npm run package
+        if: github.ref == 'refs/heads/main'
+
+      - name: Upload extension artifact
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: chrome-extension-pje-sync-v1.0.0
+          path: chrome-extension-pje/pje-sync-v1.0.0.zip
+          retention-days: 30
+
+      - name: Upload build artifacts for debugging
+        if: always()
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: chrome-extension-build-${{ github.sha }}
+          path: chrome-extension-pje/dist/
+          retention-days: 7
+
+  validate-extension:
+    name: Validate Chrome Extension Structure
+    runs-on: ubuntu-latest
+    needs: test-and-build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate manifest.json
+        run: |
+          cd chrome-extension-pje
+
+          # Verificar sintaxe JSON
+          if ! jq empty manifest.json 2>/dev/null; then
+            echo "❌ manifest.json tem sintaxe JSON inválida!"
+            exit 1
+          fi
+
+          # Verificar campos obrigatórios
+          MANIFEST_VERSION=$(jq -r '.manifest_version' manifest.json)
+          if [ "$MANIFEST_VERSION" != "3" ]; then
+            echo "❌ Manifest version deve ser 3!"
+            exit 1
+          fi
+
+          NAME=$(jq -r '.name' manifest.json)
+          if [ -z "$NAME" ]; then
+            echo "❌ Campo 'name' é obrigatório!"
+            exit 1
+          fi
+
+          VERSION=$(jq -r '.version' manifest.json)
+          if [ -z "$VERSION" ]; then
+            echo "❌ Campo 'version' é obrigatório!"
+            exit 1
+          fi
+
+          echo "✅ manifest.json válido!"
+          echo "  - Name: $NAME"
+          echo "  - Version: $VERSION"
+          echo "  - Manifest Version: $MANIFEST_VERSION"
+
+      - name: Check TypeScript configuration
+        run: |
+          cd chrome-extension-pje
+
+          if [ ! -f "tsconfig.json" ]; then
+            echo "❌ tsconfig.json não encontrado!"
+            exit 1
+          fi
+
+          echo "✅ tsconfig.json existe"
+
+      - name: Verify documentation
+        run: |
+          cd chrome-extension-pje
+
+          if [ ! -f "README.md" ]; then
+            echo "❌ README.md não encontrado!"
+            exit 1
+          fi
+
+          if [ ! -f "INSTALL.md" ]; then
+            echo "❌ INSTALL.md não encontrado!"
+            exit 1
+          fi
+
+          echo "✅ Documentação completa encontrada"
+
+  security-check:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: test-and-build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+
+      - name: Install dependencies
+        run: |
+          cd chrome-extension-pje
+          npm ci
+
+      - name: Run npm audit
+        run: |
+          cd chrome-extension-pje
+          npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for sensitive data
+        run: |
+          cd chrome-extension-pje
+
+          # Verificar se não há API keys hardcoded
+          if grep -r "AIza" src/ 2>/dev/null; then
+            echo "❌ Possível API key do Google encontrada no código!"
+            exit 1
+          fi
+
+          # Verificar se não há tokens hardcoded
+          if grep -r "ghp_" src/ 2>/dev/null; then
+            echo "❌ Possível GitHub token encontrado no código!"
+            exit 1
+          fi
+
+          echo "✅ Nenhum dado sensível encontrado no código-fonte"
+
+  report:
+    name: Generate Test Report
+    runs-on: ubuntu-latest
+    needs: [test-and-build, validate-extension, security-check]
+    if: always()
+
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 📊 Chrome Extension PJe Sync - Test Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Status dos Jobs:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Test and Build | ${{ needs.test-and-build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Validate Extension | ${{ needs.validate-extension.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Check | ${{ needs.security-check.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Artefatos:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Build artifacts disponíveis para download" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "- **Extension package (ZIP) disponível para instalação**" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Links Úteis:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- [README da Extensão](chrome-extension-pje/README.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Guia de Instalação](chrome-extension-pje/INSTALL.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Documentação de Integração](docs/INTEGRACAO_PJE_TEMPO_REAL.md)" >> $GITHUB_STEP_SUMMARY

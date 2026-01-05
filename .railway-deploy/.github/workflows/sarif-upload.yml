@@ -1,0 +1,85 @@
+name: "SARIF Upload"
+
+on:
+  push:
+    branches: [main, develop]
+  schedule:
+    - cron: "0 6 * * 1" # Weekly on Monday at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  upload-sarif:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
+      - name: Check for official SARIF tools (dry-run)
+        run: npm run ensure:sarif-deps || true
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate ESLint SARIF
+        run: |
+          npm run lint:sarif || echo "{}" > eslint-results.sarif
+        continue-on-error: true
+
+      - name: Generate TypeScript SARIF
+        run: npm run tsc:sarif || echo "{}" > tsc-results.sarif
+        continue-on-error: true
+
+      - name: Generate Vitest SARIF (JSON -> SARIF)
+        run: npm run test:sarif || echo "{}" > vitest-results.sarif
+        continue-on-error: true
+
+      - name: Ensure SARIF files exist
+        run: |
+          for f in eslint-results.sarif tsc-results.sarif vitest-results.sarif; do
+            if [ ! -f "$f" ]; then
+              echo "{\"version\":\"2.1.0\",\"runs\":[]}" > "$f"
+            fi
+          done
+
+      - name: Upload ESLint SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: eslint-results.sarif
+          category: eslint
+        continue-on-error: true
+
+      - name: Upload TypeScript SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: tsc-results.sarif
+          category: typescript
+        continue-on-error: true
+
+      - name: Upload Vitest SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: vitest-results.sarif
+          category: vitest
+        continue-on-error: true
+
+      - name: Upload SARIF artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sarif-results
+          path: |
+            eslint-results.sarif
+            tsc-results.sarif
+            vitest-results.sarif
+          retention-days: 7

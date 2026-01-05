@@ -1,0 +1,60 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    
+    /* Type Checking Adicional */
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    
+    /* Performance */
+    "incremental": true,
+    "assumeChangesOnlyAffectDirectDependencies": true,
+    
+    /* Paths - Garantir que baseUrl e paths sejam herdados corretamente */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.d.ts",
+    "api/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    
+    /* Arquivos de Teste */
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+    "**/__tests__/**",
+    "**/__mocks__/**",
+    
+    /* Utilitários de Teste */
+    "src/test/**",
+    "src/test-utils/**",
+    
+    /* Scripts */
+    "scripts/**",
+    
+    /* Configurações */
+    "*.config.ts",
+    "*.config.js",
+    
+    /* Playwright E2E */
+    "tests/**",
+    "e2e/**",
+    "playwright.config.ts"
+  ],
+  "references": [
+    { "path": "./tsconfig.node.json" }
+  ]
+}

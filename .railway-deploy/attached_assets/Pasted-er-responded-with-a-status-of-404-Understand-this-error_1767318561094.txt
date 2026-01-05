@@ -1,0 +1,129 @@
+er responded with a status of 404 ()Understand this error
+/api/expedientes?limit=8:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/agents?action=logs:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/expedientes:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/lawyers:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/agents?action=memory:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+61use-autonomous-agents-D3I-W51P.js:45 [Agents] Estrutura inválida ou quantidade incorreta → reinicializando
+use-autonomous-agents-D3I-W51P.js:45 [Agents] Quantidade incorreta (16) → reinicializando para 15
+321use-autonomous-agents-D3I-W51P.js:45 [Agents] Estrutura inválida ou quantidade incorreta → reinicializando
+use-autonomous-agents-D3I-W51P.js:45 [Agents] Quantidade incorreta (16) → reinicializando para 15
+312use-autonomous-agents-D3I-W51P.js:45 [Agents] Estrutura inválida ou quantidade incorreta → reinicializando
+use-autonomous-agents-D3I-W51P.js:45 [Agents] Quantidade incorreta (16) → reinicializando para 15
+181use-autonomous-agents-D3I-W51P.js:45 [Agents] Estrutura inválida ou quantidade incorreta → reinicializando
+config-DZelo_lf.js:1 Missing required environment variable: VITE_GOOGLE_CLIENT_ID
+e @ config-DZelo_lf.js:1Understand this error
+config-DZelo_lf.js:1 Missing required environment variable: VITE_GITHUB_OAUTH_CLIENT_ID
+e @ config-DZelo_lf.js:1Understand this error
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+MinutasManager-fwXtXN58.js:26 [GoogleDocs] Initializing Google Docs Service... 
+MinutasManager-fwXtXN58.js:26 [GoogleDocs] ERROR: Credenciais do Google Docs não configuradas. Configure VITE_GOOGLE_CLIENT_ID e VITE_GOOGLE_API_KEY (ou VITE_GEMINI_API_KEY). 
+Z @ MinutasManager-fwXtXN58.js:26Understand this error
+MinutasManager-fwXtXN58.js:26 [useGoogleDocs] Failed to check auth status Error: Credenciais do Google Docs não configuradas. Configure VITE_GOOGLE_CLIENT_ID e VITE_GOOGLE_API_KEY (ou VITE_GEMINI_API_KEY).
+    at gw.initialize (MinutasManager-fwXtXN58.js:26:3131)
+    at MinutasManager-fwXtXN58.js:26:12843
+    at MinutasManager-fwXtXN58.js:26:12970
+    at vn (react-vendor-CP0Ygtds.js:48:92699)
+    at J0 (react-vendor-CP0Ygtds.js:48:107927)
+    at De (react-vendor-CP0Ygtds.js:48:107811)
+    at J0 (react-vendor-CP0Ygtds.js:48:108537)
+    at De (react-vendor-CP0Ygtds.js:48:107811)
+    at J0 (react-vendor-CP0Ygtds.js:48:108394)
+    at De (react-vendor-CP0Ygtds.js:48:107811)
+(anonymous) @ MinutasManager-fwXtXN58.js:26Understand this error
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-CzHQs3Ud.js:288 [KV] Circuit breaker ativado - usando localStorage por 60s
+Mt @ index-CzHQs3Ud.js:288Understand this warning
+MinutasManager-fwXtXN58.js:727 CKEditor error: CKEditorError: license-key-missing
+Read more: https://ckeditor.com/docs/ckeditor5/latest/support/error-codes.html#error-license-key-missing
+    at h (MinutasManager-fwXtXN58.js:551:13927)
+    at new fn (MinutasManager-fwXtXN58.js:551:12817)
+    at new i (MinutasManager-fwXtXN58.js:551:19997)
+    at new JS (MinutasManager-fwXtXN58.js:638:3728)
+    at MinutasManager-fwXtXN58.js:638:4376
+    at new Promise (<anonymous>)
+    at JS.create (MinutasManager-fwXtXN58.js:638:4352)
+    at jf._createEditor (MinutasManager-fwXtXN58.js:400:3002)
+    at xg._creator (MinutasManager-fwXtXN58.js:400:2519)
+    at MinutasManager-fwXtXN58.js:548:2428
+onError @ MinutasManager-fwXtXN58.js:727Understand this error
+MinutasManager-fwXtXN58.js:385 CKEditor mounting error: CKEditorError: license-key-missing
+Read more: https://ckeditor.com/docs/ckeditor5/latest/support/error-codes.html#error-license-key-missing
+    at h (MinutasManager-fwXtXN58.js:551:13927)
+    at new fn (MinutasManager-fwXtXN58.js:551:12817)
+    at new i (MinutasManager-fwXtXN58.js:551:19997)
+    at new JS (MinutasManager-fwXtXN58.js:638:3728)
+    at MinutasManager-fwXtXN58.js:638:4376
+    at new Promise (<anonymous>)
+    at JS.create (MinutasManager-fwXtXN58.js:638:4352)
+    at jf._createEditor (MinutasManager-fwXtXN58.js:400:3002)
+    at xg._creator (MinutasManager-fwXtXN58.js:400:2519)
+    at MinutasManager-fwXtXN58.js:548:2428
+(anonymous) @ MinutasManager-fwXtXN58.js:385Understand this error
+MinutasManager-fwXtXN58.js:385 CKEditor unmounting error: CKEditorError: license-key-missing
+Read more: https://ckeditor.com/docs/ckeditor5/latest/support/error-codes.html#error-license-key-missing
+    at h (MinutasManager-fwXtXN58.js:551:13927)
+    at new fn (MinutasManager-fwXtXN58.js:551:12817)
+    at new i (MinutasManager-fwXtXN58.js:551:19997)
+    at new JS (MinutasManager-fwXtXN58.js:638:3728)
+    at MinutasManager-fwXtXN58.js:638:4376
+    at new Promise (<anonymous>)
+    at JS.create (MinutasManager-fwXtXN58.js:638:4352)
+    at jf._createEditor (MinutasManager-fwXtXN58.js:400:3002)
+    at xg._creator (MinutasManager-fwXtXN58.js:400:2519)
+    at MinutasManager-fwXtXN58.js:548:2428
+(anonymous) @ MinutasManager-fwXtXN58.js:385Understand this error
+index-CzHQs3Ud.js:288 [KV] Circuit breaker reset - tentando API novamente
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+2use-autonomous-agents-D3I-W51P.js:45 [Agents] Estrutura inválida ou quantidade incorreta → reinicializando
+2use-autonomous-agents-D3I-W51P.js:45 [Agents] Quantidade incorreta (16) → reinicializando para 15
+104use-autonomous-agents-D3I-W51P.js:45 [Agents] Estrutura inválida ou quantidade incorreta → reinicializando
+react-vendor-CP0Ygtds.js:48 Error: Minified React error #185; visit https://react.dev/errors/185 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at au (react-vendor-CP0Ygtds.js:48:27648)
+    at Ki (react-vendor-CP0Ygtds.js:48:27173)
+    at on (react-vendor-CP0Ygtds.js:48:59230)
+    at i0 (react-vendor-CP0Ygtds.js:48:58845)
+    at ui-vendor-BbbrLw9U.js:10:27871
+    at Fn (ui-vendor-BbbrLw9U.js:1:143)
+    at ui-vendor-BbbrLw9U.js:1:235
+    at Array.map (<anonymous>)
+    at ui-vendor-BbbrLw9U.js:1:219
+    at Ne (react-vendor-CP0Ygtds.js:48:93711)
+v0 @ react-vendor-CP0Ygtds.js:48Understand this error
+index-CzHQs3Ud.js:318 [ErrorBoundary] Erro capturado: Error: Minified React error #185; visit https://react.dev/errors/185 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at au (react-vendor-CP0Ygtds.js:48:27648)
+    at Ki (react-vendor-CP0Ygtds.js:48:27173)
+    at on (react-vendor-CP0Ygtds.js:48:59230)
+    at i0 (react-vendor-CP0Ygtds.js:48:58845)
+    at ui-vendor-BbbrLw9U.js:10:27871
+    at Fn (ui-vendor-BbbrLw9U.js:1:143)
+    at ui-vendor-BbbrLw9U.js:1:235
+    at Array.map (<anonymous>)
+    at ui-vendor-BbbrLw9U.js:1:219
+    at Ne (react-vendor-CP0Ygtds.js:48:93711) Object
+componentDidCatch @ index-CzHQs3Ud.js:318Understand this error
+index-CzHQs3Ud.js:318 [Dev Error] Error: Minified React error #185; visit https://react.dev/errors/185 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at au (react-vendor-CP0Ygtds.js:48:27648)
+    at Ki (react-vendor-CP0Ygtds.js:48:27173)
+    at on (react-vendor-CP0Ygtds.js:48:59230)
+    at i0 (react-vendor-CP0Ygtds.js:48:58845)
+    at ui-vendor-BbbrLw9U.js:10:27871
+    at Fn (ui-vendor-BbbrLw9U.js:1:143)
+    at ui-vendor-BbbrLw9U.js:1:235
+    at Array.map (<anonymous>)
+    at ui-vendor-BbbrLw9U.js:1:219
+    at Ne (react-vendor-CP0Ygtds.js:48:93711) Object
+Ln @ index-CzHQs3Ud.js:318Understand this error
+/api/agents?action=logs:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/agents?action=logs:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/agents?action=memory:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-CzHQs3Ud.js:288 [KV] Circuit breaker ativado - usando localStorage por 60s
+Mt @ index-CzHQs3Ud.js:288Understand this warning
+/api/agents?action=memory:1  Failed to load resource: the server responded with a status of 404 ()Understand this error

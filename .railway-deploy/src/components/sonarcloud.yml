@@ -1,0 +1,138 @@
+name: SonarCloud Analysis
+
+# ⚠️ AÇÃO NECESSÁRIA: Verificar organização no SonarCloud
+# O workflow está falhando com "No organization with key 'thiagobodevan-a11y'"
+#
+# Para corrigir:
+# 1. Acesse https://sonarcloud.io/projects e encontre seu projeto
+# 2. Clique no projeto e vá em Administration > Update key
+# 3. Verifique o nome da organização na URL (ex: /organizations/NOME/projects)
+# 4. Atualize sonar.organization no arquivo sonar-project.properties
+# 5. Reative este workflow removendo o comentário do trigger
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch: # Permite execução manual para teste
+
+concurrency:
+  group: sonarcloud-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones disabled for better analysis
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Export ESLint report (SARIF)
+        run: npm run lint:sarif || true
+
+      - name: Build application
+        run: npm run build
+        continue-on-error: true
+        env:
+          VITE_GOOGLE_CLIENT_ID: "dummy-for-build"
+          VITE_GOOGLE_API_KEY: "dummy-for-build"
+          VITE_REDIRECT_URI: "http://localhost:5173"
+          VITE_APP_ENV: "ci"
+
+      - name: Run tests with coverage (lcov)
+        run: npm run test:coverage -- --coverage.reporter=lcov --coverage.reporter=text-summary
+        continue-on-error: true
+        env:
+          CI: true
+
+      - name: Install Chrome Extension dependencies
+        run: cd chrome-extension-pje && npm ci
+        continue-on-error: true
+
+      - name: Run Chrome Extension tests with coverage
+        run: cd chrome-extension-pje && npm run test:coverage
+        continue-on-error: true
+        env:
+          CI: true
+
+      - name: Build Chrome Extension
+        run: cd chrome-extension-pje && npm run build
+        continue-on-error: true
+
+      - name: Analyze Issue #161 files (Google Docs sync)
+        run: |
+          echo "📊 Analisando arquivos modificados na Issue #161..."
+          echo "Files to analyze:"
+          echo "  - src/hooks/use-google-docs.ts"
+          echo "  - src/components/MinutasManager.tsx"
+
+          # Verificar se os arquivos existem
+          if [ -f "src/hooks/use-google-docs.ts" ]; then
+            echo "✅ use-google-docs.ts encontrado"
+            wc -l src/hooks/use-google-docs.ts
+          fi
+
+          if [ -f "src/components/MinutasManager.tsx" ]; then
+            echo "✅ MinutasManager.tsx encontrado"
+            wc -l src/components/MinutasManager.tsx
+          fi
+        continue-on-error: true
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v5
+        continue-on-error: true # Não bloqueia CI se Quality Gate falhar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.verbose=false
+            -Dsonar.scm.revision=${{ github.sha }}
+            -Dsonar.links.ci=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            -Dsonar.inclusions=src/hooks/use-google-docs.ts,src/components/MinutasManager.tsx,src/**/*.ts,src/**/*.tsx,api/**/*.ts
+            ${{ github.event_name == 'pull_request' && format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base={2}', github.event.pull_request.number, github.head_ref, github.base_ref) || format('-Dsonar.branch.name={0}', github.ref_name) }}
+
+      - name: SonarCloud Quality Gate
+        uses: sonarsource/sonarqube-quality-gate-action@v1
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true # Não falha CI se Quality Gate falhar
+
+      - name: Comment Quality Gate Status
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ job.status }}';
+            const conclusion = status === 'success' ? '✅ Passou' : '⚠️ Precisa atenção';
+            const message = `## SonarCloud Analysis ${conclusion}\n\nVerifique os detalhes em: https://sonarcloud.io/dashboard?id=thiagobodevan-a11y_assistente-juridico-p`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

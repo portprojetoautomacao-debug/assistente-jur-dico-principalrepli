@@ -1,0 +1,46 @@
+# Automatic labeling for PRs based on changed files
+
+# Documentation changes
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.md', 'docs/**/*']
+
+# UI/Components changes
+ui:
+  - changed-files:
+    - any-glob-to-any-file: ['src/components/**/*', 'src/styles/**/*', '*.css']
+
+# Configuration changes
+config:
+  - changed-files:
+    - any-glob-to-any-file: ['*.config.*', '.github/**/*', 'vercel.json', 'render.yaml']
+
+# Dependencies changes
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file: ['package.json', 'package-lock.json']
+
+# TypeScript/Type changes
+types:
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.ts', '**/*.tsx', 'src/types.ts']
+
+# API/Backend changes
+api:
+  - changed-files:
+    - any-glob-to-any-file: ['api/**/*', 'src/lib/**/*']
+
+# Testing changes
+testing:
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.test.*', '**/*.spec.*']
+
+# GitHub Actions workflows
+ci-cd:
+  - changed-files:
+    - any-glob-to-any-file: ['.github/workflows/**/*']
+
+# Security-related changes
+security:
+  - changed-files:
+    - any-glob-to-any-file: ['SECURITY.md', 'src/lib/config.ts', '**/auth/**/*']

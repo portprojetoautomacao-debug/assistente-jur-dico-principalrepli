@@ -1,0 +1,93 @@
+{
+  "timestamp": "2025-12-13T21:39:53.433283",
+  "total_queries": 30,
+  "metrics_evaluated": 3,
+  "overall_accuracy": 0.851111111111111,
+  "metric_results": [
+    {
+      "metric_name": "Precisão de Análise de Intimações",
+      "agent_id": "justine",
+      "total_queries": 10,
+      "successful_evaluations": 10,
+      "accuracy": 0.8399999999999999,
+      "precision": 0.8399999999999999,
+      "recall": 0.8399999999999999,
+      "f1_score": 0.8399999999999999,
+      "detailed_scores": {
+        "accuracy_tipo": 0.9,
+        "accuracy_prazo": 1.0,
+        "accuracy_dataLimite": 0.4,
+        "accuracy_urgencia": 0.9,
+        "accuracy_manifestacao": 1.0
+      },
+      "errors": [
+        "intimacao_001: Data limite incorreta - esperado '2025-01-06', obtido '2025-01-07'",
+        "intimacao_003: Data limite incorreta - esperado '2025-01-06', obtido '2025-01-07'",
+        "intimacao_003: Urgência incorreta - esperado 'normal', obtido 'baixa'",
+        "intimacao_004: Tipo incorreto - esperado 'Manifestação sobre Laudo Pericial', obtido 'Análise de Expediente'",
+        "intimacao_004: Data limite incorreta - esperado '2024-12-23', obtido '2024-12-24'",
+        "intimacao_005: Data limite incorreta - esperado '2025-01-06', obtido '2025-01-07'",
+        "intimacao_007: Data limite incorreta - esperado '2025-01-06', obtido '2025-01-07'",
+        "intimacao_009: Data limite incorreta - esperado '2024-12-23', obtido '2024-12-24'"
+      ]
+    },
+    {
+      "metric_name": "Qualidade de Redação de Petições",
+      "agent_id": "redacao-peticoes",
+      "total_queries": 10,
+      "successful_evaluations": 10,
+      "accuracy": 0.9833333333333334,
+      "precision": 0.9833333333333334,
+      "recall": 0.9833333333333334,
+      "f1_score": 0.9833333333333334,
+      "detailed_scores": {
+        "estrutura": 1.0,
+        "fundamentacaoJuridica": 1.0,
+        "citacaoLegislacao": 1.0,
+        "jurisprudencia": 0.9,
+        "petitosClaros": 1.0,
+        "linguagemFormal": 1.0
+      },
+      "errors": [
+        "peticao_010: jurisprudencia - esperado False, obtido True"
+      ]
+    },
+    {
+      "metric_name": "Precisão de Cálculo de Prazos",
+      "agent_id": "gestao-prazos",
+      "total_queries": 10,
+      "successful_evaluations": 10,
+      "accuracy": 0.73,
+      "precision": 0.73,
+      "recall": 0.73,
+      "f1_score": 0.7299999999999999,
+      "detailed_scores": {
+        "accuracy_dataLimite": 0.5,
+        "accuracy_diasCorridos": 0.5,
+        "accuracy_diasUteis": 1.0,
+        "accuracy_feriados": 0.9,
+        "accuracy_alertas": 0.75
+      },
+      "errors": [
+        "prazo_001: Data limite - esperado '2025-01-06', obtido '2025-01-07'",
+        "prazo_002: Data limite - esperado '2025-01-06', obtido '2025-01-07'",
+        "prazo_007: Data limite - esperado '2025-01-15', obtido '2025-01-14'",
+        "prazo_008: Data limite - esperado '2025-01-06', obtido '2025-01-07'",
+        "prazo_010: Data limite - esperado '2025-01-16', obtido '2025-01-15'"
+      ]
+    }
+  ],
+  "summary": {
+    "best_performing_agent": "redacao-peticoes",
+    "worst_performing_agent": "gestao-prazos",
+    "average_accuracy": 0.851111111111111,
+    "total_errors": 14
+  },
+  "recommendations": [
+    "📈 justine: Boa performance (84.00%), mas há espaço para melhoria.",
+    "🔍 justine: Focar em melhorar: accuracy_dataLimite",
+    "✅ redacao-peticoes: Excelente performance (98.33%)!",
+    "📈 gestao-prazos: Boa performance (73.00%), mas há espaço para melhoria.",
+    "🔍 gestao-prazos: Focar em melhorar: accuracy_dataLimite, accuracy_diasCorridos, accuracy_alertas"
+  ]
+}

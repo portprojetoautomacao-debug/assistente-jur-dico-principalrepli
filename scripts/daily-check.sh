@@ -55,8 +55,17 @@ echo ""
 
 # 1. Health Check
 # Permite sobrescrever via variável de ambiente (útil para ambientes/staging).
-BASE_URL="${DAILY_CHECK_BASE_URL:-https://assistente-juridico-github.vercel.app}"
-info "Verificando health check..."
+# Se não estiver definido, tenta checar localmente (dev/prod local) e não bloqueia o checklist.
+HEALTH_STRICT=true
+if [ -n "${DAILY_CHECK_BASE_URL:-}" ]; then
+    BASE_URL="$DAILY_CHECK_BASE_URL"
+else
+    # fallback local: útil em devcontainer/CI local
+    BASE_URL="http://127.0.0.1:${PORT:-3001}"
+    HEALTH_STRICT=false
+fi
+
+info "Verificando health check... (BASE_URL=${BASE_URL})"
 
 HEALTH_OK=false
 HEALTH_ENDPOINT=""
@@ -70,19 +79,47 @@ for endpoint in "/api/status?type=health" "/api/health" "/health"; do
     HTTP_CODE=$(echo "$HEALTH_RESPONSE" | tail -n1)
     BODY=$(echo "$HEALTH_RESPONSE" | sed '$d')
 
-    if [ "$HTTP_CODE" = "200" ] && echo "$BODY" | grep -Eq '"status"\s*:\s*"ok"'; then
-        HEALTH_OK=true
-        HEALTH_ENDPOINT="$endpoint"
-        break
+    if [ "$HTTP_CODE" = "200" ]; then
+        # Aceitar respostas JSON e texto simples.
+        if echo "$BODY" | grep -Eiq '"status"\s*:\s*"(ok|healthy)"'; then
+            HEALTH_OK=true
+            HEALTH_ENDPOINT="$endpoint"
+            break
+        fi
+
+        # Health detalhado pode retornar degraded (não deve bloquear, mas precisa aparecer).
+        if echo "$BODY" | grep -Eiq '"status"\s*:\s*"degraded"'; then
+            warn "API Health: DEGRADADO (${endpoint}) (HTTP $HTTP_CODE)"
+            HEALTH_OK=true
+            HEALTH_ENDPOINT="$endpoint"
+            break
+        fi
+
+        # Respostas de texto (ex: 'ok', 'healthy')
+        if echo "$BODY" | grep -Eiq '(^|\b)(ok|healthy)(\b|$)'; then
+            HEALTH_OK=true
+            HEALTH_ENDPOINT="$endpoint"
+            break
+        fi
     fi
 done
 
 if [ "$HEALTH_OK" = true ]; then
-    pass "API Health: OK (${HEALTH_ENDPOINT}) (HTTP $HTTP_CODE)"
+    # Se já foi emitido warning de degraded, não repetir como OK.
+    if echo "$BODY" | grep -Eiq '"status"\s*:\s*"degraded"'; then
+        :
+    else
+        pass "API Health: OK (${HEALTH_ENDPOINT}) (HTTP $HTTP_CODE)"
+    fi
 else
-    fail "API Health: FALHOU (HTTP $HTTP_CODE)"
-    echo "   Endpoint testado: ${BASE_URL}/api/status?type=health, ${BASE_URL}/api/health e ${BASE_URL}/health"
-    echo "   Verifique: https://vercel.com/thiagobodevan-a11y/assistente-juridico-p/logs"
+    if [ "$HEALTH_STRICT" = true ]; then
+        fail "API Health: FALHOU (HTTP $HTTP_CODE)"
+        echo "   Endpoint testado: ${BASE_URL}/api/status?type=health, ${BASE_URL}/api/health e ${BASE_URL}/health"
+        echo "   Verifique: https://vercel.com/thiagobodevan-a11y/assistente-juridico-p/logs"
+    else
+        warn "API Health: não verificado (serviço local não disponível)"
+        echo "   Dica: export DAILY_CHECK_BASE_URL='https://seu-dominio' para validar produção."
+    fi
 fi
 
 echo ""

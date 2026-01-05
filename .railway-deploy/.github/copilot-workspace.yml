@@ -1,0 +1,109 @@
+# GitHub Copilot Workspace - Automação de Tarefas
+# Este arquivo configura o Copilot para trabalhar de forma mais autônoma
+
+version: 1
+
+# Configurações de automação
+automation:
+  # Auto-fix de erros TypeScript e ESLint
+  auto_fix:
+    enabled: true
+    on_save: true
+    on_commit: true
+    types:
+      - typescript-errors
+      - eslint-errors
+      - import-errors
+      - type-errors
+
+  # Auto-formatting
+  auto_format:
+    enabled: true
+    on_save: true
+    formatters:
+      - prettier
+      - eslint
+
+  # Auto-imports
+  auto_imports:
+    enabled: true
+    organize_on_save: true
+
+  # Auto-tests
+  auto_tests:
+    enabled: true
+    run_on_change: true
+    generate_missing: false # Modo manutenção - não gerar novos testes
+
+# Regras de trabalho autônomo
+autonomous_rules:
+  # Permitir correções automáticas
+  allow_auto_fixes: true
+
+  # Permitir refactoring apenas para bugs
+  allow_refactoring:
+    enabled: true
+    scope: "bug-fixes-only" # Respeita modo MANUTENÇÃO
+
+  # Não adicionar novas features
+  prevent_new_features: true
+
+  # Prioridades de correção
+  fix_priorities:
+    - critical-bugs
+    - type-errors
+    - security-issues
+    - performance-issues
+    - code-quality
+
+# Contexto do projeto
+context:
+  instruction_files:
+    - .github/copilot-instructions.md
+
+  key_files:
+    - package.json
+    - tsconfig.json
+    - vite.config.ts
+    - src/types.ts
+
+  code_patterns:
+    - "React functional components only"
+    - "TypeScript strict mode"
+    - "Tailwind CSS for styling"
+    - "Vitest for testing"
+
+# Notificações
+notifications:
+  # Notificar quando Copilot fizer mudanças automáticas
+  on_auto_fix: true
+  on_auto_format: true
+  on_error_detected: true
+
+# Limites de segurança
+safety_limits:
+  # Não modificar automaticamente
+  protected_files:
+    - .env
+    - .env.example
+    - package.json
+    - vercel.json
+    - .github/workflows/*
+
+  # Requer aprovação humana para
+  require_approval:
+    - api/**/*.ts # APIs críticas
+    - src/lib/agents.ts # Sistema de agentes
+    - src/lib/config.ts # Configurações
+
+# Integração com CI/CD
+ci_integration:
+  # Rodar verificações antes de commit
+  pre_commit:
+    - type-check
+    - lint
+    - test:run
+
+  # Rodar testes após mudanças automáticas
+  post_auto_fix:
+    - test:run

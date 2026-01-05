@@ -1,0 +1,41 @@
+# Configuração de tipo de projeto para GitLab
+# Ajuda o GitLab a detectar corretamente projetos Node.js/React/TypeScript
+
+project:
+  type: "nodejs"
+  language: "typescript"
+  framework: "react"
+  build_tool: "npm"
+  test_framework: "vitest"
+  lint_tool: "eslint"
+
+# Configurações específicas para SAST
+sast:
+  enabled: true
+  analyzers:
+    - "nodejs-scan"
+    - "semgrep"
+    - "eslint"
+  excluded_paths:
+    - "node_modules/**"
+    - "dist/**"
+    - ".git/**"
+    - "coverage/**"
+    - "**/*.test.ts"
+    - "**/*.test.tsx"
+    - "**/*.spec.ts"
+    - "**/*.spec.tsx"
+
+# Configurações de segurança
+security:
+  audit_level: "moderate"
+  fail_on_high: false
+  report_format: "json"
+
+# Metadados do projeto
+metadata:
+  name: "Assistente Jurídico PJe"
+  description: "Sistema inteligente de gestão jurídica"
+  version: "1.0.0"
+  author: "Thiago Bodevan"
+  license: "MIT"

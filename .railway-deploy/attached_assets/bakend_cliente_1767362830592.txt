@@ -1,0 +1,264 @@
+"""
+Cliente HTTP para comunicação com backend React/Vercel.
+
+Mantém compatibilidade total com APIs existentes:
+- /api/kv (Redis)
+- /api/agents
+- /api/expedientes
+- /api/djen-sync
+- /api/metrics
+"""
+
+import os
+import sys
+from typing import Any, Dict, List, Optional
+
+import requests
+
+# Adicionar path para imports
+sys.path.insert(0, os.path.dirname(__file__))
+
+from config import BACKEND_CONFIG
+
+
+class BackendClient:
+    """Cliente para comunicação com backend React."""
+
+    def __init__(self):
+        self.base_url = BACKEND_CONFIG["url"]
+        self.api_key = BACKEND_CONFIG["api_key"]
+        self.timeout = BACKEND_CONFIG["timeout"]
+        self.session = requests.Session()
+
+        if self.api_key:
+            self.session.headers.update({"X-API-Key": self.api_key})
+
+    def check_health(self) -> Dict[str, Any]:
+        """Verifica saúde do backend."""
+        try:
+            response = self.session.get(f"{self.base_url}/health", timeout=5)
+
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    "status": "ok",
+                    "environment": data.get("environment", "unknown"),
+                    "timestamp": data.get("timestamp"),
+                }
+            else:
+                return {"status": "error", "code": response.status_code}
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
+    def api_request(
+        self, method: str, endpoint: str, data: Optional[Dict] = None
+    ) -> Any:
+        """Faz uma requisição genérica à API."""
+        method = method.upper()
+        url = (
+            f"{self.base_url}{endpoint.replace('/api', '', 1)}"
+            if endpoint.startswith("/api")
+            else f"{self.base_url}{endpoint}"
+        )
+
+        try:
+            if method == "GET":
+                response = self.session.get(url, params=data, timeout=self.timeout)
+            elif method == "POST":
+                response = self.session.post(url, json=data, timeout=self.timeout)
+            elif method == "PUT":
+                response = self.session.put(url, json=data, timeout=self.timeout)
+            elif method == "DELETE":
+                response = self.session.delete(url, timeout=self.timeout)
+            else:
+                raise ValueError(f"Método não suportado: {method}")
+
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print(f"Erro na requisição {method} {endpoint}: {e}")
+            return None
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """Busca métricas do sistema."""
+        try:
+            response = self.session.get(
+                f"{self.base_url}/metrics", timeout=self.timeout
+            )
+            if response.status_code == 200:
+                return response.json()
+            return {}
+        except Exception as e:
+            print(f"Erro ao buscar métricas: {e}")
+            return {}
+
+    # ============================================
+    # Métodos Genéricos HTTP
+    # ============================================
+
+    def get(self, endpoint: str, params: Optional[Dict] = None) -> Any:
+        """GET request genérico."""
+        response = self.session.get(
+            f"{self.base_url}{endpoint}", params=params, timeout=self.timeout
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def post(self, endpoint: str, data: Optional[Dict] = None) -> Any:
+        """POST request genérico."""
+        response = self.session.post(
+            f"{self.base_url}{endpoint}", json=data, timeout=self.timeout
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def put(self, endpoint: str, data: Optional[Dict] = None) -> Any:
+        """PUT request genérico."""
+        response = self.session.put(
+            f"{self.base_url}{endpoint}", json=data, timeout=self.timeout
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def delete(self, endpoint: str) -> Any:
+        """DELETE request genérico."""
+        response = self.session.delete(
+            f"{self.base_url}{endpoint}", timeout=self.timeout
+        )
+        response.raise_for_status()
+        return response.json()
+
+    # ============================================
+    # KV Store (Redis)
+    # ============================================
+
+    def kv_get(self, key: str) -> Optional[Any]:
+        """Busca valor no Redis."""
+        try:
+            response = self.session.post(
+                f"{self.base_url}/kv",
+                json={"action": "get", "key": key},
+                timeout=self.timeout,
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                return data.get("value")
+            return None
+        except Exception as e:
+            print(f"Erro ao buscar {key}: {e}")
+            return None
+
+    def kv_set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+        """Salva valor no Redis."""
+        try:
+            payload = {"action": "set", "key": key, "value": value}
+            if ttl:
+                payload["ttl"] = ttl
+
+            response = self.session.post(
+                f"{self.base_url}/kv", json=payload, timeout=self.timeout
+            )
+
+            return response.status_code == 200
+        except Exception as e:
+            print(f"Erro ao salvar {key}: {e}")
+            return False
+
+    # ============================================
+    # Processos
+    # ============================================
+
+    def get_processes(self) -> List[Dict[str, Any]]:
+        """Busca lista de processos."""
+        return self.kv_get("processes") or []
+
+    def save_processes(self, processes: List[Dict[str, Any]]) -> bool:
+        """Salva lista de processos."""
+        return self.kv_set("processes", processes)
+
+    # ============================================
+    # Expedientes
+    # ============================================
+
+    def get_expedientes(self) -> List[Dict[str, Any]]:
+        """Busca expedientes via API."""
+        try:
+            response = self.session.get(
+                f"{self.base_url}/expedientes", timeout=self.timeout
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                return data.get("expedientes", [])
+            return []
+        except Exception as e:
+            print(f"Erro ao buscar expedientes: {e}")
+            return []
+
+    def create_expediente(self, expediente: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Cria novo expediente."""
+        try:
+            response = self.session.post(
+                f"{self.base_url}/expedientes", json=expediente, timeout=self.timeout
+            )
+
+            if response.status_code == 200:
+                return response.json()
+            return None
+        except Exception as e:
+            print(f"Erro ao criar expediente: {e}")
+            return None
+
+    # ============================================
+    # Agentes
+    # ============================================
+
+    def get_agents(self) -> List[Dict[str, Any]]:
+        """Busca lista de agentes."""
+        try:
+            response = self.session.get(f"{self.base_url}/agents", timeout=self.timeout)
+
+            if response.status_code == 200:
+                data = response.json()
+                return data.get("agents", [])
+            return []
+        except Exception as e:
+            print(f"Erro ao buscar agentes: {e}")
+            return []
+
+    def execute_agent_task(
+        self, agent_id: str, task: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
+        """Executa tarefa em um agente."""
+        try:
+            response = self.session.post(
+                f"{self.base_url}/agents/process-task",
+                json={"agentId": agent_id, "task": task},
+                timeout=60,  # Agentes podem demorar
+            )
+
+            if response.status_code == 200:
+                return response.json()
+            return None
+        except Exception as e:
+            print(f"Erro ao executar agente {agent_id}: {e}")
+            return None
+
+    # ============================================
+    # Métricas
+    # ============================================
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """Busca métricas dos agentes."""
+        try:
+            response = self.session.get(
+                f"{self.base_url}/metrics", timeout=self.timeout
+            )
+
+            if response.status_code == 200:
+                return response.json()
+            return {}
+        except Exception as e:
+            print(f"Erro ao buscar métricas: {e}")
+            return {}

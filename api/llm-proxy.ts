@@ -364,7 +364,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Fazer requisição
     // Make request with timeout + retry
     const data = await retryWithBackoff(
-      () => withTimeout(45000, () => fetchJsonOrThrow(provider, targetUrl, requestBody)),
+      () => withTimeout(45000, fetchJsonOrThrow(provider, targetUrl, requestBody)),
       3,
       500
     );
@@ -374,13 +374,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // data already set from retryWithBackoff
 
     // Transformar resposta se necessário
-    let transformed = data;
-    if (provider.transformResponse) transformed = provider.transformResponse(data);
+    const transformed: unknown = provider.transformResponse
+      ? provider.transformResponse(data)
+      : data;
+
+    const payload: Record<string, unknown> =
+      transformed && typeof transformed === "object"
+        ? (transformed as Record<string, unknown>)
+        : { data: transformed };
 
     // Adicionar metadata sobre o provedor usado
-    transformed._provider = provider.name;
+    payload._provider = provider.name;
 
-    res.status(200).json(transformed);
+    res.status(200).json(payload);
   } catch (error) {
     console.error("LLM proxy error:", error);
     res.status(500).json({

@@ -1,0 +1,559 @@
+{
+  "analise_hibrida": {
+    "objetivo": "Arquitetura híbrida com CrewAI + LangGraph + DSPy + AutoGen",
+    "projeto": "assistente-juridico-p",
+    "data_analise": "2025-12-07",
+    "status": "✅ Análise Completa"
+  },
+  "frameworks": {
+    "autogen": {
+      "repositorio": "microsoft/autogen",
+      "status": "✅ Analisado",
+      "uso_recomendado": "Orquestração Multi-Agente + Handoff entre Agentes",
+      "tipo_problema": "Coordenação de múltiplos agentes com estado compartilhado",
+      "arquitetura_chave": {
+        "pattern": "Message-Driven + Ledger-Based Orchestration",
+        "componentes_principais": [
+          "MagenticOneOrchestrator: Orquestração com ledger de tarefas/fatos/planos",
+          "AssistantAgent: Agente base com detecção de handoff",
+          "BaseAgent: Reflexão de interfaces IHandle<T> para roteamento de mensagens",
+          "GroupChat: Gerenciamento de conversa em grupo"
+        ],
+        "padroes_importantes": [
+          "Event-driven: Manipuladores IHandle<T> para diferentes tipos de mensagens",
+          "Persistence: save_state() e load_state() para recuperação",
+          "Handoff Detection: Análise automática de intenção de delegação",
+          "Termination Conditions: Critérios para encerrar conversation loop"
+        ]
+      },
+      "arquivos_chave": [
+        "python/packages/autogen-agentchat/src/autogen_agentchat/teams/_group_chat/_magentic_one/_magentic_one_orchestrator.py",
+        "python/packages/autogen-agentchat/src/autogen_agentchat/agents/_assistant_agent.py",
+        "dotnet/src/Microsoft.AutoGen/Core/BaseAgent.cs",
+        "python/samples/core_streaming_handoffs_fastapi/app.py"
+      ],
+      "forcos": [
+        "✅ Orquestração sofisticada com estado persistente",
+        "✅ Handoff automático entre agentes",
+        "✅ Streaming e integração com FastAPI",
+        "✅ Message routing reflexivo"
+      ],
+      "fracossos": [
+        "❌ Pouca integração nativa com LLM (requer chamadas explícitas)",
+        "❌ Sem otimização de prompts integrada",
+        "❌ Não fornece abstração de workflow com grafos"
+      ],
+      "quando_usar": "Quando você tem múltiplos agentes especializados que precisam coordenar e delegar tarefas entre si"
+    },
+    "langgraph": {
+      "repositorio": "langchain-ai/langchain",
+      "status": "✅ Analisado",
+      "uso_recomendado": "Workflow Estruturado + State Management + Tool Calling",
+      "tipo_problema": "Fluxo de execução com múltiplos passos e decisões condicionais",
+      "arquitetura_chave": {
+        "pattern": "Graph-Based Workflow + Conditional Routing",
+        "componentes_principais": [
+          "StateGraph: Grafo com estado tipado (TypedDict)",
+          "Conditional Edges: Roteamento dinâmico baseado em saída do modelo",
+          "ToolNode: Execução paralela de múltiplas ferramentas",
+          "create_agent factory: Construtor de agentes com middleware"
+        ],
+        "padroes_importantes": [
+          "Type-Safe State: TypedDict para validação em tempo de execução",
+          "Conditional Edges: Funções que retornam string (próximo nó)",
+          "Parallel Tool Execution: Send() para paralelizar chamadas de tool",
+          "Middleware Hooks: before_agent, after_model, before_tools, after_tools",
+          "Agent Loop Pattern: Model → Tools → Model até convergência"
+        ]
+      },
+      "arquivos_chave": [
+        "libs/langchain_v1/langchain/agents/factory.py",
+        "libs/langchain_v1/langchain/agents/middleware/types.py",
+        "libs/langchain_v1/langchain/agents/structured_output.py"
+      ],
+      "forcos": [
+        "✅ Grafo visual e declarativo do fluxo",
+        "✅ Type-safety com TypedDict",
+        "✅ Roteamento condicional poderoso",
+        "✅ Tool calling nativo e parallelizável",
+        "✅ Middleware para intervenção entre passos"
+      ],
+      "fracossos": [
+        "❌ Sem otimização de prompts",
+        "❌ Sem orquestração de múltiplos agentes autônomos",
+        "❌ Requer definição manual de cada nó do grafo"
+      ],
+      "quando_usar": "Quando você tem um fluxo bem-definido com decisões em bifurcação e execução paralela de ferramentas"
+    },
+    "dspy": {
+      "repositorio": "stanfordnlp/dspy",
+      "status": "✅ Analisado",
+      "uso_recomendado": "Otimização de Prompts + Raciocínio Estruturado + Few-Shot Learning",
+      "tipo_problema": "Melhoria automática de qualidade de instruções e pesos do modelo",
+      "arquitetura_chave": {
+        "pattern": "Modular Composition + Prompt Optimization",
+        "componentes_principais": [
+          "Module: Classe base com tracking de LM usage e callbacks",
+          "Signature: Especificação declarativa de I/O",
+          "Teleprompter (Optimizer): Melhoria automática de prompts",
+          "ReAct: Agente com raciocínio + atuação",
+          "ChainOfThought: Raciocínio passo-a-passo"
+        ],
+        "padroes_importantes": [
+          "Declarative I/O: Signatures definem contratos I/O",
+          "Few-Shot Optimization: COPRO, MIPROv2 geram exemplos de treino",
+          "Instruction Tuning: GEPA otimiza instruções via feedback multimodal",
+          "Bayesian Search: MIPROv2 usa Optuna para busca inteligente",
+          "Mini-Batch Optimization: SIMBA para datasets grandes"
+        ],
+        "tipos_optimizer": [
+          "COPRO: Breadth-depth search para geração de prompts",
+          "MIPROv2: Bayesian optimization com Optuna (mais sofisticado)",
+          "SIMBA: Mini-batch stochastic para datasets grandes",
+          "GEPA: Evolutionary com feedback multimodal e tool optimization"
+        ]
+      },
+      "arquivos_chave": [
+        "dspy/primitives/module.py",
+        "dspy/teleprompt/mipro_optimizer_v2.py",
+        "dspy/teleprompt/gepa/instruction_proposal.py",
+        "dspy/teleprompt/simba.py",
+        "dspy/predict/program_of_thought.py"
+      ],
+      "forcos": [
+        "✅ Otimização automática de prompts",
+        "✅ Framework modular para composição",
+        "✅ Suporte a raciocínio (ReAct, ChainOfThought)",
+        "✅ Otimização baseada em feedback",
+        "✅ Few-shot generation automática"
+      ],
+      "fracossos": [
+        "❌ Sem orquestração de múltiplos agentes",
+        "❌ Sem graph-based workflow declarativo",
+        "❌ Foco em otimização, não em coordenação"
+      ],
+      "quando_usar": "Quando você quer melhorar a qualidade das instruções e respostas através de otimização automática"
+    },
+    "crewai": {
+      "repositorio": "joaomdmoura/crewai",
+      "status": "⚠️ Análise Parcial (erro 404 na busca)",
+      "uso_recomendado": "Coordenação de Equipe de Agentes",
+      "tipo_problema": "Gestão de múltiplos agentes especializados trabalhando em conjunto",
+      "informacoes_disponiveis": {
+        "conceito_geral": "Framework focado em Crew (equipes) de agentes com roles definidos",
+        "mecanismos_esperados": [
+          "Crew: Contenedor de múltiplos agentes",
+          "Agent: Especialista com role, goal, tools",
+          "Task: Tarefa a ser executada por um agente",
+          "Process: Tipo de coordenação (sequential, hierarchical, etc)"
+        ]
+      },
+      "forcos_esperados": [
+        "✅ Abstração de 'crew' para equipes",
+        "✅ Agent specialization com roles",
+        "✅ Task-based coordination"
+      ],
+      "fracossos_esperados": [
+        "❌ Menos flexível que AutoGen para handoffs complexos",
+        "❌ Sem otimização nativa de prompts"
+      ],
+      "quando_usar": "Quando você quer uma abstração simples de 'equipe' com coordenação baseada em tarefas"
+    },
+    "haystack": {
+      "repositorio": "deepset-ai/haystack",
+      "status": "✅ Analisado",
+      "uso_recomendado": "RAG Pipelines + Document Retrieval + Processamento de Dados",
+      "tipo_problema": "Construção de pipelines que combinam retrievers, embedders, generators",
+      "arquitetura_chave": {
+        "pattern": "Component-Based Pipeline Architecture",
+        "componentes_principais": [
+          "Pipeline: Contenedor que conecta componentes",
+          "Retrievers: BM25, Embedding-based, Hybrid",
+          "DocumentStore: In-Memory, Azure, etc.",
+          "Generators: OpenAI, Mistral, Llama, etc.",
+          "PromptBuilder: Template-based prompt construction",
+          "DocumentJoiner: Combina resultados de múltiplos retrievers",
+          "AnswerBuilder: Estrutura respostas"
+        ],
+        "padroes_importantes": [
+          "Declarative Pipelines: add_component() + connect()",
+          "Async Support: AsyncPipeline para operações paralelas",
+          "Hybrid Retrieval: Combinação de BM25 + embedding search",
+          "Template Variables: {{variable}} para parametrização",
+          "Stream Processing: Generators que suportam streaming"
+        ]
+      },
+      "arquivos_chave": [
+        "haystack/core/pipeline/pipeline.py",
+        "haystack/core/pipeline/async_pipeline.py",
+        "haystack/core/pipeline/predefined/rag.yaml.jinja2"
+      ],
+      "forcos": [
+        "✅ Pipelines declarativos e visuais",
+        "✅ Hybrid retrieval nativo",
+        "✅ Suporte a múltiplas document stores",
+        "✅ Async/await para operações paralelas",
+        "✅ Template-based prompt construction"
+      ],
+      "fracossos": [
+        "❌ Não foca em orquestração de agentes",
+        "❌ Sem otimização nativa de prompts",
+        "❌ Mais orientado a RAG que a agentes autônomos"
+      ],
+      "quando_usar": "Quando você precisa construir pipelines RAG complexos com retrievers diversos"
+    },
+    "chroma": {
+      "repositorio": "chroma-core/chroma",
+      "status": "✅ Analisado",
+      "uso_recomendado": "Vector Database + Semantic Search + Retrieval",
+      "tipo_problema": "Armazenamento e busca de embeddings para RAG e retrieval",
+      "arquitetura_chave": {
+        "pattern": "Vector Database with Embedding Functions",
+        "componentes_principais": [
+          "ChromaClient: Cliente para servidor local/Chroma Cloud",
+          "Collection: Contenedor de documentos com embeddings",
+          "EmbeddingFunction: Interface para gerar embeddings",
+          "Query API: Busca por similaridade vetorial",
+          "Metadata Filtering: Filtros por payload metadata"
+        ],
+        "padroes_importantes": [
+          "Auto-Embedding: Automático com `query_texts` (não precisa de embeddings)",
+          "Multiple Embedding Providers: OpenAI, Sentence Transformers, Ollama, etc.",
+          "Distance Metrics: cosine (padrão), l2, ip",
+          "Metadata Storage: JSON payload com cada documento",
+          "Search API: Busca com filtros e ranking customizado"
+        ]
+      },
+      "arquivos_chave": [
+        "chromadb/utils/embedding_functions/",
+        "clients/new-js/packages/chromadb/src/collection.ts",
+        "docs/docs.trychroma.com/markdoc/content/docs/querying-collections/query-and-get.md"
+      ],
+      "forcos": [
+        "✅ Simplicidade de uso",
+        "✅ Múltiplos provedores de embedding",
+        "✅ Local ou Cloud deployment",
+        "✅ Metadata filtering nativo",
+        "✅ Search API avançada com ranking"
+      ],
+      "fracossos": [
+        "❌ Não é para orquestração de agentes",
+        "❌ Foco exclusivo em vector search",
+        "❌ Sem suporte a sparse vectors completo"
+      ],
+      "quando_usar": "Quando você precisa de um vector database simples e eficiente para armazenar embeddings"
+    },
+    "qdrant": {
+      "repositorio": "qdrant/qdrant",
+      "status": "✅ Analisado",
+      "uso_recomendado": "Vector Database Escalável + Advanced Search + Sparse/Dense Vectors",
+      "tipo_problema": "Busca de vetores em escala (bilhões de vetores) com features avançadas",
+      "arquitetura_chave": {
+        "pattern": "Distributed Vector Database with HNSW Index",
+        "componentes_principais": [
+          "Collection: Contenedor distribuído de vetores",
+          "VectorIndex: HNSW (padrão), Flat, Sparse",
+          "Filter: Metadata filtering com operadores lógicos",
+          "Search API: Busca de vizinhos mais próximos",
+          "Quantization: Compressão vetorial (u8, binary, etc.)",
+          "Sparse Vectors: Suporte a BM25-like sparse vectors"
+        ],
+        "padroes_importantes": [
+          "HNSW Indexing: Hierarchical Navigable Small World para busca eficiente",
+          "Quantization: Redução de RAM (4x-32x) com trade-off de precisão",
+          "Hybrid Search: Dense + Sparse vectors simultaneamente",
+          "Filtering Conditions: should, must, must_not com operadores complexos",
+          "Batch Search: Múltiplas buscas em uma requisição",
+          "Server-side Inference: Embeddings gerados no servidor"
+        ],
+        "tipos_query": [
+          "Nearest: Similaridade K-NN clássica",
+          "Recommend: Recomendação com exemplos positivos/negativos",
+          "Discover: Busca com constraints de similaridade",
+          "Context: Query com pares contexto-negativo",
+          "Fusion: Combinação de múltiplas buscas com RRF/score-based"
+        ]
+      },
+      "arquivos_chave": [
+        "lib/segment/src/index/hnsw_index/hnsw.rs",
+        "lib/collection/src/shards/local_shard/search.rs",
+        "src/tonic/api/query_common.rs",
+        "lib/segment/src/vector_storage/query/mod.rs"
+      ],
+      "forcos": [
+        "✅ Escalabilidade bilhões de vetores",
+        "✅ HNSW indexing ultra-rápido",
+        "✅ Quantization inteligente",
+        "✅ Suporte a sparse vectors (BM25-like)",
+        "✅ Hybrid search (dense + sparse)",
+        "✅ Filtering complexo",
+        "✅ Distributed sharding"
+      ],
+      "fracossos": [
+        "❌ Complexidade maior que Chroma",
+        "❌ Sem orquestração de agentes",
+        "❌ Curva de aprendizado maior"
+      ],
+      "quando_usar": "Quando você precisa buscar em bilhões de vetores com features avançadas e performance extrema"
+    }
+  },
+  "recomendacoes_integracao": {
+    "arquitetura_proposta": "4-Tier Agent Architecture com RAG Avançado",
+    "titulo": "Arquitetura Híbrida para Assistente Jurídico PJe",
+    "tier_1_orquestracao": {
+      "nome": "Tier 1: Orquestração",
+      "framework": "AutoGen (MagenticOne Orchestrator)",
+      "responsabilidades": [
+        "Coordenar 15 agentes jurídicos especializados",
+        "Detectar e executar handoffs entre agentes",
+        "Persistir estado da conversa e tarefas em progresso",
+        "Gerenciar GroupChat entre agentes para deliberação"
+      ],
+      "exemplo_uso": "Monitor DJEN detecta publicação → delegação para Mrs. Justin-e → análise → escalação para Gestão de Prazos"
+    },
+    "tier_2_workflow": {
+      "nome": "Tier 2: Workflow Estruturado",
+      "framework": "LangGraph (StateGraph + Conditional Edges)",
+      "responsabilidades": [
+        "Definir fluxo estruturado dentro de cada agente",
+        "Roteamento condicional baseado em análise",
+        "Execução paralela de múltiplas ferramentas",
+        "Tool calling com schema definition"
+      ],
+      "exemplo_uso": "Agente Redação de Petições: Modelo → Retrieve templates → Gerar rascunho → Revisar → Finalizar"
+    },
+    "tier_3_otimizacao": {
+      "nome": "Tier 3: Otimização de Prompts",
+      "framework": "DSPy (Signatures + Teleprompters)",
+      "responsabilidades": [
+        "Otimizar instruções dos agentes automaticamente",
+        "Few-shot example generation baseado em feedback",
+        "Instruction tuning para melhorar qualidade jurídica",
+        "Aprender com correções humanas"
+      ],
+      "exemplo_uso": "GEPA otimiza instruções de redação após operador corrigir minuta gerada"
+    },
+    "tier_4_retrieval": {
+      "nome": "Tier 4: Retrieval & Vector Search",
+      "frameworks": ["Haystack (Pipeline RAG)", "Qdrant (Vector DB)"],
+      "responsabilidades": [
+        "Pipelines RAG para recuperação de jurisprudência",
+        "Busca híbrida (dense + sparse) de precedentes",
+        "Filtragem complexa de casos similares",
+        "Ranking customizado para relevância jurídica"
+      ],
+      "exemplo_uso": "Pesquisa Jurisprudencial: Query jurídica → Decomposição (Haystack) → Dense+Sparse search (Qdrant)"
+    },
+    "integracao_crewai": {
+      "status": "OPCIONAL - Redunância com AutoGen",
+      "quando_usar": "Se preferir abstração mais simples de 'equipes', mas sacrificará flexibilidade"
+    }
+  },
+  "ordem_implementacao": {
+    "fase_1_base": {
+      "numero": 1,
+      "titulo": "Base de Agentes e Workflow",
+      "duracacao": "2-3 semanas",
+      "tasks": [
+        {
+          "ordem": 1,
+          "titulo": "Setup LangGraph",
+          "detalhes": "Instalar langraph + langgraph-cli, criar estrutura base de StateGraph",
+          "arquivos_criar": [
+            "src/agents/base/langgraph_agent.ts",
+            "src/agents/base/agent_state.ts",
+            "src/agents/graph_builder.ts"
+          ]
+        },
+        {
+          "ordem": 2,
+          "titulo": "Implementar 1º Agente com LangGraph",
+          "detalhes": "Monitor DJEN: Detecção → Análise → Escalação",
+          "arquivos_criar": [
+            "src/agents/monitor-djen/monitor_graph.ts",
+            "src/agents/monitor-djen/nodes/detect_node.ts",
+            "src/agents/monitor-djen/nodes/analyze_node.ts"
+          ]
+        },
+        {
+          "ordem": 3,
+          "titulo": "Setup AutoGen MagenticOne",
+          "detalhes": "Instalar autogen, criar estrutura de Message routing",
+          "arquivos_criar": ["api/agents/autogen_orchestrator.ts", "api/agents/agent_registry.ts"]
+        }
+      ]
+    },
+    "fase_2_integracao": {
+      "numero": 2,
+      "titulo": "Integração de Retrieval e RAG",
+      "duracao": "2-3 semanas",
+      "tasks": [
+        {
+          "ordem": 1,
+          "titulo": "Setup Qdrant",
+          "detalhes": "Instalar client, criar collections para jurisprudência",
+          "arquivos_criar": ["src/lib/qdrant-service.ts", "src/lib/qdrant-queries.ts"]
+        },
+        {
+          "ordem": 2,
+          "titulo": "Haystack RAG Pipelines",
+          "detalhes": "Criar pipelines para recuperação de precedentes",
+          "arquivos_criar": ["api/lib/haystack-pipelines.ts", "api/lib/hybrid-retrieval.ts"]
+        },
+        {
+          "ordem": 3,
+          "titulo": "Integrar com Agente Pesquisa Jurisprudencial",
+          "detalhes": "Conectar Qdrant + Haystack ao agente de pesquisa"
+        }
+      ]
+    },
+    "fase_3_otimizacao": {
+      "numero": 3,
+      "titulo": "DSPy Optimization Loop",
+      "duracao": "1-2 semanas",
+      "tasks": [
+        {
+          "ordem": 1,
+          "titulo": "Setup DSPy Python Bridge",
+          "detalhes": "Criar API em Python que roda optimizers de DSPy",
+          "arquivos_criar": ["scripts/dspy_optimizer.py", "api/dspy-optimize.ts"]
+        },
+        {
+          "ordem": 2,
+          "titulo": "Implementar Few-Shot Generation",
+          "detalhes": "COPRO para gerar exemplos de redação jurídica"
+        },
+        {
+          "ordem": 3,
+          "titulo": "Feedback Loop de Operador",
+          "detalhes": "Quando operador corrige minuta, treinar novo prompt"
+        }
+      ]
+    },
+    "fase_4_escalacao": {
+      "numero": 4,
+      "titulo": "Escalação para 15 Agentes",
+      "duracao": "3-4 semanas",
+      "tasks": [
+        {
+          "ordem": 1,
+          "titulo": "Template de Agente Reutilizável",
+          "detalhes": "Factory pattern para criar novos agentes rapidamente"
+        },
+        {
+          "ordem": 2,
+          "titulo": "Implementar 14 Agentes Restantes",
+          "detalhes": "Seguindo padrão estabelecido na fase 1"
+        }
+      ]
+    }
+  },
+  "conflitos_e_resolucoes": {
+    "conflito_1": {
+      "titulo": "AutoGen vs CrewAI para Orquestração",
+      "problema": "Ambos coordenam múltiplos agentes, qual escolher?",
+      "recomendacao": "AutoGen",
+      "justificativa": "MagenticOne é mais sofisticado para handoffs complexos e estado persistente. CrewAI é mais simples mas menos flexível."
+    },
+    "conflito_2": {
+      "titulo": "LangGraph vs AutoGen para Workflow Interno",
+      "problema": "AutoGen já gerencia fluxo, por que LangGraph?",
+      "recomendacao": "Ambos - Separação de Conceitos",
+      "justificativa": "AutoGen em nível macro (entre agentes), LangGraph em nível micro (dentro de cada agente). Cada um em seu escopo."
+    },
+    "conflito_3": {
+      "titulo": "Chroma vs Qdrant",
+      "problema": "Ambos são vector DBs, qual é mais apropriado?",
+      "recomendacao": "Qdrant",
+      "justificativa": "Para assistente jurídico com bilhões de precedentes, escalabilidade de Qdrant é crítica. Chroma é para casos menores."
+    },
+    "conflito_4": {
+      "titulo": "DSPy em TypeScript vs Python",
+      "problema": "DSPy é Python-first, projeto é TypeScript",
+      "recomendacao": "Bridge via API",
+      "justificativa": "Rodar otimizers de DSPy em processo Python separado, chamar via API HTTP de TypeScript"
+    }
+  },
+  "dependencias_externas": {
+    "npm_packages": [
+      "langraph (LangGraph core)",
+      "@langchain/core (base types)",
+      "@langchain/anthropic ou @langchain/openai (LLM)",
+      "qdrant-js (Qdrant client)"
+    ],
+    "python_packages": [
+      "dspy-ai (DSPy framework)",
+      "haystack-ai (Haystack 2.x)",
+      "fastapi (API para otimizers)",
+      "uvicorn (ASGI server)"
+    ],
+    "observacoes": "AutoGen pode estar em Python ou TypeScript conforme necessário"
+  },
+  "arquivos_a_criar": {
+    "estrutura_diretorios": {
+      "src/agents/": {
+        "base/": [
+          "langgraph_agent.ts - Base class para agentes com LangGraph",
+          "agent_state.ts - TypedDict com estado compartilhado",
+          "agent_registry.ts - Registro de todos agentes"
+        ],
+        "monitor-djen/": [
+          "monitor_graph.ts - StateGraph do Monitor DJEN",
+          "nodes/detect_node.ts - Nó de detecção",
+          "nodes/analyze_node.ts - Nó de análise"
+        ],
+        "redacao-peticoes/": [
+          "redacao_graph.ts - StateGraph de redação",
+          "nodes/template_node.ts - Seleção de template",
+          "nodes/generate_node.ts - Geração com LLM",
+          "nodes/review_node.ts - Revisão automática"
+        ]
+      },
+      "api/agents/": {
+        "_": [
+          "autogen_orchestrator.ts - MagenticOne orchestrator",
+          "orchestrator_service.ts - Serviço de orquestração"
+        ]
+      },
+      "src/lib/": {
+        "_": [
+          "qdrant-service.ts - Cliente Qdrant",
+          "qdrant-queries.ts - Queries pré-definidas",
+          "haystack-integration.ts - Integração com Haystack"
+        ]
+      },
+      "scripts/": {
+        "_": [
+          "dspy_optimizer.py - Script de otimização de prompts",
+          "seed_qdrant.py - Populador de vector DB com jurisprudência"
+        ]
+      }
+    },
+    "arquivos_config": [
+      "langgraph.json - Configuração LangGraph",
+      ".env.agents - Variáveis de ambiente dos agentes"
+    ]
+  },
+  "metricas_sucesso": {
+    "fase_1": "2+ agentes (Monitor DJEN, Redação) operando com LangGraph",
+    "fase_2": "Buscas em Qdrant retornando precedentes jurídicos com score > 0.85",
+    "fase_3": "Otimizer DSPy melhorando qualidade de prompts em 15%+",
+    "fase_4": "Todos 15 agentes operando, coordenados por AutoGen"
+  },
+  "recursos_referencia": {
+    "langgraph": [
+      "https://langchain-ai.github.io/langgraph/",
+      "https://github.com/langchain-ai/langgraph/blob/main/examples/README.md"
+    ],
+    "autogen": [
+      "https://microsoft.github.io/autogen/",
+      "https://github.com/microsoft/autogen/tree/main/python/samples"
+    ],
+    "dspy": [
+      "https://github.com/stanfordnlp/dspy",
+      "https://github.com/stanfordnlp/dspy/blob/main/README.md"
+    ],
+    "qdrant": ["https://qdrant.tech/documentation/", "https://github.com/qdrant/qdrant-client-js"],
+    "haystack": ["https://docs.haystack.deepset.ai/", "https://github.com/deepset-ai/haystack"]
+  }
+}

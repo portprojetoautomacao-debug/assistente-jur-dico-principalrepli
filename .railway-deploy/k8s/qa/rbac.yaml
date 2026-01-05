@@ -1,0 +1,36 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gitlab-agent-qa
+  labels:
+    environment: qa
+    project: assistente-juridico
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-agent-qa-binding
+  labels:
+    environment: qa
+    project: assistente-juridico
+subjects:
+- kind: ServiceAccount
+  name: gitlab-agent
+  namespace: qa
+roleRef:
+  kind: ClusterRole
+  name: gitlab-agent-qa
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitlab-agent
+  namespace: qa
+  labels:
+    environment: qa
+    project: assistente-juridico

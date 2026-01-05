@@ -1,0 +1,451 @@
+spec:
+  inputs:
+    stage:
+      default: test
+      description: "Stage onde os testes de API serão executados"
+    api_base_url:
+      description: "URL base da API para testes"
+    api_endpoints:
+      description: "Lista de endpoints para testar (separados por vírgula)"
+    test_type:
+      default: "smoke"
+      description: "Tipo de teste: smoke, integration, load, security"
+      options: ["smoke", "integration", "load", "security"]
+    auth_token:
+      description: "Token de autenticação para API"
+    auth_type:
+      default: "bearer"
+      description: "Tipo de autenticação: bearer, basic, api-key"
+      options: ["bearer", "basic", "api-key"]
+    timeout:
+      default: "30"
+      description: "Timeout em segundos para cada requisição"
+    retries:
+      default: "3"
+      description: "Número de tentativas para cada endpoint"
+    expected_status_codes:
+      default: "200,201,204"
+      description: "Códigos de status esperados (separados por vírgula)"
+    performance_threshold:
+      default: "5000"
+      description: "Threshold de performance em ms (para testes de carga)"
+    security_headers:
+      default: true
+      description: "Verificar headers de segurança"
+    generate_report:
+      default: true
+      description: "Gerar relatório de testes"
+
+# Componente de Testes de API para Aplicações Jurídicas
+# Suporte a testes smoke, integração, carga e segurança
+
+api-smoke-test:
+  stage: $[[ inputs.stage ]]
+  image: node:18-alpine
+  before_script:
+    - apk add --no-cache curl jq
+    - npm install -g newman
+  script:
+    - echo "🧪 Executando testes smoke da API..."
+    - |
+      # Configurar variáveis
+      BASE_URL="$[[ inputs.api_base_url ]]"
+      ENDPOINTS="$[[ inputs.api_endpoints ]]"
+      AUTH_TOKEN="$[[ inputs.auth_token ]]"
+      AUTH_TYPE="$[[ inputs.auth_type ]]"
+      TIMEOUT="$[[ inputs.timeout ]]"
+      RETRIES="$[[ inputs.retries ]]"
+      EXPECTED_CODES="$[[ inputs.expected_status_codes ]]"
+
+      # Criar coleção Postman
+      COLLECTION_FILE="api-smoke-tests.postman_collection.json"
+      cat > "$COLLECTION_FILE" << EOF
+      {
+        "info": {
+          "name": "API Smoke Tests - Assistente Jurídico",
+          "description": "Testes automatizados de fumaça para API jurídica"
+        },
+        "item": [
+      EOF
+
+      # Adicionar endpoints à coleção
+      IFS=',' read -ra ENDPOINT_ARRAY <<< "$ENDPOINTS"
+      for endpoint in "${ENDPOINT_ARRAY[@]}"; do
+        endpoint=$(echo "$endpoint" | xargs)  # Trim whitespace
+
+        # Determinar método HTTP baseado no endpoint
+        if [[ "$endpoint" == *"create"* ]] || [[ "$endpoint" == *"add"* ]]; then
+          METHOD="POST"
+        elif [[ "$endpoint" == *"update"* ]] || [[ "$endpoint" == *"edit"* ]]; then
+          METHOD="PUT"
+        elif [[ "$endpoint" == *"delete"* ]] || [[ "$endpoint" == *"remove"* ]]; then
+          METHOD="DELETE"
+        else
+          METHOD="GET"
+        fi
+
+        # Adicionar item à coleção
+        cat >> "$COLLECTION_FILE" << EOF
+          {
+            "name": "Test $METHOD $endpoint",
+            "request": {
+              "method": "$METHOD",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+      EOF
+
+        # Adicionar autenticação
+        case "$AUTH_TYPE" in
+          bearer)
+            if [ -n "$AUTH_TOKEN" ]; then
+              cat >> "$COLLECTION_FILE" << EOF
+                ,
+                {
+                  "key": "Authorization",
+                  "value": "Bearer $AUTH_TOKEN"
+                }
+      EOF
+            fi
+            ;;
+          basic)
+            if [ -n "$AUTH_TOKEN" ]; then
+              cat >> "$COLLECTION_FILE" << EOF
+                ,
+                {
+                  "key": "Authorization",
+                  "value": "Basic $AUTH_TOKEN"
+                }
+      EOF
+            fi
+            ;;
+          api-key)
+            if [ -n "$AUTH_TOKEN" ]; then
+              cat >> "$COLLECTION_FILE" << EOF
+                ,
+                {
+                  "key": "X-API-Key",
+                  "value": "$AUTH_TOKEN"
+                }
+      EOF
+            fi
+            ;;
+        esac
+
+        # Completar request
+        cat >> "$COLLECTION_FILE" << EOF
+              ],
+              "url": {
+                "raw": "{{base_url}}$endpoint",
+                "host": ["{{base_url}}"],
+                "path": ["$endpoint"]
+              },
+              "description": "Smoke test for $endpoint"
+            },
+            "response": []
+          },
+      EOF
+      done
+
+      # Fechar coleção
+      sed -i '$ s/,$//' "$COLLECTION_FILE"  # Remove última vírgula
+      cat >> "$COLLECTION_FILE" << EOF
+        ],
+        "variable": [
+          {
+            "key": "base_url",
+            "value": "$BASE_URL"
+          }
+        ]
+      }
+      EOF
+
+      # Executar testes com Newman
+      echo "🚀 Executando coleção Postman..."
+      newman run "$COLLECTION_FILE" \
+        --timeout $TIMEOUT \
+        --delay-request 1000 \
+        --reporters cli,json \
+        --reporter-json-export "api-smoke-results.json"
+
+      # Verificar resultados
+      SUCCESS_COUNT=$(jq '.run.stats.assertions.total' api-smoke-results.json)
+      FAILURE_COUNT=$(jq '.run.stats.assertions.failed' api-smoke-results.json)
+
+      echo "📊 Resultados dos testes smoke:"
+      echo "✅ Sucessos: $SUCCESS_COUNT"
+      echo "❌ Falhas: $FAILURE_COUNT"
+
+      if [ "$FAILURE_COUNT" -gt 0 ]; then
+        echo "❌ Alguns testes smoke falharam"
+        exit 1
+      fi
+
+      echo "✅ Todos os testes smoke passaram!"
+  artifacts:
+    reports:
+      junit: api-smoke-results.json
+    expire_in: 1 week
+  allow_failure: false
+  rules:
+    - if: $CI_COMMIT_BRANCH && $[[ inputs.test_type ]] == "smoke"
+    - when: always
+
+api-integration-test:
+  stage: $[[ inputs.stage ]]
+  image: node:18-alpine
+  before_script:
+    - apk add --no-cache curl jq
+    - npm install -g artillery
+  script:
+    - echo "🔗 Executando testes de integração da API..."
+    - |
+      # Configurar variáveis
+      BASE_URL="$[[ inputs.api_base_url ]]"
+      ENDPOINTS="$[[ inputs.api_endpoints ]]"
+      AUTH_TOKEN="$[[ inputs.auth_token ]]"
+      AUTH_TYPE="$[[ inputs.auth_type ]]"
+
+      # Criar script Artillery
+      ARTILLERY_FILE="api-integration-test.yml"
+      cat > "$ARTILLERY_FILE" << EOF
+      config:
+        target: '$BASE_URL'
+        phases:
+          - duration: 60
+            arrivalRate: 5
+            name: Warm up
+          - duration: 120
+            arrivalRate: 10
+            name: Load test
+        defaults:
+          headers:
+            Content-Type: 'application/json'
+      EOF
+
+      # Adicionar autenticação
+      case "$AUTH_TYPE" in
+        bearer)
+          if [ -n "$AUTH_TOKEN" ]; then
+            cat >> "$ARTILLERY_FILE" << EOF
+            Authorization: 'Bearer $AUTH_TOKEN'
+      EOF
+          fi
+          ;;
+        basic)
+          if [ -n "$AUTH_TOKEN" ]; then
+            cat >> "$ARTILLERY_FILE" << EOF
+            Authorization: 'Basic $AUTH_TOKEN'
+      EOF
+          fi
+          ;;
+        api-key)
+          if [ -n "$AUTH_TOKEN" ]; then
+            cat >> "$ARTILLERY_FILE" << EOF
+            X-API-Key: '$AUTH_TOKEN'
+      EOF
+          fi
+          ;;
+      esac
+
+      # Adicionar cenários de teste
+      cat >> "$ARTILLERY_FILE" << EOF
+      scenarios:
+      EOF
+
+      # Adicionar endpoints aos cenários
+      IFS=',' read -ra ENDPOINT_ARRAY <<< "$ENDPOINTS"
+      for endpoint in "${ENDPOINT_ARRAY[@]}"; do
+        endpoint=$(echo "$endpoint" | xargs)
+
+        # Determinar método baseado no endpoint
+        if [[ "$endpoint" == *"create"* ]] || [[ "$endpoint" == *"add"* ]]; then
+          METHOD="POST"
+          PAYLOAD='{"test": "integration"}'
+        elif [[ "$endpoint" == *"update"* ]] || [[ "$endpoint" == *"edit"* ]]; then
+          METHOD="PUT"
+          PAYLOAD='{"test": "integration", "id": "123"}'
+        elif [[ "$endpoint" == *"delete"* ]] || [[ "$endpoint" == *"remove"* ]]; then
+          METHOD="DELETE"
+          PAYLOAD=""
+        else
+          METHOD="GET"
+          PAYLOAD=""
+        fi
+
+        cat >> "$ARTILLERY_FILE" << EOF
+        - name: 'Test $METHOD $endpoint'
+          flow:
+          - $METHOD:
+              url: '$endpoint'
+      EOF
+
+        if [ -n "$PAYLOAD" ]; then
+          cat >> "$ARTILLERY_FILE" << EOF
+              json: $PAYLOAD
+      EOF
+        fi
+
+        cat >> "$ARTILLERY_FILE" << EOF
+              expect:
+                - statusCode: [200, 201, 204]
+              capture:
+                - json: '$.id'
+                  as: 'resourceId'
+      EOF
+      done
+
+      # Executar testes
+      echo "🚀 Executando testes de integração..."
+      artillery run "$ARTILLERY_FILE" --output "api-integration-results.json"
+
+      # Verificar resultados
+      REQUESTS=$(jq '.aggregate.counters."http.requests"' api-integration-results.json)
+      ERRORS=$(jq '.aggregate.counters."errors.ETIMEDOUT"' api-integration-results.json 2>/dev/null || echo 0)
+      RESPONSE_TIME=$(jq '.aggregate.summaries."http.response_time".median' api-integration-results.json)
+
+      echo "📊 Resultados dos testes de integração:"
+      echo "📡 Requisições: $REQUESTS"
+      echo "⚠️  Erros: $ERRORS"
+      echo "⏱️  Tempo médio de resposta: ${RESPONSE_TIME}ms"
+
+      if [ "$ERRORS" -gt 0 ]; then
+        echo "❌ Testes de integração falharam com erros"
+        exit 1
+      fi
+
+      echo "✅ Testes de integração concluídos!"
+  artifacts:
+    reports:
+      junit: api-integration-results.json
+    expire_in: 1 week
+  allow_failure: false
+  rules:
+    - if: $CI_COMMIT_BRANCH && $[[ inputs.test_type ]] == "integration"
+    - when: always
+
+api-security-test:
+  stage: $[[ inputs.stage ]]
+  image: node:18-alpine
+  before_script:
+    - apk add --no-cache curl jq nmap
+    - npm install -g retire
+  script:
+    - echo "🔒 Executando testes de segurança da API..."
+    - |
+      # Configurar variáveis
+      BASE_URL="$[[ inputs.api_base_url ]]"
+      ENDPOINTS="$[[ inputs.api_endpoints ]]"
+
+      # Extrair host da URL
+      HOST=$(echo "$BASE_URL" | sed 's|https://||' | sed 's|http://||' | cut -d'/' -f1)
+
+      echo "🔍 Executando verificações de segurança..."
+
+      # Verificar headers de segurança
+      if [ "$[[ inputs.security_headers ]]" = "true" ]; then
+        echo "🛡️  Verificando headers de segurança..."
+
+        # Testar endpoint principal
+        RESPONSE=$(curl -I -s "$BASE_URL" 2>/dev/null)
+
+        # Verificar headers críticos
+        SECURITY_HEADERS=(
+          "Strict-Transport-Security"
+          "X-Content-Type-Options"
+          "X-Frame-Options"
+          "X-XSS-Protection"
+          "Content-Security-Policy"
+          "Referrer-Policy"
+        )
+
+        MISSING_HEADERS=()
+        for header in "${SECURITY_HEADERS[@]}"; do
+          if ! echo "$RESPONSE" | grep -i "$header:" >/dev/null; then
+            MISSING_HEADERS+=("$header")
+          fi
+        done
+
+        if [ ${#MISSING_HEADERS[@]} -gt 0 ]; then
+          echo "⚠️  Headers de segurança ausentes:"
+          printf '  - %s\n' "${MISSING_HEADERS[@]}"
+        else
+          echo "✅ Todos os headers de segurança estão presentes"
+        fi
+      fi
+
+      # Verificar vulnerabilidades em dependências
+      echo "📦 Verificando vulnerabilidades em dependências..."
+      if [ -f "package.json" ]; then
+        npm audit --audit-level moderate --json > npm-audit-results.json 2>/dev/null || true
+
+        VULNERABILITIES=$(jq '.metadata.vulnerabilities.total // 0' npm-audit-results.json 2>/dev/null || echo 0)
+
+        if [ "$VULNERABILITIES" -gt 0 ]; then
+          echo "⚠️  Encontradas $VULNERABILITIES vulnerabilidades em dependências"
+          npm audit --audit-level moderate
+        else
+          echo "✅ Nenhuma vulnerabilidade crítica encontrada"
+        fi
+      fi
+
+      # Testar injeção básica
+      echo "💉 Testando vulnerabilidades de injeção..."
+      IFS=',' read -ra ENDPOINT_ARRAY <<< "$ENDPOINTS"
+      for endpoint in "${ENDPOINT_ARRAY[@]}"; do
+        endpoint=$(echo "$endpoint" | xargs)
+
+        # Testar SQL injection básica
+        SQL_PAYLOAD='{"test": "1 OR 1=1"}'
+        RESPONSE=$(curl -s -X POST "$BASE_URL$endpoint" \
+          -H "Content-Type: application/json" \
+          -d "$SQL_PAYLOAD" 2>/dev/null)
+
+        if echo "$RESPONSE" | grep -i "error\|exception\|sql" >/dev/null; then
+          echo "⚠️  Possível vulnerabilidade SQLi detectada em $endpoint"
+        fi
+
+        # Testar XSS básico
+        XSS_PAYLOAD='{"test": "<script>alert(1)</script>"}'
+        RESPONSE=$(curl -s -X POST "$BASE_URL$endpoint" \
+          -H "Content-Type: application/json" \
+          -d "$XSS_PAYLOAD" 2>/dev/null)
+
+        if echo "$RESPONSE" | grep -i "<script>" >/dev/null; then
+          echo "⚠️  Possível vulnerabilidade XSS detectada em $endpoint"
+        fi
+      done
+
+      # Verificar exposição de informações sensíveis
+      echo "🔍 Verificando exposição de informações..."
+      SENSITIVE_PATTERNS=(
+        "password"
+        "secret"
+        "key"
+        "token"
+        "credential"
+        "private"
+      )
+
+      for endpoint in "${ENDPOINT_ARRAY[@]}"; do
+        endpoint=$(echo "$endpoint" | xargs)
+        RESPONSE=$(curl -s "$BASE_URL$endpoint" 2>/dev/null)
+
+        for pattern in "${SENSITIVE_PATTERNS[@]}"; do
+          if echo "$RESPONSE" | grep -i "$pattern" >/dev/null; then
+            echo "⚠️  Possível exposição de informação sensível ($pattern) em $endpoint"
+          fi
+        done
+      done
+
+      echo "✅ Verificações de segurança concluídas!"
+  artifacts:
+    reports:
+      junit: api-security-results.json
+    expire_in: 1 week
+  allow_failure: false
+  rules:
+    - if: $CI_COMMIT_BRANCH && $[[ inputs.test_type ]] == "security"
+    - when: always

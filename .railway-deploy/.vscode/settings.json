@@ -1,0 +1,513 @@
+{
+  // ========================================
+  // 🤖 GITHUB COPILOT - AGENTE DE CODIFICAÇÃO
+  // ========================================
+
+  // Habilitar Copilot Instruction Files (copilot-instructions.md)
+  "github.copilot.chat.useInstructionFiles": true,
+
+  // Configuração de Ambiente para Testes (PostgreSQL)
+  "terminal.integrated.env.linux": {
+    "DATABASE_URL": "postgresql://neondb_owner:npg_6qYj5hXWJzLB@ep-lively-firefly-a85y0w0i-pooler.eastus2.azure.neon.tech/neondb?sslmode=require"
+  },
+
+  // Configurações avançadas do Copilot
+  "github.copilot.chat.alternateGptPrompt.enabled": true,
+  "github.copilot.chat.anthropic.thinking.enabled": true,
+  "github.copilot.chat.anthropic.tools.websearch.enabled": true,
+  "github.copilot.chat.codesearch.enabled": true,
+  "github.copilot.editor.enableAutoCompletions": true,
+
+  // 🚀 AUTOMAÇÃO MÁXIMA - Copilot trabalha sozinho
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "plaintext": false,
+    "markdown": true
+  },
+  "github.copilot.advanced": {
+    "debug.overrideEngine": "gpt-4o",
+    "inlineSuggestCount": 3,
+    "listCount": 10
+  },
+
+  // Instruções contextuais para geração de código
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "text": "Sempre siga as instruções em .github/copilot-instructions.md"
+    },
+    {
+      "text": "Modo MANUTENÇÃO: Apenas corrigir bugs, não adicionar features"
+    },
+    {
+      "text": "Antes de qualquer mudança, execute verificação diária do sistema automático"
+    },
+    {
+      "text": "Use TypeScript strict mode e valide tipos"
+    },
+    {
+      "text": "Siga padrões React 19 com componentes funcionais"
+    },
+    {
+      "text": "Mantenha compatibilidade com Vercel serverless (Node.js 22.x)"
+    }
+  ],
+
+  // ========================================
+  // 🐍 PYTHON & JUPYTER CONFIGURATION
+  // ========================================
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv-1/bin/python",
+  "python.terminal.activateEnvironment": true,
+
+  // Jupyter Settings (Official Configuration)
+  "jupyter.allowUnauthorizedRemoteConnection": false,
+  "jupyter.askForKernelRestart": true,
+  "jupyter.askForLargeDataFrames": true,
+  "jupyter.completionTriggerCharacters": {
+    "bash": ["$", "{"],
+    "java": [".", "@", "#"],
+    "javascript": [".", "\"", "'", "/", "@"],
+    "python": [".", "%", "'", "\""],
+    "julia": ["."],
+    "r": ["[", "(", ",", "$", "@", "\"", "'"],
+    "rust": [".", ":"],
+    "scala": ["."],
+    "typescript": [".", "\"", "'", "/", "@", "<"]
+  },
+  "jupyter.debugJustMyCode": true,
+  "jupyter.debugpyDistPath": "",
+  "jupyter.disableJupyterAutoStart": false,
+  "jupyter.enableExtendedKernelCompletions": false,
+  "jupyter.enableExtendedPythonKernelCompletions": false,
+  "jupyter.enableKernelCompletions": true,
+  "jupyter.excludeUserSitePackages": false,
+  "jupyter.executionAnalysis.enabled": false,
+  "jupyter.experiments.enabled": true,
+  "jupyter.experiments.optInto": [],
+  "jupyter.experiments.optOutFrom": [],
+  "jupyter.exportWithOutputEnabled": false,
+  "jupyter.formatStackTraces": false,
+  "jupyter.interactiveWindow.cellMarker.codeRegex": "^(#\\s*%%|#\\s*\\<codecell\\>|#\\s*In\\[\\d*?\\]|#\\s*In\\[ \\])",
+  "jupyter.interactiveWindow.cellMarker.decorateCells": "currentCell",
+  "jupyter.interactiveWindow.cellMarker.default": "# %%",
+  "jupyter.interactiveWindow.cellMarker.markdownRegex": "^(#\\s*%%\\s*\\[markdown\\]|#\\s*\\<markdowncell\\>)",
+  "jupyter.interactiveWindow.codeLens.commands": "jupyter.runcell, jupyter.runallcellsabove, jupyter.debugcell",
+  "jupyter.interactiveWindow.codeLens.debugCommands": "jupyter.debugcontinue, jupyter.debugstop, jupyter.debugstepover",
+  "jupyter.interactiveWindow.codeLens.enable": true,
+  "jupyter.interactiveWindow.codeLens.enableGotoCell": true,
+  "jupyter.interactiveWindow.creationMode": "multiple",
+  "jupyter.interactiveWindow.notebookRepl": false,
+  "jupyter.interactiveWindow.splitRunFileIntoCells": true,
+  "jupyter.interactiveWindow.textEditor.autoAddNewCell": true,
+  "jupyter.interactiveWindow.textEditor.autoMoveToNextCell": true,
+  "jupyter.interactiveWindow.textEditor.cellFolding": true,
+  "jupyter.interactiveWindow.textEditor.executeSelection": false,
+  "jupyter.interactiveWindow.textEditor.magicCommandsAsComments": false,
+  "jupyter.interactiveWindow.textEditor.normalizeSelection": false,
+  "jupyter.interactiveWindow.viewColumn": "secondGroup",
+  "jupyter.jupyterCommandLineArguments": [],
+  "jupyter.jupyterInterruptTimeout": 10000,
+  "jupyter.jupyterLaunchRetries": 3,
+  "jupyter.jupyterLaunchTimeout": 60000,
+  "jupyter.kernels.excludePythonEnvironments": [],
+  "jupyter.kernels.trusted": [],
+  "jupyter.logging.level": "info",
+  "jupyter.logKernelOutputSeparately": false,
+  "jupyter.notebookFileRoot": "${fileDirname}",
+  "jupyter.pythonCompletionTriggerCharacters": ".%'\"",
+  "jupyter.pythonExportMethod": "direct",
+  "jupyter.runStartupCommands": "",
+  "jupyter.showOutlineButtonInNotebookToolbar": true,
+  "jupyter.showVariableViewWhenDebugging": false,
+  "jupyter.stopOnFirstLineWhileDebugging": true,
+  "jupyter.themeMatplotlibPlots": false,
+  "jupyter.useDefaultConfigForJupyter": true,
+  "jupyter.variableExplorerExclude": "module;function;builtin_function_or_method;ABCMeta;type;ModelMetaclass",
+  "jupyter.widgetScriptSources": [],
+
+  // ========================================
+  // 🛠️ CONFIGURAÇÕES GERAIS
+  // ========================================
+
+  // ========================================
+  // 🐰 CODERABBIT - AI CODE REVIEW
+  // ========================================
+
+  // Agente IA para aplicar fixes (Native = GitHub Copilot integrado)
+  "coderabbit.agentType": "Native",
+
+  // Modo de review automático após commits
+  // "prompt" = Pergunta se quer revisar | "auto" = Revisa automaticamente | "off" = Desabilitado
+  "coderabbit.autoReviewMode": "prompt",
+
+  // ========================================
+  // 🎯 SONAR COPILOT ASSISTANT (INTEGRAÇÃO)
+  // ========================================
+
+  // SonarLint + GitHub Copilot = Sonar Copilot Assistant
+  "github.copilot.chat.codeGeneration.useCodeAnalysis": true,
+  "github.copilot.chat.localeOverride": "pt-BR",
+  "github.copilot.chat.welcomeMessage": "first",
+
+  // Copilot Instructions customizadas para SonarQube fixes
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+
+  // ========================================
+  // 🎫 GITHUB ISSUES - CRIAÇÃO AUTOMÁTICA
+  // ========================================
+
+  // Triggers para criar issues automaticamente
+  "githubIssues.createIssueTriggers": [
+    "TODO",
+    "FIXME",
+    "BUG",
+    "HACK",
+    "SECURITY",
+    "JURIDICO",
+    "LGPD"
+  ],
+
+  // ========================================
+  // 📝 EDITOR - AUTOMAÇÃO E FORMATAÇÃO
+  // ========================================
+
+  // Auto-save rápido
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+
+  // Format on save
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": false,
+
+  // ESLint auto-fix on save
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+
+  // Prettier como formatador padrão
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // ========================================
+  // 🔍 TYPESCRIPT & JAVASCRIPT
+  // ========================================
+
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "useFsEvents",
+    "watchDirectory": "useFsEvents",
+    "fallbackPolling": "dynamicPriorityPolling"
+  },
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+
+  // Inlay Hints (sugestões visuais)
+  "typescript.inlayHints.parameterNames.enabled": "all",
+  "typescript.inlayHints.parameterTypes.enabled": true,
+  "typescript.inlayHints.variableTypes.enabled": true,
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+
+  // ========================================
+  // 🎨 TAILWIND CSS
+  // ========================================
+
+  "tailwindCSS.experimental.classRegex": [["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]],
+  "tailwindCSS.emmetCompletions": true,
+
+  // ========================================
+  // ✅ ESLINT
+  // ========================================
+
+  "eslint.enable": true,
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "eslint.format.enable": true,
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ],
+
+  // ========================================
+  // 🧪 TESTES - VITEST
+  // ========================================
+
+  "vitest.enable": true,
+  "vitest.commandLine": "npm run test",
+
+  // ========================================
+  // 🚀 TASKS AUTOMÁTICAS
+  // ========================================
+
+  "task.allowAutomaticTasks": "on",
+  "task.autoDetect": "on",
+
+  // ========================================
+  // 🔐 SEGURANÇA & PRIVACIDADE
+  // ========================================
+
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.vite": true
+  },
+
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.vite": true,
+    "**/coverage": true
+  },
+
+  // ========================================
+  // 🔧 SONARQUBE/SONARLINT
+  // ========================================
+
+  // Conexão com SonarCloud
+  // Projeto: assistente-jur-dico-principal
+  // Organization: thiagobodevanadv-alt
+  // GitHub: github.com/thiagobodevanadv-alt/assistente-jur-dico-principal
+  "sonarlint.connectedMode.connections.sonarcloud": [
+    {
+      "connectionId": "sonarcloud-assistente-juridico",
+      "organizationKey": "portprojetoautomacao-debug",
+      "token": "525735eccb98cf7cdcf0dccf920275f4d37dbe4c"
+    }
+  ],
+
+  // Análise em tempo real
+  "sonarlint.pathToNodeExecutable": "/usr/local/share/nvm/versions/node/v22.21.1/bin/node",
+  "sonarlint.ls.javaHome": "/usr/lib/jvm/java-21-openjdk-amd64",
+  "sonarlint.output.showAnalyzerLogs": true,
+  "sonarlint.output.showVerboseLogs": false,
+  "sonarlint.trace.server": "off",
+  "sonarlint.disableTelemetry": true,
+
+  // Code Actions: Permitir quick fixes do SonarLint
+  "sonarlint.rules": {
+    "typescript:S1128": {
+      "level": "off"
+    }
+  },
+
+  // Integração com Copilot para fixes automáticos
+  "sonarlint.focusOnNewCode": true,
+  "sonarlint.testFilePattern": "**/*.{test,spec}.{ts,tsx,js,jsx}",
+
+  // ========================================
+  // 🎯 EXPERIENCE & UI
+  // ========================================
+
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.startupEditor": "none",
+
+  // Terminal
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.fontSize": 13,
+
+  // Editor
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+  "editor.wordWrap": "on",
+  "editor.minimap.enabled": true,
+  "editor.suggestSelection": "first",
+  "editor.inlineSuggest.enabled": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+
+  // IntelliSense
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+  "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "*test.py"],
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestEnabled": true,
+  "chat.tools.terminal.autoReplyToPrompts": true,
+  "sonarlint.connectedMode.project": {
+    "connectionId": "sonarcloud-assistente-juridico",
+    "projectKey": "thiagobodevanadv-alt_assistente-jur-dico-principal"
+  },
+  "chat.agent.maxRequests": 40,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "notebook.defaultFormatter": "esbenp.prettier-vscode",
+  "sarif-viewer.connectToGithubCodeScanning": "off",
+  "git.autofetch": true,
+  "redhat.telemetry.enabled": true,
+  "git.ignoreLimitWarning": true,
+  "prettier.useTabs": true,
+  "prettier.vueIndentScriptAndStyle": true,
+  "prettier.withNodeModules": true,
+  "prettier.singleQuote": true,
+  "prettier.resolveGlobalModules": true,
+  "prettier.requirePragma": true,
+  "prettier.requireConfig": true,
+  "prettier.jsxSingleQuote": true,
+  "prettier.insertPragma": true,
+  "prettier.experimentalTernaries": true,
+  "prettier.enableDebugLogs": true,
+  "prettier.bracketSameLine": true,
+  "prettier.singleAttributePerLine": true,
+  "chat.mcp.serverSampling": {
+    "assistente-jur-dico-principalrepli/.cursor/mcp.json: sonarqube": {
+      "allowedModels": [
+        "copilot/auto",
+        "copilot/claude-haiku-4.5",
+        "copilot/claude-opus-41",
+        "copilot/claude-opus-4.5",
+        "aitk-foundry/Microsoft Foundry/claude-opus-4-5",
+        "copilot/claude-sonnet-4",
+        "copilot/claude-sonnet-4.5",
+        "aitk-foundry/Microsoft Foundry/claude-sonnet-4-5",
+        "aitk-github/GitHub/Codestral-2501",
+        "aitk-foundry/Microsoft Foundry/Codestral-2501",
+        "aitk-github/GitHub/cohere-command-a",
+        "aitk-github/GitHub/Cohere-command-r",
+        "aitk-github/GitHub/Cohere-command-r-08-2024",
+        "aitk-github/GitHub/Cohere-command-r-plus",
+        "aitk-github/GitHub/DeepSeek-R1",
+        "aitk-github/GitHub/DeepSeek-R1-0528",
+        "aitk-github/GitHub/DeepSeek-V3",
+        "aitk-github/GitHub/DeepSeek-V3-0324",
+        "aitk-github/GitHub/DeepSeek-V3.1",
+        "aitk-github/GitHub/DeepSeek-V3.2",
+        "aitk-github/GitHub/DeepSeek-V3.2-Speciale",
+        "copilot/gemini-2.5-pro",
+        "copilot/gemini-3-flash-preview",
+        "copilot/gemini-3-pro-preview",
+        "copilot/gpt-4.1",
+        "copilot/gpt-4o",
+        "copilot/gpt-5",
+        "copilot/gpt-5-mini",
+        "copilot/gpt-5-codex",
+        "copilot/gpt-5.1",
+        "copilot/gpt-5.1-codex",
+        "copilot/gpt-5.1-codex-max",
+        "copilot/gpt-5.1-codex-mini",
+        "copilot/gpt-5.2",
+        "aitk-github/GitHub/grok-3",
+        "aitk-github/GitHub/grok-3-mini",
+        "copilot/grok-code-fast-1",
+        "aitk-github/GitHub/Llama-4-Scout-17B-16E-Instruct",
+        "aitk-github/GitHub/Llama-3.2-11B-Vision-Instruct",
+        "aitk-github/GitHub/Llama-3.2-90B-Vision-Instruct",
+        "aitk-github/GitHub/Llama-3.3-70B-Instruct",
+        "aitk-foundry/Microsoft Foundry/gpt-4.1",
+        "aitk-foundry/Microsoft Foundry/gpt-4.1-mini",
+        "copilot/oswe-vscode-prime"
+      ]
+    },
+    "assistente-jur-dico-principalrepli/.vscode/mcp.json: io.github.github/github-mcp-server": {
+      "allowedModels": [
+        "copilot/claude-sonnet-4.5",
+        "copilot/auto",
+        "copilot/claude-haiku-4.5",
+        "copilot/claude-opus-41",
+        "copilot/claude-opus-4.5",
+        "aitk-foundry/Microsoft Foundry/claude-opus-4-5",
+        "copilot/claude-sonnet-4",
+        "aitk-foundry/Microsoft Foundry/claude-sonnet-4-5",
+        "aitk-github/GitHub/Codestral-2501",
+        "aitk-foundry/Microsoft Foundry/Codestral-2501",
+        "aitk-github/GitHub/cohere-command-a",
+        "aitk-github/GitHub/Cohere-command-r",
+        "aitk-github/GitHub/Cohere-command-r-08-2024",
+        "aitk-github/GitHub/Cohere-command-r-plus",
+        "aitk-github/GitHub/DeepSeek-R1",
+        "aitk-github/GitHub/DeepSeek-R1-0528",
+        "aitk-github/GitHub/DeepSeek-V3",
+        "aitk-github/GitHub/DeepSeek-V3-0324",
+        "aitk-github/GitHub/DeepSeek-V3.1",
+        "aitk-github/GitHub/DeepSeek-V3.2",
+        "aitk-github/GitHub/DeepSeek-V3.2-Speciale",
+        "copilot/gemini-2.5-pro",
+        "copilot/gemini-3-flash-preview",
+        "copilot/gemini-3-pro-preview",
+        "copilot/gpt-4.1",
+        "copilot/gpt-4o",
+        "copilot/gpt-5",
+        "copilot/gpt-5-mini",
+        "copilot/gpt-5-codex",
+        "copilot/gpt-5.1",
+        "copilot/gpt-5.1-codex",
+        "copilot/gpt-5.1-codex-max",
+        "copilot/gpt-5.1-codex-mini",
+        "copilot/gpt-5.2",
+        "aitk-github/GitHub/grok-3",
+        "aitk-github/GitHub/grok-3-mini",
+        "copilot/grok-code-fast-1",
+        "aitk-github/GitHub/Llama-4-Scout-17B-16E-Instruct",
+        "aitk-github/GitHub/Llama-3.2-11B-Vision-Instruct",
+        "aitk-github/GitHub/Llama-3.2-90B-Vision-Instruct",
+        "aitk-github/GitHub/Llama-3.3-70B-Instruct",
+        "aitk-foundry/Microsoft Foundry/gpt-4.1",
+        "aitk-foundry/Microsoft Foundry/gpt-4.1-mini",
+        "copilot/oswe-vscode-prime"
+      ]
+    },
+    "assistente-jur-dico-principalrepli/.vscode/mcp.json: chroma": {
+      "allowedModels": ["copilot/auto", "copilot/gpt-5.2"]
+    }
+  },
+  "agentSonar.token": "525735eccb98cf7cdcf0dccf920275f4d37dbe4c",
+  "agentSonar.serverUrl": "https://sonarcloud.io",
+  "agentSonar.projectKey": "portprojetoautomacao-debug_assistente-jur-dico-principalrepli",
+  "agentSonar.defaultIssueLimit": 20,
+  "python-envs.pythonProjects": [],
+  "editor.quickSuggestions": {
+    "other": false,
+    "comments": false,
+    "strings": false
+  },
+  "editor.suggestOnTriggerCharacters": false,
+  "[scss]": {
+    "editor.defaultFormatter": "vscode.css-language-features"
+  },
+  "DockerRun.DisableDockerrc": true,
+  "java.compile.nullAnalysis.mode": "automatic",
+  "editor.maxTokenizationLineLength": 10000,
+  "chat.mcp.assisted.nuget.enabled": true,
+  "chat.mcp.discovery.enabled": {
+    "claude-desktop": true,
+    "windsurf": true,
+    "cursor-global": true,
+    "cursor-workspace": true
+  },
+  "chat.mcp.gallery.enabled": true,
+  "github.copilot.chat.githubMcpServer.enabled": true
+}

@@ -1,0 +1,120 @@
+name: Jupyter Notebook Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'notebooks/**'
+      - 'src/**'
+      - 'backend/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'notebooks/**'
+      - 'src/**'
+      - 'backend/**'
+  workflow_dispatch:
+
+jobs:
+  test-notebooks:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: node
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: assistente_juridico_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install jupyter nbconvert psycopg2-binary pandas matplotlib requests python-dotenv google-generativeai qdrant-client
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+
+    - name: Install Node dependencies
+      run: npm ci
+
+    - name: Setup Database Schema
+      env:
+        DATABASE_URL: postgresql://node:password@localhost:5432/assistente_juridico_test
+      run: |
+        # Wait for Postgres
+        until pg_isready -h localhost -p 5432; do sleep 1; done
+
+        # Create tables (using psql client from runner or installing it)
+        sudo apt-get install -y postgresql-client
+
+        # Execute setup SQL (assuming we have a schema file or running migrations)
+        # For now, we'll create the basic schema used in notebooks
+        psql $DATABASE_URL <<EOF
+        CREATE TABLE IF NOT EXISTS minutas (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            titulo VARCHAR(255) NOT NULL,
+            tipo VARCHAR(100),
+            conteudo TEXT,
+            status VARCHAR(50),
+            autor VARCHAR(255),
+            criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS djen_lawyers (
+            id SERIAL PRIMARY KEY,
+            numero_oab VARCHAR(20),
+            uf_oab VARCHAR(2),
+            nome VARCHAR(255),
+            enabled BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS djen_publications (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            processo_numero VARCHAR(50),
+            data_publicacao TIMESTAMP,
+            tipo_publicacao VARCHAR(100),
+            conteudo TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        EOF
+
+    - name: Start Backend
+      run: |
+        cd backend
+        npm run dev &
+        echo "Backend started in background"
+        sleep 10 # Wait for startup
+
+    - name: Execute Integration Tests Notebook
+      env:
+        DATABASE_URL: postgresql://node:password@localhost:5432/assistente_juridico_test
+        # Add other secrets here if available in repo secrets
+        # VITE_GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: |
+        jupyter execute notebooks/testes_integracao.ipynb
+
+    - name: Execute Playground Notebook
+      env:
+        DATABASE_URL: postgresql://node:password@localhost:5432/assistente_juridico_test
+      run: |
+        jupyter execute notebooks/dev_playground.ipynb

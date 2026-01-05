@@ -1,0 +1,96 @@
+# Agente GitLab - QA (Quality Assurance)
+# Configuração para testes e validação de qualidade
+
+name: assistente-juridico-qa
+url: https://gitlab.com/
+token: $AGENTE_QA_TOKEN
+executor: docker
+environment: qa
+
+stages:
+  - build
+  - test
+  - security
+  - performance
+  - deploy-qa
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+
+# Build otimizado para QA
+build:qa:
+  stage: build
+  script:
+    - echo "🏗️ Build otimizado para QA"
+    - npm ci --production=false
+    - npm run build
+    - npm run build:analyze
+  artifacts:
+    paths:
+      - dist/
+      - reports/bundle-analysis.json
+    expire_in: 1 week
+  only:
+    - merge_requests
+    - main
+
+# Testes abrangentes
+test:qa:
+  stage: test
+  script:
+    - echo "🧪 Testes abrangentes de QA"
+    - npm run test:unit
+    - npm run test:integration
+    - npm run test:e2e
+  coverage: '/Lines\s*:\s*(\d+\.\d+)%/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+      junit: reports/junit-report.xml
+  only:
+    - merge_requests
+    - main
+
+# Análise de segurança
+security:scan:
+  stage: security
+  script:
+    - echo "🔒 Análise de segurança"
+    - npm audit --audit-level high
+    - npm run security:scan
+  allow_failure: true
+  only:
+    - merge_requests
+    - main
+
+# Testes de performance
+performance:test:
+  stage: performance
+  script:
+    - echo "⚡ Testes de performance"
+    - npm run lighthouse
+    - npm run performance:test
+  artifacts:
+    paths:
+      - reports/lighthouse/
+      - reports/performance/
+    expire_in: 1 week
+  allow_failure: true
+  only:
+    - main
+
+# Deploy para QA
+deploy:qa:
+  stage: deploy-qa
+  script:
+    - echo "🚀 Deploy para ambiente de QA"
+    - echo "Deploying to QA environment"
+    - npm run deploy:qa
+  environment:
+    name: qa
+    url: https://qa.assistente-juridico.com
+  only:
+    - main

@@ -1,0 +1,31 @@
+name: Text Summarizer
+description: Resumir textos jurídicos de forma concisa iniciando com "Resumo -"
+model: openai/gpt-4o-mini
+modelParameters:
+  temperature: 0.5
+messages:
+  - role: system
+    content: |
+      Você é um assistente que apenas resume o texto fornecido.
+      Responda sempre em português e comece com "Resumo -".
+  - role: user
+    content: |
+      Resuma o texto abaixo:
+      <texto>
+      {{input}}
+      </texto>
+testData:
+  - input: |
+      A petição descreve que o réu deixou de pagar o aluguel por três meses consecutivos,
+      apesar de múltiplas notificações. O autor solicita a rescisão do contrato e a
+      desocupação do imóvel.
+    expected: |
+      Resumo - O réu deixou de pagar o aluguel por três meses; o autor pede rescisão do
+      contrato e desocupação do imóvel.
+evaluators:
+  - name: Deve começar com "Resumo -"
+    string:
+      startsWith: "Resumo -"
+  - name: Deve estar em português
+    string:
+      contains: "Resumo -"

@@ -1,0 +1,160 @@
+# Pipeline de Teste dos Componentes CI/CD
+# Este arquivo testa todos os componentes criados localmente
+
+include:
+  # Incluir componentes localmente para teste
+  - local: '.gitlab/templates/security/security-component.yml'
+    inputs:
+      audit_level: "basic"
+      fail_on_high: false
+
+  - local: '.gitlab/templates/testing/testing-component.yml'
+    inputs:
+      test_type: "unit"
+      coverage_threshold: 70
+      fail_on_coverage: false
+
+  - local: '.gitlab/templates/deployment/deployment-component.yml'
+    inputs:
+      environment: "preview"
+      deploy_target: "vercel"
+      rollback_on_failure: false
+
+  - local: '.gitlab/templates/monitoring/monitoring-component.yml'
+    inputs:
+      monitoring_type: "basic"
+      alert_on_failure: false
+
+stages: [security, test, build, deploy, monitor]
+
+variables:
+  NODE_ENV: "test"
+  CI_ENVIRONMENT_URL: "http://localhost:5173"
+
+# Job de setup para testes
+setup-test:
+  stage: security
+  image: node:22
+  script:
+    - echo "🛠️ Configurando ambiente de teste..."
+    - npm ci --cache .npm --prefer-offline
+    - echo "✅ Setup concluído"
+  cache:
+    key: "npm-test-cache"
+    paths:
+      - node_modules/
+
+# Job de build para testes
+build-test:
+  stage: build
+  image: node:22
+  script:
+    - echo "🔨 Build de teste..."
+    - npm run build
+  dependencies:
+    - setup-test
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+
+# Job de validação dos componentes
+validate-components:
+  stage: test
+  image: alpine:latest
+  script:
+    - echo "🔍 Validando estrutura dos componentes..."
+    - |
+      # Verificar se todos os arquivos de componente existem
+      COMPONENTS=(
+        ".gitlab/templates/security/security-component.yml"
+        ".gitlab/templates/testing/testing-component.yml"
+        ".gitlab/templates/deployment/deployment-component.yml"
+        ".gitlab/templates/monitoring/monitoring-component.yml"
+      )
+
+      for component in "${COMPONENTS[@]}"; do
+        if [ -f "$component" ]; then
+          echo "✅ $component encontrado"
+        else
+          echo "❌ $component não encontrado"
+          exit 1
+        fi
+      done
+    - |
+      # Validar sintaxe YAML básica
+      if command -v python3 &> /dev/null; then
+        for component in "${COMPONENTS[@]}"; do
+          if python3 -c "import yaml; yaml.safe_load(open('$component', 'r'))"; then
+            echo "✅ YAML válido: $component"
+          else
+            echo "❌ YAML inválido: $component"
+            exit 1
+          fi
+        done
+      fi
+    - echo "🎉 Todos os componentes validados com sucesso!"
+
+# Job de teste de integração dos componentes
+integration-test:
+  stage: test
+  image: node:22
+  script:
+    - echo "🔗 Testando integração dos componentes..."
+    - |
+      # Verificar se os componentes podem ser incluídos juntos
+      cat > test-integration.yml << 'EOF'
+      include:
+        - local: '.gitlab/templates/security/security-component.yml'
+        - local: '.gitlab/templates/testing/testing-component.yml'
+        - local: '.gitlab/templates/deployment/deployment-component.yml'
+        - local: '.gitlab/templates/monitoring/monitoring-component.yml'
+
+      stages: [security, test, deploy, monitor]
+
+      test-integration:
+        stage: test
+        script:
+          - echo "Teste de integração executado"
+      EOF
+    - |
+      # Validar YAML do teste de integração
+      if python3 -c "import yaml; yaml.safe_load(open('test-integration.yml', 'r'))"; then
+        echo "✅ Integração de componentes válida"
+      else
+        echo "❌ Falha na integração de componentes"
+        exit 1
+      fi
+  artifacts:
+    paths:
+      - test-integration.yml
+    expire_in: 1 hour
+
+# Job de performance dos componentes
+performance-test:
+  stage: monitor
+  image: alpine:latest
+  script:
+    - echo "⚡ Testando performance dos componentes..."
+    - |
+      # Medir tamanho dos arquivos de componente
+      echo "📏 Tamanhos dos componentes:"
+      find .gitlab/templates -name "*.yml" -exec wc -l {} \; | sort -nr
+
+      # Verificar complexidade (número de jobs por componente)
+      echo "🔢 Complexidade dos componentes:"
+      for component in .gitlab/templates/*/*.yml; do
+        job_count=$(grep -c "^[a-zA-Z_][a-zA-Z0-9_]*:" "$component" || echo "0")
+        echo "$component: $job_count jobs"
+      done
+  allow_failure: true
+
+# Job de limpeza após testes
+cleanup-test:
+  stage: monitor
+  image: alpine:latest
+  script:
+    - echo "🧹 Limpando arquivos de teste..."
+    - rm -f test-integration.yml
+    - echo "✅ Limpeza concluída"
+  when: always

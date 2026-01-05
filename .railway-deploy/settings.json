@@ -1,0 +1,816 @@
+{
+  // ========================================
+  // 🤖 GITHUB COPILOT - AGENTE DE CODIFICAÇÃO
+  // ========================================
+
+  // Habilitar Copilot Instruction Files (copilot-instructions.md)
+  "github.copilot.chat.useInstructionFiles": true,
+
+  // Configurações avançadas do Copilot
+  "github.copilot.chat.alternateGptPrompt.enabled": true,
+  "github.copilot.chat.anthropic.thinking.enabled": true,
+  "github.copilot.chat.anthropic.tools.websearch.enabled": true,
+  "github.copilot.chat.codesearch.enabled": true,
+  "github.copilot.editor.enableAutoCompletions": true,
+
+  // 🛠️ FERRAMENTAS DE EDIÇÃO - Habilitar edição de arquivos no Chat
+  "chat.editing.enabled": true,
+  "chat.editing.confirmEditRequestRemoval": true,
+  "chat.extensionTools.enabled": true,
+
+  // 🔧 TOOL SETS - Conjunto padrão de ferramentas para Ask/Edit/Plan
+  "github.copilot.chat.defaultToolset": "fullEditingTools",
+
+  // 🚀 AUTOMAÇÃO MÁXIMA - Copilot trabalha sozinho
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "plaintext": false,
+    "markdown": true
+  },
+  "github.copilot.advanced": {
+    "debug.overrideEngine": "gpt-4o",
+    "inlineSuggestCount": 3,
+    "listCount": 10
+  },
+
+  // Instruções contextuais para geração de código
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "text": "Sempre siga as instruções em .github/copilot-instructions.md"
+    },
+    {
+      "text": "Modo MANUTENÇÃO: Apenas corrigir bugs, não adicionar features"
+    },
+    {
+      "text": "Antes de qualquer mudança, execute verificação diária do sistema automático"
+    },
+    {
+      "text": "Use TypeScript strict mode e valide tipos"
+    },
+    {
+      "text": "Siga padrões React 19 com componentes funcionais"
+    },
+    {
+      "text": "Mantenha compatibilidade com Vercel serverless (Node.js 22.x)"
+    }
+  ],
+
+  // ========================================
+  // 🔌 EXTENSÕES - COMPATIBILIDADE
+  // ========================================
+
+  // Suprimir warnings de APIs experimentais
+  "extensions.experimental.affinity": {
+    "github.vscode-pull-request-github": 1
+  },
+
+  // ========================================
+  // 🐛 GITHUB ISSUES - CREATE ISSUE TRIGGERS
+  // ========================================
+
+  // Triggers padrão + customizados para desenvolvimento jurídico
+  "github.gitProtocol": "https",
+  "github.branchProtection": true,
+
+  // Palavras-chave que acionam "Criar Issue do Comentário"
+  "githubIssues.createIssueTriggers": [
+    // ========================================
+    // TRIGGERS PADRÃO (mantidos)
+    // ========================================
+    "TODO",
+    "todo",
+    "FIXME",
+    "fixme",
+    "ISSUE",
+    "issue",
+    "HACK",
+    "hack",
+
+    // ========================================
+    // TRIGGERS PERSONALIZADOS - Português
+    // ========================================
+    "PENDENTE",
+    "pendente",
+    "REVISAR",
+    "revisar",
+    "CORRIGIR",
+    "corrigir",
+    "VERIFICAR",
+    "verificar",
+    "ATENÇÃO",
+    "atenção",
+    "URGENTE",
+    "urgente",
+    "BUG",
+    "bug",
+
+    // ========================================
+    // TRIGGERS JURÍDICOS ESPECÍFICOS
+    // ========================================
+    "JURIDICO",
+    "juridico",
+    "PRAZO",
+    "prazo",
+    "INTIMACAO",
+    "intimacao",
+    "VALIDAR",
+    "validar",
+    "COMPLIANCE",
+    "compliance",
+    "LGPD",
+    "lgpd",
+    "SEGURANCA",
+    "seguranca",
+
+    // ========================================
+    // TRIGGERS TÉCNICOS AVANÇADOS
+    // ========================================
+    "REFACTOR",
+    "refactor",
+    "OPTIMIZE",
+    "optimize",
+    "DEPRECATED",
+    "deprecated",
+    "BREAKING",
+    "breaking",
+    "PERFORMANCE",
+    "performance",
+    "ACCESSIBILITY",
+    "accessibility",
+    "A11Y",
+    "a11y",
+    "SECURITY",
+    "security",
+    "TEST",
+    "test",
+    "DOC",
+    "doc",
+    "DOCS",
+    "docs"
+  ],
+
+  // Completions de issues (sugestões automáticas)
+  "githubIssues.issueCompletions.enabled": true,
+  "githubIssues.queries": [
+    {
+      "label": "🔥 Críticos",
+      "query": "is:open is:issue label:critical,bug,urgente"
+    },
+    {
+      "label": "📋 Meus Issues",
+      "query": "is:open is:issue assignee:@me"
+    },
+    {
+      "label": "🆕 Criados Recentemente",
+      "query": "is:open is:issue sort:created-desc"
+    },
+    {
+      "label": "⚖️ Jurídico",
+      "query": "is:open is:issue label:juridico,compliance,lgpd"
+    },
+    {
+      "label": "🐛 Bugs",
+      "query": "is:open is:issue label:bug"
+    }
+  ],
+
+  // ========================================
+  // 🤖 AUTOMAÇÃO TOTAL - ZERO INTERVENÇÃO
+  // ========================================
+
+  // Criar issues automaticamente ao commitar código com triggers
+  "githubIssues.createInsertFormat": "number",
+  "githubIssues.workingIssueFormatScm": "#${issueNumber}",
+
+  // Auto-assignment de issues criados
+  "githubIssues.assignWhenWorking": true,
+
+  // Labels automáticas baseadas em triggers
+  "githubIssues.labelCreated": "auto-created",
+  "githubIssues.labelCompletedIssues": "completed",
+
+  // Integração com GitHub Actions (cria issues automaticamente)
+  "github.experimental.commands": true,
+
+  // Auto-link de issues em commits
+  "git.autoRepositoryDetection": true,
+  "git.enableCommitSigning": false,
+  "git.postCommitCommand": "none",
+  "git.verboseCommit": true,
+
+  // SCM Input Box - mostrar issues relacionados
+  "scm.inputFontFamily": "editor",
+  "scm.defaultViewMode": "tree",
+  "scm.showActionButton": true,
+
+  // ========================================
+  // 📝 EDITOR - AUTOMAÇÃO E FORMATAÇÃO
+  // ========================================
+
+  // Auto-save rápido
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "files.autoSaveWorkspaceFilesOnly": false,
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/.hg/store/**": true,
+    "**/dist/**": true,
+    "**/.vite/**": true
+  },
+  "files.watcherInclude": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.json",
+    "**/*.css",
+    "**/*.scss"
+  ],
+
+  // Format on save
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+
+  // ESLint auto-fix on save (AGRESSIVO)
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "always",
+    "source.addMissingImports": "always"
+  },
+
+  // Quick Suggestions (correções instantâneas)
+  "editor.quickSuggestions": {
+    "other": "on",
+    "comments": "off",
+    "strings": "on"
+  },
+  "editor.quickSuggestionsDelay": 0,
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.acceptSuggestionOnCommitCharacter": true,
+  "editor.acceptSuggestionOnEnter": "on",
+  "editor.tabCompletion": "on",
+
+  // Auto-fix errors
+  "problems.autoReveal": true,
+  "problems.showCurrentInStatus": true,
+
+  // Prettier como formatador padrão
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always",
+      "source.organizeImports": "always"
+    }
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always",
+      "source.organizeImports": "always"
+    }
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always"
+    }
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always"
+    }
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.quickSuggestions": {
+      "strings": true
+    }
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.quickSuggestions": {
+      "strings": true
+    }
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "other": "on",
+      "comments": "on",
+      "strings": "on"
+    }
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.suggest.insertMode": "replace"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.suggest.insertMode": "replace"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.suggest.insertMode": "replace",
+    "editor.linkedEditing": true
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced"
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml",
+    "editor.formatOnSave": true
+  },
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format",
+    "editor.formatOnSave": true,
+    "files.eol": "\n"
+  },
+  "[dockerfile]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker",
+    "editor.formatOnSave": true
+  },
+  "[dotenv]": {
+    "editor.formatOnSave": false
+  },
+  "[plaintext]": {
+    "editor.formatOnSave": false
+  },
+  "[ignore]": {
+    "editor.formatOnSave": false
+  },
+  "[git-commit]": {
+    "editor.rulers": [72],
+    "workbench.editor.restoreViewState": false
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always"
+    }
+  },
+
+  // ========================================
+  // 🎨 PRETTIER - Configurações Globais
+  // ========================================
+
+  "prettier.enable": true,
+  "prettier.requireConfig": false,
+  "prettier.useEditorConfig": true,
+  "prettier.resolveGlobalModules": true,
+  "prettier.withNodeModules": false,
+  "prettier.enableDebugLogs": false,
+  "prettier.documentSelectors": [],
+  "prettier.ignorePath": ".prettierignore",
+
+  // ========================================
+  // 🔍 TYPESCRIPT & JAVASCRIPT
+  // ========================================
+
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "useFsEvents",
+    "watchDirectory": "useFsEvents",
+    "fallbackPolling": "dynamicPriorityPolling"
+  },
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.suggest.autoImports": true,
+  "javascript.suggest.autoImports": true,
+  "typescript.preferences.organizeImportsIgnoreCase": "auto",
+  "typescript.preferences.organizeImportsCollation": "unicode",
+  "typescript.preferences.organizeImportsNumericCollation": true,
+
+  // Inlay Hints (sugestões visuais)
+  "typescript.inlayHints.parameterNames.enabled": "all",
+  "typescript.inlayHints.parameterTypes.enabled": true,
+  "typescript.inlayHints.variableTypes.enabled": true,
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+
+  // ========================================
+  // 🎨 TAILWIND CSS
+  // ========================================
+
+  "tailwindCSS.experimental.classRegex": [["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]],
+  "tailwindCSS.emmetCompletions": true,
+
+  // ========================================
+  // ✅ ESLINT - CORREÇÃO AUTOMÁTICA AGRESSIVA
+  // ========================================
+
+  "eslint.enable": true,
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "eslint.format.enable": true,
+  "eslint.lintTask.enable": true,
+  "eslint.run": "onType",
+  "eslint.autoFixOnSave": true,
+  "eslint.codeActionsOnSave.mode": "all",
+  "eslint.codeActionsOnSave.rules": null,
+  "eslint.problems.shortenToSingleLine": true,
+  "eslint.quiet": false,
+  "eslint.onIgnoredFiles": "off",
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ],
+
+  // ========================================
+  // 🧪 TESTES - VITEST
+  // ========================================
+
+  "vitest.enable": true,
+  "vitest.commandLine": "npm run test",
+
+  // ========================================
+  // 🚀 TASKS AUTOMÁTICAS
+  // ========================================
+
+  "task.allowAutomaticTasks": "on",
+  "task.autoDetect": "on",
+  "task.problemMatchers.neverPrompt": true,
+  "task.quickOpen.history": 30,
+  "task.quickOpen.detail": true,
+  "task.slowProviderWarning": false,
+
+  // ========================================
+  // 🔐 SEGURANÇA & PRIVACIDADE
+  // ========================================
+
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.vite": true
+  },
+
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.vite": true,
+    "**/coverage": true
+  },
+
+  // ========================================
+  // 🔧 SONARQUBE/SONARLINT
+  // ========================================
+  // 🔍 SONARLINT - Configuração Base
+  // ========================================
+
+  "sonarlint.pathToNodeExecutable": "/usr/local/share/nvm/versions/node/v22.21.1/bin/node",
+  "sonarlint.ls.javaHome": "/usr/lib/jvm/java-21-openjdk-amd64",
+  "sonarlint.output.showAnalyzerLogs": true,
+  "sonarlint.output.showVerboseLogs": false,
+
+  // ========================================
+  // 🔥 ANÁLISE AUTOMÁTICA - CRÍTICO
+  // ========================================
+
+  "sonarlint.disableTelemetry": true,
+
+  // Análise automática ATIVADA (essencial para funcionar)
+  "sonarlint.automaticAnalysis": {
+    "enabled": true
+  },
+
+  // Analisar automaticamente ao abrir/salvar/modificar arquivo
+  "sonarlint.analyzeOnOpen": true,
+  "sonarlint.analyzeOnSave": true,
+  "sonarlint.analyzeOnChange": true,
+
+  // Regras personalizadas (sobrescritas pelo Quality Profile em Connected Mode)
+  "sonarlint.rules": {
+    // ========================================
+    // TYPESCRIPT - Regras Críticas
+    // ========================================
+
+    // S1128: Imports não utilizados (OFF porque ESLint já trata)
+    "typescript:S1128": {
+      "level": "off"
+    },
+
+    // S1481: Variáveis não utilizadas
+    "typescript:S1481": {
+      "level": "on"
+    },
+
+    // S6759: Hooks React devem seguir regras
+    "typescript:S6759": {
+      "level": "on"
+    },
+
+    // S3358: Condicionais ternárias não devem ser aninhadas
+    "typescript:S3358": {
+      "level": "on"
+    },
+
+    // S3776: Complexidade cognitiva (limite 20)
+    "typescript:S3776": {
+      "level": "on",
+      "parameters": {
+        "threshold": "20"
+      }
+    },
+
+    // S7764: Acessibilidade - elementos interativos
+    "typescript:S7764": {
+      "level": "on"
+    },
+
+    // S7773: React - dependências de useEffect
+    "typescript:S7773": {
+      "level": "on"
+    },
+
+    // S3863: Código morto (dead code)
+    "typescript:S3863": {
+      "level": "on"
+    },
+
+    // S1134: FIXME tags devem ser resolvidos
+    "typescript:S1134": {
+      "level": "on"
+    },
+
+    // S1135: TODO tags (OFF - permitir durante dev)
+    "typescript:S1135": {
+      "level": "off"
+    },
+
+    // S2699: Testes devem incluir asserts
+    "typescript:S2699": {
+      "level": "on"
+    },
+
+    // S103: Linhas longas (máximo 120 caracteres)
+    "typescript:S103": {
+      "level": "on",
+      "parameters": {
+        "maximumLineLength": "120"
+      }
+    },
+
+    // S1186: Funções vazias
+    "typescript:S1186": {
+      "level": "on"
+    },
+
+    // S125: Código comentado (OFF - útil durante dev)
+    "typescript:S125": {
+      "level": "off"
+    },
+
+    // S6478: React - evitar inline handlers em loops
+    "typescript:S6478": {
+      "level": "on"
+    },
+
+    // S4138: Loops com at most uma iteração
+    "typescript:S4138": {
+      "level": "on"
+    },
+
+    // ========================================
+    // JAVASCRIPT - Regras Críticas
+    // ========================================
+
+    "javascript:S1481": {
+      "level": "on"
+    },
+
+    "javascript:S3776": {
+      "level": "on",
+      "parameters": {
+        "threshold": "20"
+      }
+    },
+
+    "javascript:S103": {
+      "level": "on",
+      "parameters": {
+        "maximumLineLength": "120"
+      }
+    },
+
+    "javascript:S1186": {
+      "level": "on"
+    },
+
+    "javascript:S2699": {
+      "level": "on"
+    },
+
+    "javascript:S1128": {
+      "level": "off"
+    },
+
+    // ========================================
+    // WEB - HTML/CSS/Acessibilidade
+    // ========================================
+
+    // Acessibilidade WCAG 2.1
+    "Web:TableWithoutCaptionCheck": {
+      "level": "on"
+    },
+
+    "Web:PageWithoutTitleCheck": {
+      "level": "on"
+    },
+
+    "Web:ImgWithoutAltCheck": {
+      "level": "on"
+    },
+
+    "Web:LinkToImageCheck": {
+      "level": "on"
+    },
+
+    // ========================================
+    // SEGURANÇA
+    // ========================================
+
+    // S1313: IPs hardcoded
+    "typescript:S1313": {
+      "level": "on"
+    },
+
+    // S2068: Credentials hardcoded
+    "typescript:S2068": {
+      "level": "on"
+    },
+
+    // S4784: Regex ReDoS vulnerabilities
+    "typescript:S4784": {
+      "level": "on"
+    },
+
+    // S5852: Regex injection
+    "typescript:S5852": {
+      "level": "on"
+    }
+  },
+
+  // ========================================
+  // 🎯 EXPERIENCE & UI
+  // ========================================
+
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.startupEditor": "none",
+
+  // Terminal
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.fontSize": 13,
+
+  // Editor
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+  "editor.wordWrap": "on",
+  "editor.minimap.enabled": true,
+  "editor.suggestSelection": "first",
+  "editor.inlineSuggest.enabled": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+
+  // IntelliSense
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+  "cSpell.words": ["sonarlint"],
+  "chat.customAgentInSubagent.enabled": true,
+  "chat.edits2.enabled": true,
+  "chat.mcp.assisted.nuget.enabled": true,
+  "chat.mcp.gallery.enabled": true,
+  "chat.tools.terminal.autoReplyToPrompts": true,
+  "chat.useNestedAgentsMdFiles": true,
+  "chat.mcp.serverSampling": {
+    "assistente-juridico-p/.cursor/mcp.json: todoist": {
+      "allowedModels": [
+        "copilot/auto",
+        "copilot/claude-haiku-4.5",
+        "copilot/claude-opus-41",
+        "copilot/claude-opus-4.5",
+        "copilot/claude-sonnet-4",
+        "copilot/claude-sonnet-4.5",
+        "copilot/gemini-2.5-pro",
+        "copilot/gemini-3-pro-preview",
+        "copilot/gpt-4.1",
+        "copilot/gpt-4o",
+        "copilot/gpt-5",
+        "copilot/gpt-5-mini",
+        "copilot/gpt-5-codex",
+        "copilot/gpt-5.1",
+        "copilot/gpt-5.1-codex",
+        "copilot/gpt-5.1-codex-max",
+        "copilot/gpt-5.1-codex-mini",
+        "copilot/grok-code-fast-1",
+        "copilot/oswe-vscode-prime"
+      ]
+    }
+  },
+  "remote.autoForwardPortsFallback": 0,
+  "inlineChat.notebookAgent": false,
+  "inlineChat.finishOnType": true,
+  "inlineChat.enableV2": true,
+  "inlineChat.lineEmptyHint": true,
+
+  // ========================================
+  // 🔗 SONARLINT - CONNECTED MODE
+  // ========================================
+
+  // Configuração de conexão com SonarCloud
+  "sonarlint.connectedMode.connections.sonarcloud": [
+    {
+      "organizationKey": "thiagobodevan-a11y-assistente-juridico-p",
+      "connectionId": "thiagobodevan-a11y-assistente-juridico-p",
+      "disableNotifications": false
+    }
+  ],
+
+  // Projeto vinculado
+  "sonarlint.connectedMode.project": {
+    "connectionId": "thiagobodevan-a11y-assistente-juridico-p",
+    "projectKey": "thiagobodevan-a11y_assistente-juridico-p"
+  },
+
+  // ========================================
+  // 🔔 NOTIFICAÇÕES INTELIGENTES
+  // ========================================
+
+  // Receber alertas quando:
+  // - Status do Quality Gate mudar
+  // - Novos problemas introduzidos por você
+  // - Perfil de Qualidade atualizado
+  "sonarlint.output.showVerboseLogs": false,
+
+  // ========================================
+  // 🎯 FOCAR EM CÓDIGO NOVO
+  // ========================================
+
+  // Detectar problemas apenas em código novo (conforme definido no servidor)
+  "sonarlint.focusOnNewCode": true,
+
+  // ========================================
+  // 🔒 PRIVACIDADE
+  // ========================================
+
+  "sonarlint.enableTelemetry": false,
+  "sonarlint.disableTelemetry": true,
+
+  // ========================================
+  // 🌿 BRANCH AWARENESS (Reconhecimento de Branch)
+  // ========================================
+
+  // Sincronizar com o branch correto analisado no servidor
+  // Requer: Git repository
+  // Métodos de matching:
+  //   1. Correspondência exata (mesmo nome)
+  //   2. Branch mais próximo (menor distância de commits)
+  //   3. Branch principal (fallback padrão)
+  //
+  // Veja o status do branch na barra inferior do VS Code
+
+  // ========================================
+  // 📁 CONFIGURAÇÕES ESPECÍFICAS
+  // ========================================
+
+  // Padrão para identificar arquivos de teste
+  "sonarlint.testFilePattern": "**/*{test,spec}.{ts,tsx,js,jsx}",
+
+  // Compilação C/C++ (se necessário no futuro)
+  "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json",
+  "git.autofetch": true,
+  "typescript.disableAutomaticTypeAcquisition": false,
+  "redhat.telemetry.enabled": false,
+  "workbench.experimental.cloudChanges.autoStore": "onShutdown"
+}

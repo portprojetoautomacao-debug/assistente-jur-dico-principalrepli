@@ -1,0 +1,408 @@
+Desenvolver um agente do kit de desenvolvimento de agentes
+
+bookmark_border
+Nesta página, mostramos como desenvolver um agente usando o modelo do Kit de desenvolvimento de agentes (a classe AdkApp no SDK da Vertex AI para Python). O agente retorna a taxa de câmbio entre duas moedas em uma data especificada.
+
+Siga estas etapas:
+
+Definir e configurar um modelo
+(Opcional) Definir e usar uma ferramenta
+(Opcional) Gerenciar sessões
+(Opcional) Gerenciar recordações
+Antes de começar
+Verifique se o ambiente está configurado seguindo as etapas em Configurar o ambiente.
+
+Definir e configurar um modelo
+Defina a versão do modelo:
+
+
+
+model = "gemini-2.0-flash"
+(Opcional) Defina as configurações de segurança do modelo. Para saber mais sobre as opções disponíveis para configurações de segurança no Gemini, consulte Configurar atributos de segurança. Confira a seguir um exemplo de como definir as configurações de segurança:
+
+
+
+from google.genai import types
+
+safety_settings = [
+    types.SafetySetting(
+        category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold=types.HarmBlockThreshold.OFF,
+    ),
+]
+(Opcional) Especifique os parâmetros de geração de conteúdo:
+
+
+
+from google.genai import types
+
+generate_content_config = types.GenerateContentConfig(
+   safety_settings=safety_settings,
+   temperature=0.28,
+   max_output_tokens=1000,
+   top_p=0.95,
+)
+Crie um AdkApp usando as configurações do modelo:
+
+
+
+from google.adk.agents import Agent
+from vertexai.agent_engines import AdkApp
+
+agent = Agent(
+   model=model,                                      # Required.
+   name='currency_exchange_agent',                   # Required.
+   generate_content_config=generate_content_config,  # Optional.
+)
+app = AdkApp(agent=agent)
+Se você estiver executando em um ambiente interativo, como o terminal ou um notebook do Colab, poderá executar uma consulta como uma etapa intermediária de teste:
+
+
+
+async for event in app.async_stream_query(
+   user_id="USER_ID",  # Required
+   message="What is the exchange rate from US dollars to Swedish currency?",
+):
+   print(event)
+USER_ID: escolha seu próprio ID de usuário com um limite de 128 caracteres. Por exemplo, user-123.
+A resposta é um dicionário Python semelhante ao exemplo a seguir:
+
+
+
+{'actions': {'artifact_delta': {},
+             'requested_auth_configs': {},
+             'state_delta': {}},
+ 'author': 'currency_exchange_agent',
+ 'content': {'parts': [{'text': 'To provide you with the most accurate '
+                                'exchange rate, I need to know the specific '
+                                'currencies you\'re asking about. "Swedish '
+                                'currency" could refer to:\n'
+                                '\n'
+                                '*   **Swedish Krona (SEK):** This is the '
+                                'official currency of Sweden.\n'
+                                '\n'
+                                "Please confirm if you're interested in the "
+                                'exchange rate between USD and SEK. Once you '
+                                'confirm, I can fetch the latest exchange rate '
+                                'for you.\n'}],
+             'role': 'model'},
+ 'id': 'LYg7wg8G',
+ 'invocation_id': 'e-113ca547-0f19-4d50-9dde-f76cbc001dce',
+ 'timestamp': 1744166956.925927}
+(Opcional) Definir e usar uma ferramenta
+Depois de definir o modelo, defina as ferramentas que ele usa para raciocínio.
+
+Ao definir a função, é importante incluir comentários que descrevam completa e claramente os parâmetros da função, o que ela faz e o que ela retorna. Essas informações são usadas pelo modelo para determinar qual função usar. Você também precisa testar a função localmente para confirmar se ela funciona.
+
+Use o código a seguir para definir uma função que retorna uma taxa de câmbio:
+
+
+
+def get_exchange_rate(
+    currency_from: str = "USD",
+    currency_to: str = "EUR",
+    currency_date: str = "latest",
+):
+    """Retrieves the exchange rate between two currencies on a specified date.
+
+    Uses the Frankfurter API (https://api.frankfurter.app/) to obtain
+    exchange rate data.
+
+    Args:
+        currency_from: The base currency (3-letter currency code).
+            Defaults to "USD" (US Dollar).
+        currency_to: The target currency (3-letter currency code).
+            Defaults to "EUR" (Euro).
+        currency_date: The date for which to retrieve the exchange rate.
+            Defaults to "latest" for the most recent exchange rate data.
+            Can be specified in YYYY-MM-DD format for historical rates.
+
+    Returns:
+        dict: A dictionary containing the exchange rate information.
+            Example: {"amount": 1.0, "base": "USD", "date": "2023-11-24",
+                "rates": {"EUR": 0.95534}}
+    """
+    import requests
+    response = requests.get(
+        f"https://api.frankfurter.app/{currency_date}",
+        params={"from": currency_from, "to": currency_to},
+    )
+    return response.json()
+Para testar a função antes de usá-la no seu agente, execute o seguinte:
+
+
+
+get_exchange_rate(currency_from="USD", currency_to="SEK")
+A resposta será semelhante a esta:
+
+
+
+{'amount': 1.0, 'base': 'USD', 'date': '2025-04-03', 'rates': {'SEK': 9.6607}}
+Para usar a ferramenta no AdkApp, adicione-a à lista de ferramentas no argumento tools=:
+
+
+
+from google.adk.agents import Agent
+
+agent = Agent(
+    model=model,                     # Required.
+    name='currency_exchange_agent',  # Required.
+    tools=[get_exchange_rate],       # Optional.
+)
+
+É possível testar o agente localmente executando consultas de teste nele. Execute o comando a seguir para testar o agente localmente usando dólares americanos e coroas suecas:
+
+
+
+from vertexai.agent_engines import AdkApp
+
+app = AdkApp(agent=agent)
+async for event in app.async_stream_query(
+    user_id="USER_ID",
+    message="What is the exchange rate from US dollars to SEK on 2025-04-03?",
+):
+    print(event)
+em que USER_ID é o ID do usuário que você definiu. Por exemplo, user-123.
+
+A resposta é uma sequência de dicionários semelhante a esta:
+
+
+
+{'author': 'currency_exchange_agent',
+ 'content': {'parts': [{'function_call': {'args': {'currency_date': '2025-04-03',
+                                                   'currency_from': 'USD',
+                                                   'currency_to': 'SEK'},
+                                          'id': 'adk-e39f3ba2-fa8c-4169-a63a-8e4c62b89818',
+                                          'name': 'get_exchange_rate'}}],
+             'role': 'model'},
+ 'id': 'zFyIaaif',
+ # ...
+}
+{'author': 'currency_exchange_agent',
+ 'content': {'parts': [{'function_response': {'id': 'adk-e39f3ba2-fa8c-4169-a63a-8e4c62b89818',
+                                              'name': 'get_exchange_rate',
+                                              'response': {'amount': 1.0,
+                                                           'base': 'USD',
+                                                           'date': '2025-04-03',
+                                                           'rates': {'SEK': 9.6607}}}}],
+             'role': 'user'},
+ 'id': 'u2YR4Uom',
+ # ...
+}
+{'author': 'currency_exchange_agent',
+ 'content': {'parts': [{'text': 'The exchange rate from USD to SEK on '
+                                '2025-04-03 is 9.6607.'}],
+             'role': 'model'},
+ 'id': 'q3jWA3wl',
+ # ...
+}
+(Opcional) Gerenciar sessões
+O AdkApp usa sessões na memória ao ser executado localmente e sessões gerenciadas baseadas na nuvem depois que você implanta o agente no Vertex AI Agent Engine. Nesta seção, descrevemos como configurar o agente do ADK para trabalhar com sessões gerenciadas.
+
+(Opcional) Personalizar seu banco de dados de sessões
+Observação: se você usar um serviço de sessão personalizado na memória, as sessões poderão não permanecer sincronizadas ao implantar o agente no Vertex AI Agent Engine. Recomendamos personalizar seu banco de dados apenas se você puder sincronizar o estado entre sessões em um ambiente implantado.
+Se você quiser substituir o serviço de sessão gerenciada padrão pelo seu próprio banco de dados, defina uma função session_service_builder da seguinte maneira:
+
+
+
+def session_service_builder():
+  from google.adk.sessions import InMemorySessionService
+
+  return InMemorySessionService()
+Transmita seu banco de dados para AdkApp como session_service_builder=:
+
+
+
+from vertexai.agent_engines import AdkApp
+
+app = AdkApp(
+   agent=agent,                                      # Required.
+   session_service_builder=session_service_builder,  # Optional.
+)
+Usar o agente com sessões
+Ao executar o AdkApp localmente, as instruções a seguir usam sessões na memória:
+
+Crie uma sessão para seu agente:
+
+
+
+session = await app.async_create_session(user_id="USER_ID")
+print(session)
+A sessão é criada como a representação de dicionário de um objeto de sessão do ADK.
+
+Liste as sessões associadas ao seu agente:
+
+
+
+await app.async_list_sessions(user_id="USER_ID")
+Acessar uma sessão específica:
+
+
+
+session = await app.async_get_session(user_id="USER_ID", session_id="SESSION_ID")
+em que
+
+USER_ID é o ID de usuário que você definiu. Por exemplo, user-123.
+
+SESSION_ID é o ID da sessão específica que você quer recuperar.
+
+Consulte o AdkApp usando sessões:
+
+
+
+async for event in app.async_stream_query(
+    user_id="USER_ID",
+    session_id=SESSION_ID, # Optional. you can pass in the session_id when querying the agent
+    message="What is the exchange rate from US dollars to Swedish currency on 2025-04-03?",
+):
+    print(event)
+O agente pode responder com um pedido de informações como este:
+
+
+
+{'author': 'currency_exchange_agent',
+ 'content': {'parts': [{'text': 'I need to know the Swedish currency code to '
+                                'provide you with the exchange rate.'}],
+             'role': 'model'},
+ 'id': 'wIgZAtQ4',
+ #...
+}
+É possível enviar uma resposta (por exemplo, "SEK") em nome de USER_ID na sessão correspondente a session especificando:
+
+
+
+async for event in app.async_stream_query(
+    user_id="USER_ID",
+    session_id=session.id, # Optional. you can pass in the session_id when querying the agent
+    message="SEK",
+):
+    print(event)
+Você vai receber uma continuação da conversa, como a seguinte sequência de dicionários:
+
+
+
+{'author': 'currency_exchange_agent',
+ 'content': {'parts': [{'function_call': {'args': {'currency_date': '2025-04-03',
+                                                   'currency_from': 'USD',
+                                                   'currency_to': 'SEK'},
+                                          'id': 'adk-2b9230a6-4b92-4a1b-9a65-b708ff6c68b6',
+                                          'name': 'get_exchange_rate'}}],
+             'role': 'model'},
+ 'id': 'bOPHtzji',
+ # ...
+}
+{'author': 'currency_exchange_agent',
+ 'content': {'parts': [{'function_response': {'id': 'adk-2b9230a6-4b92-4a1b-9a65-b708ff6c68b6',
+                                              'name': 'get_exchange_rate',
+                                              'response': {'amount': 1.0,
+                                                           'base': 'USD',
+                                                           'date': '2025-04-03',
+                                                           'rates': {'SEK': 9.6607}}}}],
+             'role': 'user'},
+ 'id': '9AoDFmiL',
+ # ...
+}
+{'author': 'currency_exchange_agent',
+ 'content': {'parts': [{'text': 'The exchange rate from USD to SEK on '
+                                '2025-04-03 is 1 USD to 9.6607 SEK.'}],
+             'role': 'model'},
+ 'id': 'hmle7trT',
+ # ...
+}
+(Opcional) Gerenciar recordações
+Por padrão, o AdkApp usa uma implementação na memória da memória do agente ao executar localmente e usa o Memory Bank do Agent Engine da Vertex AI depois que você implanta o agente no Agent Engine da Vertex AI.
+
+Ao desenvolver seu agente do ADK, você pode incluir um PreloadMemoryTool que controla quando o agente recupera recordações e como elas são incluídas no comando. O exemplo de agente a seguir sempre recupera memórias no início de cada turno e as inclui na instrução do sistema:
+
+
+
+from google import adk
+from vertexai.agent_engines import AdkApp
+
+agent = adk.Agent(
+    model="gemini-2.0-flash",
+    name='stateful_agent',
+    instruction="""You are a Vehicle Voice Agent, designed to assist users with information and in-vehicle actions.
+
+1.  **Direct Action:** If a user requests a specific vehicle function (e.g., "turn on the AC"), execute it immediately using the corresponding tool. You don't have the outcome of the actual tool execution, so provide a hypothetical tool execution outcome.
+2.  **Information Retrieval:** Respond concisely to general information requests with your own knowledge (e.g., restaurant recommendation).
+3.  **Clarity:** When necessary, try to seek clarification to better understand the user's needs and preference before taking an action.
+4.  **Brevity:** Limit responses to under 30 words.
+""",
+    tools=[adk.tools.preload_memory_tool.PreloadMemoryTool()],
+)
+app = AdkApp(agent=agent)
+(Opcional) Personalizar seu serviço de memória
+Observação: se você usar um serviço de memória na memória personalizado, as memórias poderão não ficar sincronizadas ao implantar o agente no Vertex AI Agent Engine. Recomendamos personalizar o serviço de memória apenas se você puder sincronizar as memórias em instâncias em uma configuração distribuída quando o agente for implantado.
+Se você quiser substituir o serviço de memória padrão, defina uma função memory_service_builder que retorne um BaseMemoryService da seguinte maneira:
+
+
+
+def memory_service_builder():
+  from google.adk.memory import InMemoryMemoryService
+
+  return InMemoryMemoryService()
+Transmita seu banco de dados para AdkApp como memory_service_builder=:
+
+
+
+from vertexai.agent_engines import AdkApp
+
+app = AdkApp(
+   agent=agent,                                    # Required.
+   memory_service_builder=memory_service_builder,  # Optional.
+)
+Usar o agente com recordações
+Teste seu agente do ADK com memórias:
+
+Crie uma sessão e interaja com o agente:
+
+
+
+initial_session = await app.async_create_session(user_id="USER_ID")
+
+async for event in app.async_stream_query(
+    user_id="USER_ID",
+    session_id=initial_session.id,
+    message="Can you update the temperature to my preferred temperature?",
+):
+    print(event)
+Como não há memórias disponíveis durante a primeira sessão e o agente não conhece as preferências do usuário, ele pode responder com algo como "Qual é sua temperatura preferida?" Você pode responder com o seguinte comando:
+
+
+
+async for event in app.async_stream_query(
+    user_id="USER_ID",
+    session_id=initial_session.id,
+    message="I like it at 71 degrees",
+):
+    print(event)
+O agente pode responder algo como "Definindo a temperatura para 21 graus Celsius. A temperatura foi alterada." A resposta do agente pode variar dependendo do modelo usado.
+
+Gerar recordações da sessão. Para armazenar informações da sessão para uso em sessões futuras, use o método async_add_session_to_memory:
+
+
+
+await app.async_add_session_to_memory(session=initial_session)
+Teste se o agente manteve a memória da sessão (usando PreloadMemoryTool) criando uma nova sessão e pedindo ao agente:
+
+
+
+new_session = await app.async_create_session(user_id="USER_ID")
+async for event in app.async_stream_query(
+    user_id="USER_ID",
+    session_id=initial_session.id,
+    message="Fix the temperature!",
+):
+    print(event)
+O agente pode retornar uma resposta como "Definindo a temperatura para 21 graus. Isso está correto?" A resposta do agente pode variar dependendo do modelo e do provedor de serviços de memória que você usou.
+
+Use o método async_search_memory para mostrar as memórias do agente:
+
+
+
+response = await app.async_search_memory(
+    user_id="USER_ID",
+    query="Fix the temperature!",
+)
+print(response)

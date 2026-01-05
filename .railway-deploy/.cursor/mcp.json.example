@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "todoist": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://ai.todoist.net/mcp"]
+    },
+    "sonarqube": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sonarqube"
+      ],
+      "env": {
+        "SONARQUBE_URL": "https://sonarcloud.io",
+        "SONARQUBE_TOKEN": "seu_token_aqui",
+        "SONARQUBE_ORGANIZATION": "thiagobodevan-a11y-assistente-juridico-p"
+      }
+    }
+  }
+}

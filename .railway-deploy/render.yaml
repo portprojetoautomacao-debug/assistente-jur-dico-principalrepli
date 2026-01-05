@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: assistente-juridico-pje
+    env: node
+    region: oregon # ou 'frankfurt' para Europa
+    plan: free # Plano gratuito do Render
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      # Node.js version (obrigatório)
+      - key: NODE_VERSION
+        value: 20
+      
+      # Variáveis do Google OAuth (obrigatórias)
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false # Configure manualmente no dashboard do Render
+      
+      - key: VITE_REDIRECT_URI
+        value: https://assistente-juridico-pje.onrender.com
+      
+      # Variáveis do GitHub Spark (obrigatórias para funcionalidades de IA)
+      - key: GITHUB_RUNTIME_PERMANENT_NAME
+        sync: false # Configure manualmente no dashboard do Render
+      
+      - key: GITHUB_TOKEN
+        sync: false # Configure manualmente no dashboard do Render
+      
+      # Ambiente da aplicação
+      - key: VITE_APP_ENV
+        value: production
+      
+      # URL da API do GitHub (opcional)
+      - key: GITHUB_API_URL
+        value: https://api.github.com
+      
+      # Tribunais para monitoramento DJEN (opcional)
+      - key: DJEN_TRIBUNAIS
+        value: TST,TRT3,TJMG,TRF1,TJES,TJSP,STJ
+      
+      # Backend URL (opcional - se usar backend separado)
+      # - key: VITE_BACKEND_URL
+      #   value: https://seu-backend.onrender.com
+      
+      # Google Gemini API (opcional - alternativa ao Spark LLM)
+      # - key: VITE_GEMINI_API_KEY
+      #   sync: false

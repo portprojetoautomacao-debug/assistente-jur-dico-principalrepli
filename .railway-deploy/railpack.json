@@ -1,0 +1,6 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "deploy": {
+    "startCommand": "node -r ./backend/dist/backend/src/datadog.js backend/dist/backend/src/server.js"
+  }
+}

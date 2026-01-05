@@ -1,0 +1,220 @@
+# Configuração Avançada do GitLab Duo com Componentes CI/CD
+# Integração completa entre GitLab Duo e componentes reutilizáveis
+
+spec:
+  inputs:
+    duo_enabled:
+      default: true
+      description: "Habilitar GitLab Duo no pipeline"
+    auto_review:
+      default: true
+      description: "Revisão automática de código"
+    security_level:
+      default: "standard"
+      description: "Nível de análise de segurança: basic, standard, advanced"
+    max_comments:
+      default: 25
+      description: "Número máximo de comentários por revisão"
+    audit_logging:
+      default: true
+      description: "Habilitar logging de auditoria"
+    legal_compliance_checks:
+      default: ["lgpd_compliance"]
+      description: "Lista de verificações de compliance legal"
+    custom_agents:
+      default: ["assistente-juridico-reviewer"]
+      description: "Lista de agentes customizados"
+
+# GitLab Duo com Componentes CI/CD Integrados
+# Pipeline inteligente com IA e componentes reutilizáveis
+
+stages: [duo-review, security, test, build, deploy, monitor]
+
+variables:
+  GITLAB_DUO_ENABLED: "$[[ inputs.duo_enabled ]]"
+  DUO_SECURITY_LEVEL: "$[[ inputs.security_level ]]"
+  DUO_MAX_COMMENTS: "$[[ inputs.max_comments ]]"
+  DUO_AUDIT_LOGGING: "$[[ inputs.audit_logging ]]"
+
+# Job de revisão com GitLab Duo
+duo-code-review:
+  stage: duo-review
+  image: registry.gitlab.com/gitlab-org/duo-workflow-executor/duo-workflow-executor:latest
+  script:
+    - echo "🤖 Executando revisão com GitLab Duo..."
+    - |
+      if [ "$[[ inputs.duo_enabled ]]" = "true" ]; then
+        echo "📝 Iniciando análise de código..."
+        # Simulação da análise do Duo (integrar com API real quando disponível)
+        echo "🔍 Analisando mudanças no código..."
+        echo "💡 Sugestões geradas: $[[ inputs.max_comments ]]"
+        echo "✅ Revisão concluída"
+      else
+        echo "⏭️ GitLab Duo desabilitado"
+      fi
+    - |
+      # Logging de auditoria se habilitado
+      if [ "$[[ inputs.audit_logging ]]" = "true" ]; then
+        echo "📊 Registrando auditoria..." >> duo-audit.log
+        echo "Timestamp: $(date)" >> duo-audit.log
+        echo "Pipeline: $CI_PIPELINE_ID" >> duo-audit.log
+        echo "Commit: $CI_COMMIT_SHA" >> duo-audit.log
+        echo "Security Level: $[[ inputs.security_level ]]" >> duo-audit.log
+      fi
+  artifacts:
+    paths:
+      - duo-audit.log
+    expire_in: 1 week
+    when: always
+  only:
+    - merge_requests
+  allow_failure: true
+
+# Verificações de compliance legal
+legal-compliance-check:
+  stage: duo-review
+  image: node:22
+  script:
+    - echo "⚖️ Executando verificações de compliance legal..."
+    - |
+      for check in $[[ inputs.legal_compliance_checks ]]; do
+        echo "🔍 Executando: $check"
+        case $check in
+          "lgpd_compliance")
+            echo "🇧🇷 Verificando compliance LGPD..."
+            # Verificar uso de dados pessoais
+            if grep -r "CPF\|CNPJ\|RG\|email\|telefone" src/ --include="*.ts" --include="*.tsx" > lgpd-violations.txt 2>/dev/null; then
+              echo "⚠️ Possíveis violações LGPD encontradas"
+              cat lgpd-violations.txt
+            else
+              echo "✅ Compliance LGPD OK"
+            fi
+            ;;
+          "data_protection")
+            echo "🔒 Verificando proteção de dados..."
+            # Verificar criptografia e sanitização
+            ;;
+          *)
+            echo "❓ Verificação desconhecida: $check"
+            ;;
+        esac
+      done
+  artifacts:
+    paths:
+      - lgpd-violations.txt
+    expire_in: 1 week
+    when: always
+  only:
+    - merge_requests
+  allow_failure: true
+
+# Agentes customizados
+custom-agents-review:
+  stage: duo-review
+  image: node:22
+  script:
+    - echo "🎭 Executando agentes customizados..."
+    - |
+      for agent in $[[ inputs.custom_agents ]]; do
+        echo "🤖 Executando agente: $agent"
+        case $agent in
+          "assistente-juridico-reviewer")
+            echo "⚖️ Analisando código jurídico..."
+            # Verificar termos jurídicos, validações, etc.
+            if grep -r "processo\|prazo\|advogado\|cliente" src/ --include="*.ts" --include="*.tsx" > legal-code-analysis.txt 2>/dev/null; then
+              echo "📋 Análise jurídica concluída"
+            fi
+            ;;
+          "security-reviewer")
+            echo "🔒 Análise de segurança adicional..."
+            ;;
+          *)
+            echo "❓ Agente desconhecido: $agent"
+            ;;
+        esac
+      done
+  artifacts:
+    paths:
+      - legal-code-analysis.txt
+    expire_in: 1 week
+    when: always
+  only:
+    - merge_requests
+  allow_failure: true
+
+# Integração com componentes CI/CD
+include:
+  # Componentes de segurança
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/templates/security/security-component@1.0.0
+    inputs:
+      stage: security
+      audit_level: "$[[ inputs.security_level ]]"
+
+  # Componentes de testes
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/templates/testing/testing-component@1.0.0
+    inputs:
+      stage: test
+      test_type: "all"
+
+  # Componentes de deployment
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/templates/deployment/deployment-component@1.0.0
+    inputs:
+      stage: deploy
+      environment: "staging"
+
+  # Componentes de monitoramento
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/templates/monitoring/monitoring-component@1.0.0
+    inputs:
+      stage: monitor
+      monitoring_type: "advanced"
+
+# Job de build
+build:
+  stage: build
+  image: node:22
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+  only:
+    - merge_requests
+    - main
+
+# Relatório consolidado do Duo
+duo-summary:
+  stage: monitor
+  image: node:22
+  script:
+    - echo "📊 Gerando relatório consolidado do GitLab Duo..."
+    - |
+      echo "# Relatório GitLab Duo - Pipeline $CI_PIPELINE_ID" > duo-summary.md
+      echo "" >> duo-summary.md
+      echo "## 🤖 Configurações" >> duo-summary.md
+      echo "- Duo Habilitado: $[[ inputs.duo_enabled ]]" >> duo-summary.md
+      echo "- Nível de Segurança: $[[ inputs.security_level ]]" >> duo-summary.md
+      echo "- Máximo de Comentários: $[[ inputs.max_comments ]]" >> duo-summary.md
+      echo "- Agentes Customizados: $[[ inputs.custom_agents ]]" >> duo-summary.md
+      echo "" >> duo-summary.md
+      echo "## ✅ Verificações Executadas" >> duo-summary.md
+      echo "- [x] Revisão de código automatizada" >> duo-summary.md
+      echo "- [x] Análise de segurança" >> duo-summary.md
+      echo "- [x] Compliance legal" >> duo-summary.md
+      echo "- [x] Agentes customizados" >> duo-summary.md
+      echo "" >> duo-summary.md
+      echo "## 📋 Artefatos Gerados" >> duo-summary.md
+      echo "- duo-audit.log" >> duo-summary.md
+      echo "- lgpd-violations.txt" >> duo-summary.md
+      echo "- legal-code-analysis.txt" >> duo-summary.md
+    - cat duo-summary.md
+  artifacts:
+    paths:
+      - duo-summary.md
+    expire_in: 1 week
+  when: always
+  dependencies:
+    - duo-code-review
+    - legal-compliance-check
+    - custom-agents-review

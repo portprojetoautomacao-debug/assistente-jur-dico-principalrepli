@@ -1,0 +1,94 @@
+
+> assistente-juridico-backend@1.0.0 dev
+> tsx watch --tsconfig ../tsconfig.json src/server.ts
+
+[KV] Redis not configured, using in-memory store
+Loading env from: /home/runner/workspace/.env.local
+[dotenv@17.2.3] injecting env (0) from ../.env.local -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+🚀 Backend server running on port 3001
+📝 Environment: development
+🌐 Frontend URL: http://localhost:5173
+✅ Health check: http://localhost:3001/health
+✅ Tabela expedientes inicializada
+ℹ️ DJEN Scheduler desabilitado (defina DJEN_SCHEDULER_ENABLED=true para ativar)
+2026-01-03T22:59:30.100Z - GET /
+2026-01-03T22:59:30.557Z - GET /favicon.ico
+[Editor] ✅ Agentes de editor carregados
+[Agents] ✅ 14 agentes reais carregados
+2026-01-03T22:59:33.226Z - GET /api/expedientes
+2026-01-03T22:59:33.399Z - POST /api/kv
+2026-01-03T22:59:33.419Z - GET /api/lawyers
+2026-01-03T22:59:33.587Z - GET /api/djen/publicacoes
+[DJEN Proxy] Buscando: https://comunicaapi.pje.jus.br/api/v1/comunicacao?meio=D&numeroOab=184404&ufOab=MG&dataDisponibilizacaoInicio=2026-01-03&dataDisponibilizacaoFim=2026-01-03
+[DJEN Proxy] Erro: Error: API DJEN retornou 403
+    at <anonymous> (/home/runner/workspace/backend/src/routes/djen.ts:37:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2026-01-03T22:59:37.002Z - GET /api/ai/status
+2026-01-03T22:59:37.171Z - POST /api/kv
+2026-01-03T22:59:37.199Z - GET /api/ai/status
+2026-01-03T22:59:38.280Z - GET /api/editor/commands
+2026-01-03T22:59:38.459Z - GET /api/editor/commands
+2026-01-03T22:59:41.665Z - GET /api/editor/commands
+2026-01-03T22:59:41.840Z - GET /api/editor/commands
+2026-01-03T23:01:14.378Z - GET /api/expedientes
+2026-01-03T23:01:14.500Z - POST /api/kv
+2026-01-03T23:01:14.759Z - GET /api/lawyers
+2026-01-03T23:01:15.010Z - GET /api/djen/publicacoes
+[DJEN Proxy] Buscando: https://comunicaapi.pje.jus.br/api/v1/comunicacao?meio=D&numeroOab=184404&ufOab=MG&dataDisponibilizacaoInicio=2026-01-03&dataDisponibilizacaoFim=2026-01-03
+[DJEN Proxy] Erro: Error: API DJEN retornou 403
+    at <anonymous> (/home/runner/workspace/backend/src/routes/djen.ts:37:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2026-01-03T23:01:15.248Z - GET /api/ai/status
+2026-01-03T23:01:15.412Z - POST /api/kv
+2026-01-03T23:01:15.415Z - GET /api/ai/status
+2026-01-03T23:01:17.773Z - GET /api/editor/commands
+2026-01-03T23:01:17.937Z - GET /api/editor/commands
+2026-01-04T00:05:19.759Z - GET /api/expedientes
+2026-01-04T00:05:19.914Z - POST /api/kv
+2026-01-04T00:05:19.998Z - GET /api/lawyers
+2026-01-04T00:05:20.238Z - GET /api/djen/publicacoes
+[DJEN Proxy] Buscando: https://comunicaapi.pje.jus.br/api/v1/comunicacao?meio=D&numeroOab=184404&ufOab=MG&dataDisponibilizacaoInicio=2026-01-04&dataDisponibilizacaoFim=2026-01-04
+[DJEN Proxy] Erro: Error: API DJEN retornou 403
+    at <anonymous> (/home/runner/workspace/backend/src/routes/djen.ts:37:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2026-01-04T00:05:20.734Z - GET /api/ai/status
+2026-01-04T00:05:20.882Z - POST /api/kv
+2026-01-04T00:05:20.895Z - GET /api/ai/status
+2026-01-04T00:05:28.377Z - GET /api/editor/commands
+2026-01-04T00:05:28.554Z - GET /api/editor/commands
+2026-01-04T00:08:15.796Z - POST /api/kv
+2026-01-04T00:09:07.198Z - POST /api/kv
+2026-01-04T00:09:14.730Z - POST /api/kv
+2026-01-04T00:09:20.872Z - GET /api/expedientes
+2026-01-04T00:09:20.874Z - GET /api/agents
+2026-01-04T00:09:21.031Z - POST /api/kv
+2026-01-04T00:09:21.046Z - GET /api/agents
+2026-01-04T00:09:21.051Z - GET /api/expedientes
+2026-01-04T00:09:21.055Z - GET /api/agents
+2026-01-04T00:09:21.227Z - GET /api/agents
+2026-01-04T00:09:21.358Z - GET /api/ai/status
+2026-01-04T00:09:21.515Z - POST /api/kv
+2026-01-04T00:09:21.528Z - GET /api/ai/status
+2026-01-04T00:09:22.875Z - POST /api/kv
+2026-01-04T00:09:27.299Z - GET /api/editor/commands
+2026-01-04T00:09:27.462Z - GET /api/editor/commands
+2026-01-04T00:09:33.183Z - GET /api/expedientes
+2026-01-04T00:09:33.333Z - POST /api/kv
+2026-01-04T00:09:33.575Z - GET /api/lawyers
+2026-01-04T00:09:33.760Z - GET /api/djen/publicacoes
+[DJEN Proxy] Buscando: https://comunicaapi.pje.jus.br/api/v1/comunicacao?meio=D&numeroOab=184404&ufOab=MG&dataDisponibilizacaoInicio=2026-01-04&dataDisponibilizacaoFim=2026-01-04
+[DJEN Proxy] Erro: Error: API DJEN retornou 403
+    at <anonymous> (/home/runner/workspace/backend/src/routes/djen.ts:37:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2026-01-04T00:09:34.107Z - GET /api/ai/status
+2026-01-04T00:09:34.255Z - POST /api/kv
+2026-01-04T00:09:34.278Z - GET /api/ai/status
+2026-01-04T00:12:15.638Z - GET /api/expedientes
+2026-01-04T00:12:15.721Z - POST /api/kv
+2026-01-04T00:12:16.605Z - GET /api/lawyers
+2026-01-04T00:12:16.786Z - GET /api/djen/publicacoes
+[DJEN Proxy] Buscando: https://comunicaapi.pje.jus.br/api/v1/comunicacao?meio=D&numeroOab=184404&ufOab=MG&dataDisponibilizacaoInicio=2026-01-04&dataDisponibilizacaoFim=2026-01-04
+[DJEN Proxy] Erro: Error: API DJEN retornou 403
+    at <anonymous> (/home/runner/workspace/backend/src/routes/djen.ts:37:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)

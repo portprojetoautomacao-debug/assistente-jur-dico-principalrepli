@@ -153,7 +153,7 @@ export default function BatchAnalysis() {
         // O campo 'parties' geralmente tem formato "Autor vs Réu" ou "Autor x Réu"
         if (data.parties) {
           // Usar split ao invés de regex para evitar ReDoS
-          const parts = data.parties.split(/\s+(?:vs?\.?|x)\s+/i);
+          const parts = data.parties.split(/\s+(?:vs?\.?|x)\s+/iu);
           if (parts.length >= 2) {
             const autor = parts[0].trim();
             // const reu = parts[1].trim() // Unused

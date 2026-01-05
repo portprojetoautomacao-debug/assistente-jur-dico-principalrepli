@@ -1,0 +1,513 @@
+# Azure Pipelines - Assistente Jurídico PJe
+# Complete CI/CD Pipeline with Testing, Security Scanning, and Deployment
+# Substitui todos os GitHub Actions workflows
+
+name: $(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    exclude:
+      - 'docs/**'
+      - '*.md'
+      - '.github/**'
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+schedules:
+  # Daily build at 9 AM UTC (6 AM BRT)
+  - cron: "0 9 * * *"
+    displayName: Daily Build
+    branches:
+      include:
+        - main
+
+variables:
+  # Build Configuration
+  NODE_VERSION: '22.x'
+  NPM_CACHE_FOLDER: $(Pipeline.Workspace)/.npm
+  
+  # Application Configuration
+  SKIP_AUTH_SETUP: true
+  VITE_APP_ENV: 'ci'
+  
+  # Azure Configuration
+  AZURE_SUBSCRIPTION: 'assistente-juridico-subscription'
+  RESOURCE_GROUP: 'assistente-juridico-rg'
+  APP_INSIGHTS_NAME: 'assistente-juridico-insights'
+  
+  # Vercel Configuration
+  VERCEL_ORG_ID: 'thiagobodevan-org'
+  VERCEL_PROJECT_ID: 'assistente-juridico-github'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+# ==========================================
+# STAGE 1: BUILD & TEST
+# ==========================================
+- stage: BuildAndTest
+  displayName: '🏗️ Build & Test'
+  jobs:
+  
+  # JOB: TypeScript Compilation & Linting
+  - job: CompileAndLint
+    displayName: '📝 TypeScript & ESLint'
+    steps:
+    
+    - task: NodeTool@0
+      displayName: 'Setup Node.js $(NODE_VERSION)'
+      inputs:
+        versionSpec: $(NODE_VERSION)
+    
+    - task: Cache@2
+      displayName: 'Cache npm dependencies'
+      inputs:
+        key: 'npm | "$(Agent.OS)" | package-lock.json'
+        restoreKeys: |
+          npm | "$(Agent.OS)"
+        path: $(NPM_CACHE_FOLDER)
+    
+    - script: |
+        npm ci --cache $(NPM_CACHE_FOLDER) --prefer-offline
+      displayName: 'Install Dependencies'
+    
+    - script: npm run type-check
+      displayName: 'TypeScript Compilation Check'
+      continueOnError: false
+    
+    - script: npm run lint
+      displayName: 'ESLint Code Quality Check'
+      continueOnError: true
+    
+    - script: npm run format:check || true
+      displayName: 'Prettier Format Check'
+      continueOnError: true
+    
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish TypeScript Results'
+      inputs:
+        targetPath: '$(Build.SourcesDirectory)'
+        artifact: 'typescript-results'
+        publishLocation: 'pipeline'
+  
+  # JOB: Build Application
+  - job: BuildApp
+    displayName: '🔨 Build Application'
+    dependsOn: CompileAndLint
+    steps:
+    
+    - task: NodeTool@0
+      inputs:
+        versionSpec: $(NODE_VERSION)
+    
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | package-lock.json'
+        path: $(NPM_CACHE_FOLDER)
+    
+    - script: npm ci --cache $(NPM_CACHE_FOLDER)
+      displayName: 'Install Dependencies'
+    
+    - script: npm run build
+      displayName: 'Build Production Bundle'
+      env:
+        VITE_GOOGLE_CLIENT_ID: $(VITE_GOOGLE_CLIENT_ID)
+        VITE_GOOGLE_API_KEY: $(VITE_GOOGLE_API_KEY)
+        VITE_REDIRECT_URI: 'https://assistente-juridico-github.vercel.app'
+        VITE_APP_ENV: 'production'
+    
+    - task: ArchiveFiles@2
+      displayName: 'Archive Build Artifacts'
+      inputs:
+        rootFolderOrFile: '$(Build.SourcesDirectory)/dist'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/dist-$(Build.BuildId).zip'
+        replaceExistingArchive: true
+    
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Build Artifacts'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'build-artifacts'
+        publishLocation: 'Container'
+  
+  # JOB: Unit Tests
+  - job: UnitTests
+    displayName: '🧪 Unit Tests'
+    dependsOn: CompileAndLint
+    steps:
+    
+    - task: NodeTool@0
+      inputs:
+        versionSpec: $(NODE_VERSION)
+    
+    - script: npm ci
+      displayName: 'Install Dependencies'
+    
+    - script: npm run test:run -- --reporter=junit --reporter=default
+      displayName: 'Run Vitest Unit Tests'
+      continueOnError: true
+    
+    - task: PublishTestResults@2
+      displayName: 'Publish Unit Test Results'
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/junit.xml'
+        mergeTestResults: true
+        testRunTitle: 'Unit Tests'
+        failTaskOnFailedTests: false
+    
+    - script: npm run test:coverage
+      displayName: 'Generate Code Coverage'
+      continueOnError: true
+    
+    - task: PublishCodeCoverageResults@2
+      displayName: 'Publish Code Coverage'
+      inputs:
+        summaryFileLocation: '**/coverage/cobertura-coverage.xml'
+        pathToSources: '$(Build.SourcesDirectory)/src'
+        failIfCoverageEmpty: false
+  
+  # JOB: E2E Tests
+  - job: E2ETests
+    displayName: '🎭 E2E Tests (Playwright)'
+    dependsOn: BuildApp
+    strategy:
+      matrix:
+        chromium:
+          BROWSER: 'chromium'
+        firefox:
+          BROWSER: 'firefox'
+    steps:
+    
+    - task: NodeTool@0
+      inputs:
+        versionSpec: $(NODE_VERSION)
+    
+    - script: npm ci
+      displayName: 'Install Dependencies'
+    
+    - script: npx playwright install $(BROWSER) --with-deps
+      displayName: 'Install Playwright Browser: $(BROWSER)'
+    
+    - script: npm run build
+      displayName: 'Build for E2E Tests'
+      env:
+        VITE_GOOGLE_CLIENT_ID: 'dummy-client-id'
+        VITE_GOOGLE_API_KEY: 'dummy-api-key'
+        VITE_REDIRECT_URI: 'http://localhost:5173'
+        VITE_APP_ENV: 'ci'
+    
+    - script: npm run test:e2e -- --project=$(BROWSER) --reporter=junit
+      displayName: 'Run E2E Tests: $(BROWSER)'
+      continueOnError: true
+      env:
+        CI: true
+        SKIP_AUTH_SETUP: true
+    
+    - task: PublishTestResults@2
+      displayName: 'Publish E2E Test Results'
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/playwright-report/results.xml'
+        testRunTitle: 'E2E Tests - $(BROWSER)'
+        failTaskOnFailedTests: false
+    
+    - task: PublishPipelineArtifact@1
+      condition: failed()
+      displayName: 'Publish E2E Failure Screenshots'
+      inputs:
+        targetPath: '$(Build.SourcesDirectory)/test-results'
+        artifact: 'e2e-failures-$(BROWSER)'
+
+# ==========================================
+# STAGE 2: SECURITY SCANNING
+# ==========================================
+- stage: SecurityScan
+  displayName: '🔒 Security Scanning'
+  dependsOn: BuildAndTest
+  jobs:
+  
+  # JOB: NPM Audit
+  - job: NPMAudit
+    displayName: '🔍 NPM Security Audit'
+    steps:
+    
+    - task: NodeTool@0
+      inputs:
+        versionSpec: $(NODE_VERSION)
+    
+    - script: npm ci
+      displayName: 'Install Dependencies'
+    
+    - script: |
+        npm audit --audit-level=moderate --json > npm-audit.json || true
+      displayName: 'Run NPM Audit'
+      continueOnError: true
+    
+    - script: |
+        echo "## NPM Security Audit Results" > audit-report.md
+        cat npm-audit.json >> audit-report.md
+      displayName: 'Generate Audit Report'
+    
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Audit Report'
+      inputs:
+        targetPath: 'audit-report.md'
+        artifact: 'npm-audit-report'
+  
+  # JOB: SonarCloud Analysis
+  - job: SonarCloudAnalysis
+    displayName: '📊 SonarCloud Code Quality'
+    steps:
+    
+    - task: NodeTool@0
+      inputs:
+        versionSpec: $(NODE_VERSION)
+    
+    - script: npm ci
+      displayName: 'Install Dependencies'
+    
+    - task: SonarCloudPrepare@1
+      displayName: 'Prepare SonarCloud Analysis'
+      inputs:
+        SonarCloud: 'SonarCloud-Connection'
+        organization: 'thiagobodevan-org'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'thiagobodevan-a11y_assistente-juridico-p'
+        cliProjectName: 'Assistente Jurídico PJe'
+        cliSources: 'src,api'
+        extraProperties: |
+          sonar.javascript.lcov.reportPaths=coverage/lcov.info
+          sonar.exclusions=**/*.test.ts,**/*.spec.ts,node_modules/**,dist/**
+    
+    - script: npm run test:coverage
+      displayName: 'Generate Coverage for SonarCloud'
+      continueOnError: true
+    
+    - task: SonarCloudAnalyze@1
+      displayName: 'Run SonarCloud Analysis'
+    
+    - task: SonarCloudPublish@1
+      displayName: 'Publish SonarCloud Results'
+      inputs:
+        pollingTimeoutSec: '300'
+  
+  # JOB: Secret Scanning
+  - job: SecretScanning
+    displayName: '🔐 Secret Scanning'
+    steps:
+    
+    - checkout: self
+      fetchDepth: 0
+    
+    - script: |
+        echo "Scanning for exposed secrets..."
+        
+        # Check for .env files
+        if git ls-files | grep -E "^\.env\.(vercel|production|local|staging)$"; then
+          echo "##vso[task.logissue type=error]Found .env files in git!"
+          exit 1
+        fi
+        
+        # Check for private keys
+        if git grep -l "PRIVATE KEY" | grep -v ".example" | grep -v "docs/"; then
+          echo "##vso[task.logissue type=error]Found private keys in code!"
+          exit 1
+        fi
+        
+        # Check for GitHub tokens
+        if git grep -E "gh[pso]_[a-zA-Z0-9]{36}" | grep -v ".example" | grep -v "xxx"; then
+          echo "##vso[task.logissue type=error]Found GitHub tokens in code!"
+          exit 1
+        fi
+        
+        echo "No secrets detected!"
+      displayName: 'Scan for Exposed Secrets'
+      continueOnError: false
+
+# ==========================================
+# STAGE 3: DEPLOYMENT
+# ==========================================
+- stage: DeployStaging
+  displayName: '🚀 Deploy to Staging'
+  dependsOn: SecurityScan
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  jobs:
+  
+  - deployment: DeployToStaging
+    displayName: 'Deploy to Vercel Staging'
+    environment: 'staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+          
+          - script: npm install -g vercel
+            displayName: 'Install Vercel CLI'
+          
+          - script: |
+              vercel --token $(VERCEL_TOKEN) \
+                --scope $(VERCEL_ORG_ID) \
+                --confirm \
+                --env VITE_APP_ENV=staging
+            displayName: 'Deploy to Vercel Staging'
+            env:
+              VERCEL_TOKEN: $(VERCEL_TOKEN)
+              VERCEL_ORG_ID: $(VERCEL_ORG_ID)
+              VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
+
+- stage: DeployProduction
+  displayName: '🌐 Deploy to Production'
+  dependsOn: SecurityScan
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  
+  - deployment: DeployToProduction
+    displayName: 'Deploy to Vercel Production'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+          
+          - script: npm install -g vercel
+            displayName: 'Install Vercel CLI'
+          
+          - script: |
+              vercel --prod \
+                --token $(VERCEL_TOKEN) \
+                --scope $(VERCEL_ORG_ID) \
+                --confirm
+            displayName: 'Deploy to Vercel Production'
+            env:
+              VERCEL_TOKEN: $(VERCEL_TOKEN)
+          
+          - task: AzureCLI@2
+            displayName: 'Update Application Insights Release Annotation'
+            inputs:
+              azureSubscription: $(AZURE_SUBSCRIPTION)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az rest --method put --uri \
+                  "https://api.applicationinsights.io/v1/apps/$(APP_INSIGHTS_NAME)/Annotations" \
+                  --body '{
+                    "AnnotationName": "Deployment",
+                    "Category": "Deployment",
+                    "EventTime": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'",
+                    "Id": "'$(Build.BuildId)'",
+                    "Properties": "BuildNumber=$(Build.BuildNumber),Branch=$(Build.SourceBranchName)"
+                  }'
+
+# ==========================================
+# STAGE 4: POST-DEPLOYMENT VALIDATION
+# ==========================================
+- stage: PostDeploymentTests
+  displayName: '✅ Post-Deployment Validation'
+  dependsOn: DeployProduction
+  condition: succeeded()
+  jobs:
+  
+  - job: SmokeTests
+    displayName: '🔥 Smoke Tests'
+    steps:
+    
+    - script: |
+        echo "Running smoke tests against production..."
+        
+        # Test health endpoint
+        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://assistente-juridico-github.vercel.app/api/health)
+        if [ $HTTP_CODE -eq 200 ]; then
+          echo "✅ Health check passed"
+        else
+          echo "##vso[task.logissue type=error]Health check failed with code $HTTP_CODE"
+          exit 1
+        fi
+        
+        # Test agents endpoint
+        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://assistente-juridico-github.vercel.app/api/agents)
+        if [ $HTTP_CODE -eq 200 ]; then
+          echo "✅ Agents API is responsive"
+        else
+          echo "##vso[task.logissue type=warning]Agents API returned $HTTP_CODE"
+        fi
+      displayName: 'Validate Production Endpoints'
+  
+  - job: PerformanceBaseline
+    displayName: '📊 Performance Baseline'
+    steps:
+    
+    - script: |
+        echo "Measuring performance baseline..."
+        
+        # Measure response time
+        RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}\n' https://assistente-juridico-github.vercel.app)
+        echo "Response time: ${RESPONSE_TIME}s"
+        
+        # Alert if response time > 3s
+        if (( $(echo "$RESPONSE_TIME > 3.0" | bc -l) )); then
+          echo "##vso[task.logissue type=warning]Response time exceeded 3s threshold"
+        fi
+      displayName: 'Measure Response Time'
+
+# ==========================================
+# STAGE 5: MONITORING & ALERTING
+# ==========================================
+- stage: ConfigureMonitoring
+  displayName: '📡 Configure Monitoring'
+  dependsOn: PostDeploymentTests
+  condition: succeeded()
+  jobs:
+  
+  - job: SetupApplicationInsights
+    displayName: '📊 Setup Application Insights'
+    steps:
+    
+    - task: AzureCLI@2
+      displayName: 'Configure Application Insights Alerts'
+      inputs:
+        azureSubscription: $(AZURE_SUBSCRIPTION)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Create alert for high error rate
+          az monitor metrics alert create \
+            --name "HighErrorRate" \
+            --resource-group $(RESOURCE_GROUP) \
+            --scopes /subscriptions/$(SUBSCRIPTION_ID)/resourceGroups/$(RESOURCE_GROUP)/providers/microsoft.insights/components/$(APP_INSIGHTS_NAME) \
+            --condition "count exceptions/count > 10" \
+            --window-size 5m \
+            --evaluation-frequency 1m \
+            --severity 2 \
+            --description "Alert when error rate exceeds 10 errors in 5 minutes"
+          
+          # Create alert for slow response time
+          az monitor metrics alert create \
+            --name "SlowResponseTime" \
+            --resource-group $(RESOURCE_GROUP) \
+            --scopes /subscriptions/$(SUBSCRIPTION_ID)/resourceGroups/$(RESOURCE_GROUP)/providers/microsoft.insights/components/$(APP_INSIGHTS_NAME) \
+            --condition "avg requests/duration > 3000" \
+            --window-size 5m \
+            --evaluation-frequency 1m \
+            --severity 3 \
+            --description "Alert when average response time exceeds 3 seconds"

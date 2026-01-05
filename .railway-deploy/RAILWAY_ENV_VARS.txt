@@ -1,0 +1,36 @@
+# ============================================
+# 🚂 VARIÁVEIS DE AMBIENTE - RAILWAY
+# ============================================
+# Copie e cole no Railway Dashboard > Variables
+
+# Token de autenticação (OBRIGATÓRIO)
+DSPY_API_TOKEN=22feee31e4741103021df038a222b448fed19c1aff01bfc88968677b2c46b196
+
+# Origens CORS permitidas (suas URLs Vercel)
+ALLOWED_ORIGINS=https://assistente-juridico-github.vercel.app
+
+# Porta (Railway define automaticamente, mas fixamos em 8765)
+PORT=8765
+
+# Python unbuffered (logs em tempo real)
+PYTHONUNBUFFERED=1
+
+# Gemini API Key (copie do Vercel ou use variável compartilhada)
+# Se tiver GEMINI_API_KEY configurado no Railway como shared variable:
+GEMINI_API_KEY=${{shared.GEMINI_API_KEY}}
+# Se não, cole diretamente:
+# GEMINI_API_KEY=sua-chave-gemini-aqui
+
+# ============================================
+# 📋 PRÓXIMOS PASSOS:
+# ============================================
+# 1. Acesse: https://railway.app/project/6afbb283-2939-4bd5-b5d7-6b18f408ee40
+# 2. Vá em "Variables"
+# 3. Cole as variáveis acima
+# 4. Clique em "Deploy"
+# 5. Aguarde 2-3 minutos
+# 6. Copie a URL gerada (ex: https://dspy-bridge-production.up.railway.app)
+# 7. Adicione no Vercel:
+#    - DSPY_BRIDGE_URL=<url-railway>
+#    - DSPY_API_TOKEN=22feee31e4741103021df038a222b448fed19c1aff01bfc88968677b2c46b196
+

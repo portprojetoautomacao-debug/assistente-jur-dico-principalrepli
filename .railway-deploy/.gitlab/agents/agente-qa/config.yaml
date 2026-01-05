@@ -1,0 +1,95 @@
+# GitLab Agent for Kubernetes - QA/Testing
+# Agente focado em testes automatizados e qualidade
+
+# Desenvolvimento remoto limitado para QA
+remote_development:
+  enabled: false
+
+# Acesso CI/CD para testes
+ci_access:
+  projects:
+    - id: thiagobodevan-a11y/assistente-juridico-p
+      default_namespace: qa
+      access_as:
+        ci_job: {}  # Personificar trabalho CI/CD
+      environments:
+        - qa
+        - staging
+        - test
+      protected_branches_only: true  # Apenas branches protegidas em QA
+  groups:
+    - id: thiagobodevan-a11y
+      environments:
+        - qa
+        - staging
+
+# Acesso de usuário restrito para QA
+user_access:
+  access_as:
+    agent: {} # for free
+    user: {} # for premium+
+  projects:
+    - id: thiagobodevan-a11y/assistente-juridico-p
+      default_namespace: qa
+  groups:
+    - id: thiagobodevan-a11y
+
+# GitOps para manifestos de QA
+gitops:
+  manifest_projects:
+    - id: thiagobodevan-a11y/assistente-juridico-p
+      default_namespace: qa
+      paths:
+        - glob: 'k8s/qa/**/*.yaml'
+        - glob: 'k8s/qa/**/*.yml'
+        - glob: 'k8s/shared/**/*.yaml'
+
+# Observabilidade detalhada para QA
+network_policy:
+  enabled: true
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              environment: qa
+        - podSelector:
+            matchLabels:
+              app: gitlab-runner
+  egress:
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 6379  # Redis
+        - protocol: TCP
+          port: 5432  # PostgreSQL para testes
+        - protocol: TCP
+          port: 27017 # MongoDB para testes
+
+# Configurações específicas de QA
+qa:
+  test_mode: true
+  performance_monitoring: true
+  security_scanning: true
+  resource_limits:
+    cpu: "1000m"
+    memory: "2Gi"
+  resource_requests:
+    cpu: "200m"
+    memory: "512Mi"
+
+# Configurações de teste
+test_config:
+  e2e_enabled: true
+  performance_test: true
+  load_test: false
+  security_test: true
+  accessibility_test: true
+observability:
+  logging:
+    level: debug
+    grpc_level: warn

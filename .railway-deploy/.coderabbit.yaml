@@ -1,0 +1,21 @@
+# CodeRabbit Configuration
+# Documentação: https://docs.coderabbit.ai/guides/configure-coderabbit
+
+language: "pt-BR"
+
+reviews:
+  # Ativa revisão automática em PRs
+  auto_review:
+    enabled: true
+    # Revisa mesmo commits de bots (Copilot, Dependabot, etc.)
+    ignore_title_keywords: []
+  
+  # Mostra status da revisão
+  review_status: true
+  
+  # Nível de detalhe dos comentários
+  path_instructions: []
+
+chat:
+  # Permite comandos via comentários
+  auto_reply: true

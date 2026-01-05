@@ -25,6 +25,14 @@ dist-ssr
 !.vscode/launch.json
 !.vscode/tasks.json
 .vscode/mcp.json
+
+# Railway CLI upload (evitar empacotar diretórios .git grandes)
+.git/
+.git/**
+**/.git/
+**/.git/**
+adk-samples/.git/
+adk-samples/.git/**
 .vscode/sonar-config.json
 .vscode/sonar-copilot-assistant.user.json
 .cursor/mcp.json

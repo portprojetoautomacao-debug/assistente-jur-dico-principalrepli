@@ -1,0 +1,21 @@
+# Python Dependencies for DSPy Bridge Service
+# Usage: pip install -r requirements.txt
+
+# Core dependencies (required)
+# Note: DSPy bridge is optional and not deployed to Vercel
+# This file is provided for reference if you want to run DSPy locally
+
+# Python 3.8+ standard library only - no external dependencies required
+# The dspy_bridge.py uses only:
+# - http.server (built-in)
+# - json (built-in)
+# - os (built-in)
+# - sys (built-in)
+# - urllib.parse (built-in)
+# - hashlib (built-in)
+# - hmac (built-in)
+# - time (built-in)
+
+# Optional: If implementing full DSPy integration in the future
+# dspy-ai>=2.0.0  # Uncomment when implementing DSPy optimization
+# requests>=2.31.0  # Uncomment if adding HTTP client features

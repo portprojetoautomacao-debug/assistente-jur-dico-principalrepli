@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitlab-agent-config
+  namespace: desenvolvimento
+  labels:
+    environment: development
+    project: assistente-juridico
+data:
+  agent-config.yaml: |
+    ci_access:
+      projects:
+      - id: assistente-juridico-p
+    user_access:
+      projects:
+      - id: assistente-juridico-p
+    remote_development:
+      enabled: true
+      dns_zone: "dev.assistente-juridico.com"
+    observability:
+      logging:
+        level: debug
+      metrics: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitlab-agent-config
+  namespace: qa
+  labels:
+    environment: qa
+    project: assistente-juridico
+data:
+  agent-config.yaml: |
+    ci_access:
+      projects:
+      - id: assistente-juridico-p
+    user_access:
+      projects:
+      - id: assistente-juridico-p
+    observability:
+      logging:
+        level: info
+      metrics: true
+      tracing: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitlab-agent-config
+  namespace: production
+  labels:
+    environment: production
+    project: assistente-juridico
+data:
+  agent-config.yaml: |
+    ci_access:
+      projects:
+      - id: assistente-juridico-p
+    observability:
+      logging:
+        level: warn
+      metrics: true
+      tracing: true
+      prometheus: true

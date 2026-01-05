@@ -1,0 +1,91 @@
+# GitLab Agent for Kubernetes Configuration
+# Para assistente-juridico-p
+
+# Habilita desenvolvimento remoto (Workspaces)
+remote_development:
+  enabled: true
+  # Configurações do GitLab Workspaces
+  dns_zone: "workspaces.assistente-juridico.dev"
+
+# Configurações de CI/CD
+ci_access:
+  projects:
+    - id: thiagobodevan-a11y-group/assistente-juridico-p
+      default_namespace: assistente-juridico-production
+
+# Configurações de observabilidade
+network_policy:
+  enabled: true
+  # Permite tráfego interno do cluster
+  ingress:
+    - from:
+        - podSelector: {}
+  # Permite saída para APIs externas necessárias
+  egress:
+    - to:
+        - namespaceSelector: {}
+    - to:
+        - podSelector:
+            matchLabels:
+              app: gitlab-workspaces-proxy
+    # Permite acesso às APIs do Google (Calendar, OAuth)
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
+    # Permite acesso ao Upstash Redis
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 6379
+
+# Configurações de segurança
+user_access:
+  access_as:
+    agent: {} # for free
+    user: {} # for premium+
+  # Acesso baseado em grupos do GitLab
+  groups:
+    - id: thiagobodevan-a11y-group
+      roles:
+        - name: developer
+          namespace: assistente-juridico-dev
+        - name: maintainer
+          namespace: assistente-juridico-production
+
+# Resource quotas para workspaces
+resource_quotas:
+  cpu: "4"
+  memory: "8Gi"
+  storage: "20Gi"
+
+# Configurações de workspace
+workspaces:
+  # Imagem padrão para desenvolvimento
+  default_image: "registry.gitlab.com/gitlab-org/remote-development/gitlab-remote-development-base:latest"
+  
+  # Editor padrão
+  default_editor: vscode
+  
+  # Recursos padrão por workspace
+  default_resources:
+    requests:
+      cpu: "500m"
+      memory: "2Gi"
+      storage: "10Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+  
+  # Timeout para workspaces inativos
+  idle_timeout: 30m
+  
+  # Máximo de workspaces simultâneos por usuário
+  max_workspaces_per_user: 3
+
+observability:
+  logging:
+    level: debug
+    grpc_level: warn

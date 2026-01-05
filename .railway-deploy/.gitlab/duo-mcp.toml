@@ -1,0 +1,94 @@
+# GitLab Duo Model Context Protocol Configuration
+# Configuração do MCP para integração com ferramentas externas
+
+[mcp]
+enabled = true
+version = "1.0"
+
+# Servidores MCP disponíveis
+[[servers]]
+name = "gitlab-mcp-server"
+description = "Servidor MCP nativo do GitLab"
+url = "https://gitlab.com/api/v4/mcp"
+auth_required = true
+
+[[servers]]
+name = "github-mcp-server"
+description = "Servidor MCP do GitHub para integração"
+url = "https://api.github.com/mcp"
+auth_required = true
+
+[[servers]]
+name = "legal-tools-mcp-server"
+description = "Servidor MCP para ferramentas jurídicas"
+url = "https://legal-tools-api.com/mcp"
+auth_required = false
+
+# Ferramentas disponíveis via MCP
+[[tools]]
+name = "djen-integration"
+description = "Integração com DJEN/DataJud para publicação de editais"
+server = "legal-tools-mcp-server"
+capabilities = ["search_publications", "monitor_updates"]
+
+[[tools]]
+name = "google-calendar-integration"
+description = "Integração com Google Calendar para agendamento"
+server = "gitlab-mcp-server"
+capabilities = ["create_events", "sync_deadlines"]
+
+[[tools]]
+name = "todoist-integration"
+description = "Integração com Todoist para gestão de tarefas"
+server = "github-mcp-server"
+capabilities = ["create_tasks", "sync_projects"]
+
+# Configurações de contexto
+[context]
+# Compartilhar contexto entre agentes
+share_context = true
+# Cache de contexto
+context_cache_enabled = true
+cache_ttl = "1h"
+
+# Configurações de segurança
+[security]
+# Verificação de permissões
+permission_check = true
+# Logs de auditoria
+audit_logs = true
+# Rate limiting
+rate_limit_requests = 100
+rate_limit_window = "1m"
+
+# Configurações de performance
+[performance]
+# Timeout para conexões MCP
+connection_timeout = "30s"
+# Retry policy
+max_retries = 3
+retry_delay = "5s"
+
+# Configurações específicas do projeto jurídico
+[legal_context]
+# Bases de dados jurídicas
+legal_databases = [
+  "jurisprudencia_stf",
+  "legislacao_federal",
+  "diario_oficial"
+]
+
+# Tipos de documentos
+document_types = [
+  "peticao_inicial",
+  "recurso",
+  "contrato",
+  "parecer_juridico"
+]
+
+# Fluxos de trabalho jurídicos
+workflows = [
+  "processo_civil",
+  "processo_trabalhista",
+  "consultoria_juridica"
+]

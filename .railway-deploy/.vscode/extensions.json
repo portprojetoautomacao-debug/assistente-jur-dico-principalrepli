@@ -1,0 +1,48 @@
+{
+  "recommendations": [
+    // GitHub & Git
+    "github.codespaces",
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github",
+    "github.copilot",
+    "github.copilot-chat",
+    "eamodio.gitlens",
+
+    // TypeScript & React
+    "ms-vscode.vscode-typescript-next",
+    "timonvs.reactsnippetsstandard",
+
+    // Tailwind & CSS
+    "bradlc.vscode-tailwindcss",
+
+    // Linting & Formatting
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "usernamehw.errorlens",
+    "yoavbls.pretty-ts-errors",
+
+    // YAML & JSON
+    "redhat.vscode-yaml",
+
+    // Utilities
+    "formulahendry.auto-close-tag",
+    "pkief.material-icon-theme",
+
+    // REMOVIDO: GitLab (projeto usa GitHub)
+    // "gitlab.gitlab-workflow",
+
+    // SonarLint
+    "sonarsource.sonarlint-vscode",
+    // Java support for LSP and debugging (recommended if working with Java tools)
+    "vscjava.vscode-java-pack",
+
+    // AI & Productivity
+    "teamsdevapp.vscode-ai-foundry",
+    "p42ai.refactor",
+    "ms-playwright.playwright",
+    "trailofbits.sarif-explorer",
+    "ms-sarifvscode.sarif-viewer",
+    "sonar-copilot-assistant.sonar-copilot-assistant",
+    "coderabbit.coderabbit-vscode"
+  ]
+}

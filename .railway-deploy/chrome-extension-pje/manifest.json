@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "PJe Sync - Assistente Jurídico",
+  "version": "1.0.0",
+  "description": "Sincroniza processos do PJe com Assistente Jurídico em tempo real",
+  "permissions": ["storage", "alarms", "notifications"],
+  "host_permissions": [
+    "https://*.tjmg.jus.br/*",
+    "https://assistente-juridico-github.vercel.app/*",
+    "https://assistente-juridico-github.vercel.app/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.tjmg.jus.br/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/icon-16.png",
+      "48": "assets/icon-48.png",
+      "128": "assets/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icon-16.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  }
+}

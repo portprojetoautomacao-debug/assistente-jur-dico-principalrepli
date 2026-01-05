@@ -1,0 +1,126 @@
+# GitLab Workspace Configuration
+# Devfile v2 para Assistente Jurídico PJe
+
+schemaVersion: 2.2.0
+metadata:
+  name: assistente-juridico-workspace
+  displayName: "Assistente Jurídico PJe - Workspace"
+  description: "Ambiente de desenvolvimento para o sistema jurídico com IA"
+  tags:
+    - legal-tech
+    - react
+    - typescript
+    - nodejs
+  projectType: "webapp"
+  language: "TypeScript"
+  version: "1.0.0"
+
+# Definição de componentes do workspace
+components:
+  # Container principal de desenvolvimento
+  - name: dev-tools
+    container:
+      image: node:22-bullseye
+      memoryRequest: 2Gi
+      memoryLimit: 4Gi
+      cpuRequest: 500m
+      cpuLimit: 2000m
+      mountSources: true
+      sourceMapping: /projects
+      env:
+        - name: NODE_ENV
+          value: development
+        - name: SHELL
+          value: /bin/bash
+      endpoints:
+        - name: dev-server
+          targetPort: 5173
+          exposure: public
+          protocol: https
+        - name: preview
+          targetPort: 4173
+          exposure: public
+          protocol: https
+      volumeMounts:
+        - name: npm-cache
+          path: /home/node/.npm
+        - name: vscode-extensions
+          path: /home/node/.vscode-server/extensions
+
+  # Volume para cache do npm
+  - name: npm-cache
+    volume:
+      size: 2Gi
+
+  # Volume para extensões do VS Code
+  - name: vscode-extensions
+    volume:
+      size: 1Gi
+
+# Comandos disponíveis no workspace
+commands:
+  # Instalar dependências
+  - id: install
+    exec:
+      component: dev-tools
+      commandLine: npm install
+      workingDir: /projects/assistente-juridico-p
+      group:
+        kind: build
+        isDefault: false
+
+  # Iniciar servidor de desenvolvimento
+  - id: dev
+    exec:
+      component: dev-tools
+      commandLine: npm run dev
+      workingDir: /projects/assistente-juridico-p
+      group:
+        kind: run
+        isDefault: true
+
+  # Build de produção
+  - id: build
+    exec:
+      component: dev-tools
+      commandLine: npm run build
+      workingDir: /projects/assistente-juridico-p
+      group:
+        kind: build
+        isDefault: true
+
+  # Executar testes
+  - id: test
+    exec:
+      component: dev-tools
+      commandLine: npm test
+      workingDir: /projects/assistente-juridico-p
+      group:
+        kind: test
+        isDefault: true
+
+  # Lint
+  - id: lint
+    exec:
+      component: dev-tools
+      commandLine: npm run lint
+      workingDir: /projects/assistente-juridico-p
+
+  # Preview da build
+  - id: preview
+    exec:
+      component: dev-tools
+      commandLine: npm run preview
+      workingDir: /projects/assistente-juridico-p
+      group:
+        kind: run
+
+# Eventos do ciclo de vida do workspace
+events:
+  # Executar após a criação do workspace
+  postStart:
+    - install
+  
+  # Executar antes de iniciar o desenvolvimento
+  preStart:
+    - install

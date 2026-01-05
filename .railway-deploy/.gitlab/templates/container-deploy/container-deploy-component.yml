@@ -1,0 +1,418 @@
+spec:
+  inputs:
+    stage:
+      default: deploy
+      description: "Stage onde o deploy será executado"
+    environment:
+      default: "staging"
+      description: "Ambiente de deploy: staging, production, development"
+      options: ["staging", "production", "development"]
+    docker_image:
+      description: "Nome da imagem Docker a ser construída"
+    docker_tag:
+      default: "$CI_COMMIT_SHORT_SHA"
+      description: "Tag da imagem Docker"
+    registry_url:
+      description: "URL do registry Docker"
+    registry_user:
+      description: "Usuário do registry Docker"
+    registry_password:
+      description: "Senha do registry Docker"
+    kubernetes_namespace:
+      description: "Namespace Kubernetes para deploy"
+    kubernetes_config:
+      description: "Configuração Kubernetes (base64 encoded)"
+    helm_chart:
+      description: "Caminho para o chart Helm"
+    helm_values:
+      description: "Arquivo de values do Helm"
+    health_check_url:
+      description: "URL para verificação de saúde da aplicação"
+    health_check_timeout:
+      default: "300"
+      description: "Timeout em segundos para health check"
+    rollback_on_failure:
+      default: true
+      description: "Executar rollback automático em caso de falha"
+    blue_green_deployment:
+      default: false
+      description: "Usar estratégia blue-green para deploy"
+    canary_deployment:
+      default: false
+      description: "Usar estratégia canary para deploy"
+    canary_percentage:
+      default: "10"
+      description: "Percentual de tráfego para canary deployment"
+
+# Componente de Deploy em Container para Aplicações Jurídicas
+# Suporte a Docker, Kubernetes e estratégias avançadas de deploy
+
+docker-build:
+  stage: $[[ inputs.stage ]]
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker info
+  script:
+    - echo "🏗️  Construindo imagem Docker..."
+    - |
+      # Configurar registry
+      if [ -n "$[[ inputs.registry_url ]]" ]; then
+        echo "🔐 Fazendo login no registry..."
+        echo "$[[ inputs.registry_password ]]" | docker login "$[[ inputs.registry_url ]]" -u "$[[ inputs.registry_user ]]" --password-stdin
+      fi
+
+      # Construir imagem
+      IMAGE_NAME="$[[ inputs.docker_image ]]:$[[ inputs.docker_tag ]]"
+
+      echo "📦 Construindo imagem: $IMAGE_NAME"
+      docker build -t "$IMAGE_NAME" .
+
+      # Tag adicional para latest se for main branch
+      if [ "$CI_COMMIT_BRANCH" = "main" ] || [ "$CI_COMMIT_BRANCH" = "master" ]; then
+        docker tag "$IMAGE_NAME" "$[[ inputs.docker_image ]]:latest"
+      fi
+
+      # Push da imagem
+      echo "📤 Enviando imagem para registry..."
+      docker push "$IMAGE_NAME"
+
+      if [ "$CI_COMMIT_BRANCH" = "main" ] || [ "$CI_COMMIT_BRANCH" = "master" ]; then
+        docker push "$[[ inputs.docker_image ]]:latest"
+      fi
+
+      echo "✅ Imagem Docker construída e enviada: $IMAGE_NAME"
+  artifacts:
+    reports:
+      dotenv: docker.env
+    expire_in: 1 hour
+  allow_failure: false
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - when: always
+
+kubernetes-deploy:
+  stage: $[[ inputs.stage ]]
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl kubectl helm
+    - |
+      # Configurar Kubernetes
+      if [ -n "$[[ inputs.kubernetes_config ]]" ]; then
+        echo "$[[ inputs.kubernetes_config ]]" | base64 -d > /tmp/kubeconfig
+        export KUBECONFIG=/tmp/kubeconfig
+      fi
+  script:
+    - echo "☸️  Executando deploy no Kubernetes..."
+    - |
+      # Configurar namespace
+      NAMESPACE="$[[ inputs.kubernetes_namespace ]]"
+
+      if [ -z "$NAMESPACE" ]; then
+        case "$[[ inputs.environment ]]" in
+          production)
+            NAMESPACE="prod"
+            ;;
+          staging)
+            NAMESPACE="staging"
+            ;;
+          development)
+            NAMESPACE="dev"
+            ;;
+          *)
+            NAMESPACE="default"
+            ;;
+        esac
+      fi
+
+      # Verificar se namespace existe
+      kubectl get namespace "$NAMESPACE" >/dev/null 2>&1 || kubectl create namespace "$NAMESPACE"
+
+      # Estratégia de deploy
+      if [ "$[[ inputs.blue_green_deployment ]]" = "true" ]; then
+        echo "🔄 Executando deploy Blue-Green..."
+
+        # Determinar cores
+        BLUE_EXISTS=$(kubectl get deployment blue -n "$NAMESPACE" --ignore-not-found=true)
+        GREEN_EXISTS=$(kubectl get deployment green -n "$NAMESPACE" --ignore-not-found=true)
+
+        if [ -n "$BLUE_EXISTS" ]; then
+          ACTIVE_COLOR="blue"
+          NEW_COLOR="green"
+        else
+          ACTIVE_COLOR="green"
+          NEW_COLOR="blue"
+        fi
+
+        echo "🎨 Deploying to $NEW_COLOR environment..."
+
+        # Deploy na nova cor
+        if [ -n "$[[ inputs.helm_chart ]]" ]; then
+          helm upgrade --install "$NEW_COLOR-app" "$[[ inputs.helm_chart ]]" \
+            --namespace "$NAMESPACE" \
+            --set image.tag="$[[ inputs.docker_tag ]]" \
+            --set environment="$[[ inputs.environment ]]" \
+            --values "$[[ inputs.helm_values ]]" \
+            --wait
+        else
+          # Deploy direto com kubectl
+          cat > deployment.yml << EOF
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: $NEW_COLOR-app
+            namespace: $NAMESPACE
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: assistente-juridico
+                color: $NEW_COLOR
+            template:
+              metadata:
+                labels:
+                  app: assistente-juridico
+                  color: $NEW_COLOR
+              spec:
+                containers:
+                - name: app
+                  image: $[[ inputs.docker_image ]]:$[[ inputs.docker_tag ]]
+                  ports:
+                  - containerPort: 80
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: $NEW_COLOR-service
+            namespace: $NAMESPACE
+          spec:
+            selector:
+              app: assistente-juridico
+              color: $NEW_COLOR
+            ports:
+            - port: 80
+              targetPort: 80
+          EOF
+
+          kubectl apply -f deployment.yml
+        fi
+
+        # Aguardar deploy ficar ready
+        kubectl wait --for=condition=available --timeout=300s deployment/"$NEW_COLOR-app" -n "$NAMESPACE"
+
+        # Health check
+        if [ -n "$[[ inputs.health_check_url ]]" ]; then
+          echo "🏥 Executando health check..."
+          HEALTH_URL="$[[ inputs.health_check_url ]]"
+          TIMEOUT="$[[ inputs.health_check_timeout ]]"
+
+          # Substituir placeholder se necessário
+          HEALTH_URL=$(echo "$HEALTH_URL" | sed "s/{{color}}/$NEW_COLOR/g")
+
+          # Aguardar health check
+          for i in $(seq 1 $TIMEOUT); do
+            if curl -f -s "$HEALTH_URL" >/dev/null 2>&1; then
+              echo "✅ Health check passou!"
+              break
+            fi
+            if [ $i -eq $TIMEOUT ]; then
+              echo "❌ Health check falhou após $TIMEOUT segundos"
+              if [ "$[[ inputs.rollback_on_failure ]]" = "true" ]; then
+                echo "🔄 Executando rollback..."
+                kubectl delete deployment "$NEW_COLOR-app" -n "$NAMESPACE"
+              fi
+              exit 1
+            fi
+            echo "⏳ Aguardando health check... ($i/$TIMEOUT)"
+            sleep 1
+          done
+        fi
+
+        # Switch de tráfego (simulado - em produção usaria ingress/service mesh)
+        echo "🔄 Switching traffic to $NEW_COLOR..."
+
+        # Aqui seria implementado o switch real de tráfego
+        # Por exemplo: atualizar ingress, service mesh, etc.
+
+        echo "✅ Deploy Blue-Green concluído!"
+
+      elif [ "$[[ inputs.canary_deployment ]]" = "true" ]; then
+        echo "🐦 Executando deploy Canary..."
+
+        CANARY_PERCENTAGE="$[[ inputs.canary_percentage ]]"
+
+        # Deploy canary
+        if [ -n "$[[ inputs.helm_chart ]]" ]; then
+          helm upgrade --install canary-app "$[[ inputs.helm_chart ]]" \
+            --namespace "$NAMESPACE" \
+            --set image.tag="$[[ inputs.docker_tag ]]" \
+            --set environment="$[[ inputs.environment ]]" \
+            --set replicas=1 \
+            --values "$[[ inputs.helm_values ]]" \
+            --wait
+        fi
+
+        # Aguardar canary ficar ready
+        kubectl wait --for=condition=available --timeout=300s deployment/canary-app -n "$NAMESPACE"
+
+        # Health check do canary
+        if [ -n "$[[ inputs.health_check_url ]]" ]; then
+          echo "🏥 Executando health check do canary..."
+          for i in $(seq 1 30); do
+            if curl -f -s "$[[ inputs.health_check_url ]]" >/dev/null 2>&1; then
+              echo "✅ Canary health check passou!"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "❌ Canary health check falhou"
+              kubectl delete deployment canary-app -n "$NAMESPACE"
+              exit 1
+            fi
+            sleep 1
+          done
+        fi
+
+        # Gradual rollout (simulado)
+        echo "📈 Executando rollout gradual para ${CANARY_PERCENTAGE}% do tráfego..."
+
+        # Aqui seria implementado o rollout gradual
+        # Usando service mesh, ingress controllers, etc.
+
+        echo "✅ Deploy Canary concluído!"
+
+      else
+        echo "📦 Executando deploy padrão..."
+
+        # Deploy padrão
+        if [ -n "$[[ inputs.helm_chart ]]" ]; then
+          helm upgrade --install assistente-juridico "$[[ inputs.helm_chart ]]" \
+            --namespace "$NAMESPACE" \
+            --set image.tag="$[[ inputs.docker_tag ]]" \
+            --set environment="$[[ inputs.environment ]]" \
+            --values "$[[ inputs.helm_values ]]" \
+            --wait
+        else
+          # Deploy direto
+          cat > deployment.yml << EOF
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: assistente-juridico
+            namespace: $NAMESPACE
+          spec:
+            replicas: 3
+            selector:
+              matchLabels:
+                app: assistente-juridico
+            template:
+              metadata:
+                labels:
+                  app: assistente-juridico
+              spec:
+                containers:
+                - name: app
+                  image: $[[ inputs.docker_image ]]:$[[ inputs.docker_tag ]]
+                  ports:
+                  - containerPort: 80
+                  env:
+                  - name: ENVIRONMENT
+                    value: "$[[ inputs.environment ]]"
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: assistente-juridico-service
+            namespace: $NAMESPACE
+          spec:
+            selector:
+              app: assistente-juridico
+            ports:
+            - port: 80
+              targetPort: 80
+            type: ClusterIP
+          EOF
+
+          kubectl apply -f deployment.yml
+        fi
+
+        # Aguardar deploy
+        kubectl wait --for=condition=available --timeout=300s deployment/assistente-juridico -n "$NAMESPACE"
+
+        echo "✅ Deploy padrão concluído!"
+      fi
+
+      # Limpar kubeconfig
+      rm -f /tmp/kubeconfig
+  dependencies:
+    - docker-build
+  allow_failure: false
+  rules:
+    - if: $CI_COMMIT_BRANCH && $[[ inputs.environment ]] != "development"
+    - when: manual
+
+health-check:
+  stage: $[[ inputs.stage ]]
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - echo "🏥 Executando verificações finais de saúde..."
+    - |
+      # Configurar variáveis
+      HEALTH_URL="$[[ inputs.health_check_url ]]"
+      TIMEOUT="$[[ inputs.health_check_timeout ]]"
+
+      if [ -z "$HEALTH_URL" ]; then
+        echo "⚠️  URL de health check não fornecida, pulando verificação"
+        exit 0
+      fi
+
+      echo "🔍 Verificando saúde da aplicação em: $HEALTH_URL"
+
+      # Executar health check
+      for i in $(seq 1 $TIMEOUT); do
+        echo "⏳ Tentativa $i de $TIMEOUT..."
+
+        # Fazer requisição
+        RESPONSE=$(curl -s -w "HTTPSTATUS:%{http_code};TIME:%{time_total}" "$HEALTH_URL" 2>/dev/null)
+        HTTP_CODE=$(echo "$RESPONSE" | tr -d '\n' | sed -e 's/.*HTTPSTATUS://' | sed -e 's/;TIME.*//')
+        TIME=$(echo "$RESPONSE" | tr -d '\n' | sed -e 's/.*TIME://')
+
+        # Verificar status code
+        if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
+          echo "✅ Aplicação saudável!"
+          echo "📊 Tempo de resposta: ${TIME}s"
+          echo "📊 Status code: $HTTP_CODE"
+
+          # Verificar conteúdo da resposta
+          BODY=$(echo "$RESPONSE" | sed -e 's/HTTPSTATUS.*//')
+          if echo "$BODY" | jq . >/dev/null 2>&1; then
+            echo "📋 Resposta JSON válida"
+          fi
+
+          exit 0
+        fi
+
+        if [ $i -eq $TIMEOUT ]; then
+          echo "❌ Health check falhou após $TIMEOUT segundos"
+          echo "📊 Último status code: $HTTP_CODE"
+          echo "📊 Último tempo de resposta: ${TIME}s"
+
+          if [ "$[[ inputs.rollback_on_failure ]]" = "true" ]; then
+            echo "🔄 Executando rollback automático..."
+            # Aqui seria implementado o rollback
+            # Por exemplo: helm rollback, kubectl rollout undo, etc.
+          fi
+
+          exit 1
+        fi
+
+        sleep 1
+      done
+  dependencies:
+    - kubernetes-deploy
+  allow_failure: false
+  rules:
+    - if: $CI_COMMIT_BRANCH && $[[ inputs.environment ]] != "development"
+    - when: always

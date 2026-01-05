@@ -1,0 +1,86 @@
+name: Gemini Review
+
+on:
+  workflow_call:
+    inputs:
+      prompt:
+        description: "Prompt construído para revisão de PR"
+        required: true
+        type: string
+      additional_context:
+        description: "Contexto adicional opcional vindo do comentário"
+        required: false
+        default: ""
+        type: string
+      model:
+        description: "Modelo Gemini a ser usado"
+        required: false
+        default: "gemini-2.5-pro"
+        type: string
+      debug:
+        description: "Ativar debug do Gemini CLI"
+        required: false
+        default: false
+        type: boolean
+      cli_version:
+        description: "Versão do gemini-cli"
+        required: false
+        default: "latest"
+        type: string
+
+jobs:
+  review:
+    name: Executar revisão com Gemini CLI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Verificar se API key está configurada
+        id: check_key
+        run: |
+          if [ -z "${{ secrets.GEMINI_API_KEY }}" ]; then
+            echo "has_key=false" >> $GITHUB_OUTPUT
+            echo "⚠️ GEMINI_API_KEY não configurada. Workflow será pulado." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "has_key=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout do repositório
+        if: steps.check_key.outputs.has_key == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        if: steps.check_key.outputs.has_key == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
+      - name: Rodar Gemini CLI (review)
+        id: gemini
+        if: steps.check_key.outputs.has_key == 'true'
+        uses: google-github-actions/run-gemini-cli@v0.1.18
+        continue-on-error: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: ${{ inputs.model }}
+          gemini_cli_version: ${{ inputs.cli_version }}
+          gemini_debug: ${{ inputs.debug }}
+          prompt: ${{ inputs.prompt }}${{ inputs.additional_context != '' && format('\n\nContexto adicional fornecido pelo usuário (PT-BR): {0}', inputs.additional_context) || '' }}
+
+      - name: Publicar resumo
+        if: always()
+        run: |
+          echo "## Resultado da revisão do Gemini" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "${{ steps.gemini.outputs.summary }}" ]; then
+            echo "${{ steps.gemini.outputs.summary }}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Nenhum resumo retornado pela CLI." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -n "${{ steps.gemini.outputs.error }}" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "### Erro" >> "$GITHUB_STEP_SUMMARY"
+            echo "${{ steps.gemini.outputs.error }}" >> "$GITHUB_STEP_SUMMARY"
+          fi

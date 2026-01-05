@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PJe Sync - Assistente Jurídico</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header>
+        <div class="header-content">
+          <img src="assets/icon-48.png" alt="Logo" class="logo" />
+          <div>
+            <h1>PJe Sync</h1>
+            <p class="subtitle">Assistente Jurídico</p>
+          </div>
+        </div>
+      </header>
+
+      <!-- Status -->
+      <section class="status">
+        <div class="status-indicator">
+          <span class="dot" id="statusDot"></span>
+          <span class="status-text" id="statusText">Verificando...</span>
+        </div>
+        <p class="last-sync" id="lastSync">Última sincronização: Nunca</p>
+      </section>
+
+      <!-- Configuração -->
+      <section class="config">
+        <h2>⚙️ Configuração</h2>
+
+        <div class="form-group">
+          <label for="apiKey">API Key:</label>
+          <div class="input-group">
+            <input type="password" id="apiKey" placeholder="Cole sua API Key aqui" />
+            <button id="toggleApiKey" class="btn-icon" title="Mostrar/Ocultar">👁️</button>
+          </div>
+          <button id="saveApiKey" class="btn-primary">Salvar</button>
+        </div>
+
+        <p class="help-text">
+          <a href="https://assistente-juridico-github.vercel.app/settings/api-keys" target="_blank">
+            📖 Onde encontrar minha API Key?
+          </a>
+        </p>
+      </section>
+
+      <!-- Estatísticas -->
+      <section class="stats">
+        <h2>📊 Estatísticas</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value" id="processosCount">0</span>
+            <span class="stat-label">Processos</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="expedientesCount">0</span>
+            <span class="stat-label">Hoje</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Crawler Section -->
+      <section class="crawler" id="crawlerSection">
+        <h2>🕷️ Crawler de Documentos</h2>
+
+        <div class="crawler-status">
+          <div class="crawler-indicator">
+            <span class="crawler-dot" id="crawlerDot"></span>
+            <span id="crawlerStatusText">Parado</span>
+          </div>
+          <div class="crawler-stats">
+            <span id="crawlerQueue">Fila: 0</span>
+            <span id="crawlerCompleted">Completos: 0</span>
+          </div>
+        </div>
+
+        <div class="crawler-progress" id="crawlerProgress" style="display: none">
+          <div class="progress-bar">
+            <div class="progress-fill" id="crawlerProgressFill"></div>
+          </div>
+          <span class="progress-text" id="crawlerProgressText">0%</span>
+        </div>
+
+        <div class="crawler-actions">
+          <button id="crawlerStart" class="btn-crawler btn-start">▶️ Iniciar</button>
+          <button id="crawlerPause" class="btn-crawler btn-pause" disabled>⏸️ Pausar</button>
+          <button id="crawlerStop" class="btn-crawler btn-stop" disabled>⏹️ Parar</button>
+        </div>
+
+        <p class="help-text crawler-help">
+          O crawler extrai automaticamente o texto completo de todos os documentos dos processos
+          sincronizados.
+        </p>
+      </section>
+
+      <!-- Ações -->
+      <section class="actions">
+        <button id="syncNow" class="btn-secondary">🔄 Sincronizar Agora</button>
+        <button id="openDashboard" class="btn-secondary">📊 Abrir Dashboard</button>
+        <button id="openSettings" class="btn-secondary">⚙️ Configurações</button>
+      </section>
+
+      <!-- Footer -->
+      <footer>
+        <p>
+          Versão 1.0.0 |
+          <a href="https://docs.assistente-juridico.com" target="_blank">Documentação</a>
+        </p>
+      </footer>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

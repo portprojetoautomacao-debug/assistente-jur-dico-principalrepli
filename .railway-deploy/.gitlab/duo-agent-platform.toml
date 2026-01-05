@@ -1,0 +1,51 @@
+# GitLab Duo Agent Platform Configuration
+# Configuração para agentes personalizados do GitLab Duo
+
+# Configurações globais do Agent Platform
+[agent_platform]
+enabled = true
+version = "1.0"
+
+# Agentes disponíveis
+[[agents]]
+name = "assistente-juridico-reviewer"
+description = "Agente especializado em revisão de código jurídico"
+model = "claude-3-5-sonnet"
+capabilities = ["code_review", "legal_analysis", "security_check"]
+
+[[agents]]
+name = "assistente-juridico-generator"
+description = "Agente para geração de código e documentação jurídica"
+model = "claude-3-5-sonnet"
+capabilities = ["code_generation", "documentation", "testing"]
+
+[[agents]]
+name = "assistente-juridico-optimizer"
+description = "Agente para otimização de performance e arquitetura"
+model = "claude-3-5-sonnet"
+capabilities = ["performance_analysis", "architecture_review", "optimization"]
+
+# Configurações de contexto
+[context]
+# Knowledge Graph integration
+knowledge_graph_enabled = true
+# Model Context Protocol
+mcp_enabled = true
+# Contexto do projeto jurídico
+domain_context = "legal_technology"
+project_type = "web_application"
+
+# Configurações de segurança
+[security]
+allow_external_tools = false
+require_approval = true
+audit_logging = true
+
+# Configurações de integração
+[integrations]
+# Integração com GitLab CI/CD
+ci_cd_integration = true
+# Integração com issues
+issue_integration = true
+# Integração com MRs
+mr_integration = true

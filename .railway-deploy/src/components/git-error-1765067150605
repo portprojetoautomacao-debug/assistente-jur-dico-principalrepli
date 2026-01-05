@@ -1,0 +1,8 @@
+> git push -u origin work-in-progress-save
+To https://github.com/thiagobodevan-a11y/assistente-juridico-p
+ ! [rejected]        work-in-progress-save -> work-in-progress-save (non-fast-forward)
+error: failed to push some refs to 'https://github.com/thiagobodevan-a11y/assistente-juridico-p'
+hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart. If you want to integrate the remote changes,
+hint: use 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.

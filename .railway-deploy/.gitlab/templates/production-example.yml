@@ -1,0 +1,275 @@
+# Exemplo Completo de Produção - Assistente Jurídico PJe
+# Demonstra o uso de todos os 8 componentes CI/CD em um pipeline real
+
+stages: [security, test, build, deploy, backup, notify, monitor]
+
+# =============================================================================
+# 🔗 INCLUDES DE TODOS OS COMPONENTES CI/CD
+# =============================================================================
+
+include:
+  # 🔒 Segurança avançada para aplicações jurídicas (LGPD compliance)
+  - component: $CI_SERVER_FQDN/assistente-juridico-p/templates/security/security-component@1.1.0
+    inputs:
+      stage: security
+      audit_level: "advanced"
+      fail_on_high: true
+      report_format: "sarif"
+      compliance_check: true
+
+  # 🧪 Suite completa de testes para aplicações React/TypeScript
+  - component: $CI_SERVER_FQDN/assistente-juridico-p/templates/testing/testing-component@1.1.0
+    inputs:
+      stage: test
+      test_type: "all"
+      coverage_threshold: 85
+      fail_on_coverage: true
+      browser: "chromium"
+      accessibility: true
+
+  # 🔗 Testes de API para endpoints jurídicos
+  - component: $CI_SERVER_FQDN/assistente-juridico-p/templates/api-testing/api-testing-component@1.1.0
+    inputs:
+      stage: test
+      api_base_url: "https://api-juridica.example.com"
+      api_endpoints: "/api/processos,/api/clientes,/api/documentos"
+      test_type: "smoke"
+      auth_token: "$API_TEST_TOKEN"
+      auth_type: "bearer"
+      security_headers: true
+    rules:
+      - if: $CI_COMMIT_BRANCH == "main"
+
+  # 🚀 Deploy Vercel para staging
+  - component: $CI_SERVER_FQDN/assistente-juridico-p/templates/deployment/deployment-component@1.1.0
+    inputs:
+      stage: deploy
+      environment: "staging"
+      deploy_target: "vercel"
+      health_check_url: "https://assistente-juridico-staging.vercel.app"
+      rollback_on_failure: true
+      monitoring_enabled: true
+    rules:
+      - if: $CI_COMMIT_BRANCH == "develop"
+
+  # 🚀 Deploy Vercel para produção
+  - component: $CI_SERVER_FQDN/assistente-juridico-p/templates/deployment/deployment-component@1.1.0
+    inputs:
+      stage: deploy
+      environment: "production"
+      deploy_target: "vercel"
+      health_check_url: "https://assistente-juridico-p.vercel.app"
+      rollback_on_failure: true
+      monitoring_enabled: true
+    rules:
+      - if: $CI_COMMIT_BRANCH == "main"
+
+  # 🐳 Deploy em container para produção (exemplo alternativo)
+  - component: $CI_SERVER_FQDN/assistente-juridico-p/templates/container-deploy/container-deploy-component@1.1.0
+    inputs:
+      stage: deploy
+      environment: "production"
+      docker_image: "registry.example.com/assistente-juridico"
+      registry_url: "https://registry.example.com"
+      kubernetes_namespace: "production"
+      helm_chart: "./k8s/helm/assistente-juridico"
+      health_check_url: "https://api-juridica.example.com/health"
+      blue_green_deployment: true
+      rollback_on_failure: true
+    rules:
+      - if: $CI_COMMIT_BRANCH == "main" && $DEPLOY_METHOD == "kubernetes"
+
+  # 💾 Backup semanal de banco de dados jurídico
+  - component: $CI_SERVER_FQDN/assistente-juridico-p/templates/backup/backup-component@1.1.0
+    inputs:
+      stage: backup
+      backup_type: "database"
+      database_type: "postgresql"
+      database_host: "$DB_HOST"
+      database_name: "assistente_juridico"
+      database_user: "$DB_USER"
+      database_password: "$DB_PASSWORD"
+      s3_bucket: "backup-juridico-prod"
+      s3_region: "us-east-1"
+      retention_days: 90
+      compression: true
+      encryption: true
+    rules:
+      - if: $CI_COMMIT_BRANCH == "main"
+      - when: manual
+
+  # 💾 Backup mensal de documentos jurídicos
+  - component: $CI_SERVER_FQDN/assistente-juridico-p/templates/backup/backup-component@1.1.0
+    inputs:
+      stage: backup
+      backup_type: "documents"
+      s3_bucket: "backup-juridico-docs"
+      s3_region: "us-east-1"
+      retention_days: 2555  # 7 anos para documentos jurídicos
+      compression: true
+      encryption: true
+      include_sensitive_data: false
+    rules:
+      - if: $CI_COMMIT_BRANCH == "main"
+      - when: manual
+
+  # 📢 Notificações Slack para todos os ambientes
+  - component: $CI_SERVER_FQDN/assistente-juridico-p/templates/notifications/notifications-component@1.1.0
+    inputs:
+      stage: notify
+      notification_type: "slack"
+      webhook_url: "$SLACK_WEBHOOK_URL"
+      slack_channel: "#deployments-juridico"
+      notify_on_success: true
+      notify_on_failure: true
+      include_pipeline_summary: true
+
+  # 📢 Notificações Microsoft Teams para produção
+  - component: $CI_SERVER_FQDN/assistente-juridico-p/templates/notifications/notifications-component@1.1.0
+    inputs:
+      stage: notify
+      notification_type: "teams"
+      teams_webhook: "$TEAMS_WEBHOOK_URL"
+      notify_on_success: true
+      notify_on_failure: true
+      include_pipeline_summary: true
+    rules:
+      - if: $CI_COMMIT_BRANCH == "main"
+
+  # 📊 Monitoramento avançado para produção
+  - component: $CI_SERVER_FQDN/assistente-juridico-p/templates/monitoring/monitoring-component@1.1.0
+    inputs:
+      stage: monitor
+      monitoring_type: "advanced"
+      alert_on_failure: true
+      performance_baseline: 2500
+      accessibility_threshold: 95
+      uptime_url: "https://assistente-juridico-p.vercel.app"
+      alert_webhook: "$ALERT_WEBHOOK_URL"
+    rules:
+      - if: $CI_COMMIT_BRANCH == "main"
+
+# =============================================================================
+# 🏗️ JOBS ADICIONAIS DO PROJETO
+# =============================================================================
+
+variables:
+  NODE_ENV: "production"
+  CI_ENVIRONMENT_URL: "https://assistente-juridico-p.vercel.app"
+
+# Build da aplicação
+build:
+  stage: build
+  image: node:22
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+  script:
+    - echo "🏗️ Construindo aplicação jurídica..."
+    - npm run build
+    - echo "📊 Tamanho do build: $(du -sh dist/)"
+    - echo "✅ Build concluído"
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+  dependencies:
+    - security-audit  # Depende da auditoria de segurança
+
+# Validação final antes do deploy
+pre-deploy-validation:
+  stage: deploy
+  image: node:22
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+  script:
+    - echo "🔍 Executando validações finais..."
+    - npm run lint
+    - npm run type-check
+    - echo "📋 Verificando vulnerabilidades de segurança..."
+    - npm audit --audit-level high
+    - echo "✅ Todas as validações passaram"
+  dependencies:
+    - build
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+# Testes de contrato de API (se aplicável)
+api-contract-test:
+  stage: test
+  image: node:22
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+  script:
+    - echo "🤝 Executando testes de contrato de API..."
+    - npm run test:contract
+    - echo "✅ Testes de contrato passaram"
+  dependencies:
+    - build
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - when: manual
+
+# =============================================================================
+# 📋 CONFIGURAÇÕES GLOBAIS
+# =============================================================================
+
+# Cache para acelerar builds
+cache:
+  key: "npm-cache-$CI_COMMIT_REF_SLUG"
+  paths:
+    - node_modules/
+    - .npm/
+    - .cache/
+
+# Configurações de workflow
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+
+# Configurações de artefatos
+artifacts:
+  reports:
+    coverage_report:
+      coverage_format: cobertura
+      path: coverage/cobertura-coverage.xml
+    expire_in: 1 week
+  paths:
+    - coverage/
+    - dist/
+    - lighthouse-reports/
+  expire_in: 1 week
+
+# Configurações de ambientes
+environments:
+  staging:
+    url: https://assistente-juridico-staging.vercel.app
+    on_stop: stop-staging
+  production:
+    url: https://assistente-juridico-p.vercel.app
+    on_stop: stop-production
+
+# Job para parar ambiente de staging
+stop-staging:
+  stage: deploy
+  script:
+    - echo "🛑 Parando ambiente de staging..."
+  environment:
+    name: staging
+    action: stop
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - when: manual
+
+# Job para parar ambiente de produção (cuidado!)
+stop-production:
+  stage: deploy
+  script:
+    - echo "🛑 Parando ambiente de produção..."
+    - echo "⚠️  ATENÇÃO: Isso interromperá o serviço de produção!"
+  environment:
+    name: production
+    action: stop
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - when: manual

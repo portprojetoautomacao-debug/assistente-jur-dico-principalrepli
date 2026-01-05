@@ -1,0 +1,72 @@
+# Route Map para Review Apps - Assistente Jurídico PJe
+# Este arquivo mapeia arquivos do repositório para URLs públicas nos Review Apps
+# Permite navegação direta de arquivos para suas páginas correspondentes
+
+# Páginas principais da aplicação React
+- source: 'src/App.tsx'
+  public: '/'
+
+- source: 'src/main.tsx'
+  public: '/'
+
+- source: 'src/ErrorFallback.tsx'
+  public: '/error'
+
+# Componentes principais
+- source: 'src/components/Dashboard.tsx'
+  public: '/dashboard'
+
+- source: 'src/components/ProcessCRM.tsx'
+  public: '/processos'
+
+- source: 'src/components/AIAgents.tsx'
+  public: '/agentes'
+
+- source: 'src/components/CalculadoraPrazos.tsx'
+  public: '/calculadora'
+
+- source: 'src/components/GoogleAuth.tsx'
+  public: '/auth'
+
+# Páginas de configuração e administração
+- source: 'src/components/ConfigurationError.tsx'
+  public: '/config-error'
+
+- source: 'src/components/Calendar.tsx'
+  public: '/calendario'
+
+- source: 'src/components/DJENConsulta.tsx'
+  public: '/djen'
+
+# Páginas estáticas (se existirem)
+- source: 'index.html'
+  public: '/'
+
+- source: 'README.md'
+  public: '/docs'
+
+# Arquivos de configuração (útil para debugging)
+- source: 'package.json'
+  public: '/package-info'
+
+- source: 'vite.config.ts'
+  public: '/vite-config'
+
+# Padrão genérico para outros arquivos TypeScript/React
+- source: /src\/components\/(.+)\.tsx$/
+  public: '/component/\1'
+
+- source: /src\/(.+)\.ts$/
+  public: '/module/\1'
+
+# Padrão para arquivos de teste
+- source: /tests\/(.+)\.spec\.ts$/
+  public: '/test/\1'
+
+# Arquivos de documentação
+- source: /(.+)\.md$/
+  public: '/docs/\1'
+
+# Arquivos de configuração
+- source: /(.+)\.config\.(js|ts|json)$/
+  public: '/config/\1'

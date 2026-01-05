@@ -1,0 +1,143 @@
+{
+  "generated": "2024-12-09 21:30:00",
+  "project": "assistente-juridico-p",
+  "summary": {
+    "total": 97,
+    "unit": 56,
+    "api": 14,
+    "e2e": 16,
+    "integration": 5,
+    "chrome_extension": 6
+  },
+  "distribution": {
+    "frontend_percentage": 57.7,
+    "backend_percentage": 14.4,
+    "e2e_percentage": 16.5,
+    "integration_percentage": 5.2,
+    "chrome_percentage": 6.2
+  },
+  "categories": {
+    "unit": {
+      "total": 56,
+      "subcategories": {
+        "components": 24,
+        "hooks": 3,
+        "libraries": 11,
+        "schemas": 4,
+        "services": 3,
+        "agents": 1,
+        "other": 10
+      },
+      "files": [
+        "src/__tests__/editor-visibility.test.tsx",
+        "src/components/AdvancedNLPDashboard.test.tsx",
+        "src/components/__tests__/MinutasManager.smoke.test.tsx",
+        "src/components/__tests__/MinutasManager.test.tsx",
+        "src/components/__tests__/ProcessosView.smoke.test.tsx",
+        "src/components/__tests__/ProcessosView.test.tsx",
+        "src/components/dashboard/DashboardStats.test.tsx",
+        "src/components/editor/TiptapEditorV2.test.tsx",
+        "src/hooks/use-pje-document-sync.test.ts",
+        "src/hooks/use-timeline-sync.test.ts",
+        "src/hooks/use-tiptap-editor.test.ts",
+        "src/lib/config.test.ts",
+        "src/lib/agents.test.ts",
+        "src/lib/djen-api.test.ts",
+        "src/lib/prazos.test.ts",
+        "src/schemas/__tests__/agent.schema.test.ts",
+        "src/schemas/__tests__/expediente.schema.test.ts",
+        "src/schemas/__tests__/process.schema.test.ts",
+        "src/services/minuta-service.test.ts",
+        "src/services/task-queue-service.test.ts"
+      ]
+    },
+    "api": {
+      "total": 14,
+      "files": [
+        "api/agents-v2.test.ts",
+        "api/dspy-bridge.test.ts",
+        "api/lib/email-service.test.ts",
+        "api/tests/agent-monitoring.test.ts",
+        "api/tests/agents-api.test.ts",
+        "api/tests/djen-agent-flow.test.ts",
+        "api/tests/extension-errors.test.ts",
+        "api/tests/legal-memory.test.ts",
+        "api/tests/pje-sync.test.ts",
+        "api/tests/process-task.test.ts",
+        "api/tests/status.test.ts",
+        "api/tests/todoist-webhook.test.ts"
+      ]
+    },
+    "e2e": {
+      "total": 16,
+      "files": [
+        "agents-ui.spec.ts",
+        "app-flow.spec.ts",
+        "basic.spec.ts",
+        "tests/e2e/advanced-flows.spec.ts",
+        "tests/e2e/agents-ui.spec.ts",
+        "tests/e2e/app-flow.spec.ts",
+        "tests/e2e/basic.spec.ts",
+        "tests/e2e/extension-pje.spec.ts",
+        "tests/e2e/forms.spec.ts",
+        "tests/e2e/minutas.spec.ts",
+        "tests/e2e/monitoring.spec.ts",
+        "tests/e2e/navigation.spec.ts",
+        "tests/e2e/pje-sync.spec.ts",
+        "tests/e2e/todoist-flow.spec.ts",
+        "tests/e2e/ui-overhaul.spec.ts"
+      ]
+    },
+    "integration": {
+      "total": 5,
+      "files": [
+        "tests/integration/agents-v2-multi.test.ts",
+        "tests/integration/agents-v2.test.ts",
+        "tests/integration/dspy-bridge.test.ts",
+        "tests/integration/hybrid-agents.test.ts",
+        "tests/integration/local-real.test.ts"
+      ]
+    },
+    "chrome_extension": {
+      "total": 6,
+      "files": [
+        "chrome-extension-pje/tests/content-script.test.ts",
+        "chrome-extension-pje/tests/errorHandler.test.ts",
+        "chrome-extension-pje/tests/expediente-extractor.test.ts",
+        "chrome-extension-pje/tests/popup.test.ts",
+        "chrome-extension-pje/tests/process-extractor.test.ts",
+        "chrome-extension-pje/tests/utils.test.ts"
+      ]
+    }
+  },
+  "commands": {
+    "all_tests": "npm run test",
+    "run_once": "npm run test:run",
+    "unit_only": "npm run test:unit",
+    "api_only": "npm run test:api",
+    "e2e_only": "npm run test:e2e",
+    "integration_only": "npm run test:integration",
+    "coverage": "npm run test:coverage",
+    "ui": "npm run test:ui"
+  },
+  "configuration_files": [
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "src/test/setup.ts",
+    ".github/workflows/tests.yml"
+  ],
+  "scripts": ["scripts/setup-tests.sh", "scripts/list-all-tests.sh"],
+  "coverage_gaps": [
+    "src/components/GlobalSearch.tsx",
+    "src/components/ProcessCRMAdvbox.tsx",
+    "src/hooks/use-auto-minuta.ts",
+    "src/hooks/use-autonomous-agents.ts"
+  ],
+  "notes": [
+    "Frontend tests represent 57.7% of total test suite",
+    "Chrome Extension has 100% module coverage (6/6)",
+    "API has good coverage of critical endpoints (14 files)",
+    "E2E covers all main user flows (16 specs)",
+    "Integration tests cover multi-agent workflows (5 files)"
+  ]
+}

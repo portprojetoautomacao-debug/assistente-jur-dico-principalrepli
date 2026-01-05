@@ -1,0 +1,89 @@
+[01:27:17.011] Log Level: 2
+[01:27:17.030] VS Code version: 1.107.1
+[01:27:17.030] Remote-SSH version: remote-ssh@0.122.0
+[01:27:17.030] win32 x64
+[01:27:17.039] SSH Resolver called for "ssh-remote+3d18fe18-49cb-4d5c-b908-0599fc01a62c@3d18fe18-49cb-4d5c-b908-0599fc01a62c-00-39tn00ki6b5vd.picard.replit.dev:22", attempt 1
+[01:27:17.045] remote.SSH.useLocalServer = false
+[01:27:17.046] remote.SSH.useExecServer = true
+[01:27:17.046] remote.SSH.bindHost = {}
+[01:27:17.046] remote.SSH.showLoginTerminal = false
+[01:27:17.046] remote.SSH.remotePlatform = {}
+[01:27:17.046] remote.SSH.path = 
+[01:27:17.046] remote.SSH.configFile = 
+[01:27:17.046] remote.SSH.useFlock = true
+[01:27:17.046] remote.SSH.lockfilesInTmp = false
+[01:27:17.046] remote.SSH.localServerDownload = auto
+[01:27:17.046] remote.SSH.remoteServerListenOnSocket = false
+[01:27:17.046] remote.SSH.defaultExtensions = []
+[01:27:17.047] remote.SSH.defaultExtensionsIfInstalledLocally = []
+[01:27:17.047] remote.SSH.loglevel = 2
+[01:27:17.047] remote.SSH.enableDynamicForwarding = true
+[01:27:17.047] remote.SSH.enableRemoteCommand = false
+[01:27:17.047] remote.SSH.serverPickPortsFromRange = {}
+[01:27:17.047] remote.SSH.serverInstallPath = {}
+[01:27:17.047] remote.SSH.permitPtyAllocation = false
+[01:27:17.047] remote.SSH.preferredLocalPortRange = undefined
+[01:27:17.047] remote.SSH.useCurlAndWgetConfigurationFiles = false
+[01:27:17.047] remote.SSH.experimental.chat = true
+[01:27:17.047] remote.SSH.experimental.enhancedSessionLogs = true
+[01:27:17.048] remote.SSH.httpProxy = {"*":""}
+[01:27:17.048] remote.SSH.httpsProxy = {"*":""}
+[01:27:17.061] SSH Resolver called for host: 3d18fe18-49cb-4d5c-b908-0599fc01a62c@3d18fe18-49cb-4d5c-b908-0599fc01a62c-00-39tn00ki6b5vd.picard.replit.dev
+[01:27:17.061] Setting up SSH remote "3d18fe18-49cb-4d5c-b908-0599fc01a62c-00-39tn00ki6b5vd.picard.replit.dev"
+[01:27:17.076] Using commit id "994fd12f8d3a5aa16f17d42c041e5809167e845a" and quality "stable" for server
+[01:27:17.076] Extensions to install: 
+[01:27:17.087] Install and start server if needed
+[01:27:20.631] Checking ssh with "C:\Program Files\Google\Chrome\Application\ssh.exe -V"
+[01:27:20.637] Got error from ssh: spawn C:\Program Files\Google\Chrome\Application\ssh.exe ENOENT
+[01:27:20.637] Checking ssh with "C:\Program Files\Common Files\Oracle\Java\javapath\ssh.exe -V"
+[01:27:20.638] Got error from ssh: spawn C:\Program Files\Common Files\Oracle\Java\javapath\ssh.exe ENOENT
+[01:27:20.639] Checking ssh with "C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\ssh.exe -V"
+[01:27:20.641] Got error from ssh: spawn C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\ssh.exe ENOENT
+[01:27:20.641] Checking ssh with "C:\Python311\Scripts\ssh.exe -V"
+[01:27:20.642] Got error from ssh: spawn C:\Python311\Scripts\ssh.exe ENOENT
+[01:27:20.642] Checking ssh with "C:\Python311\ssh.exe -V"
+[01:27:20.644] Got error from ssh: spawn C:\Python311\ssh.exe ENOENT
+[01:27:20.644] Checking ssh with "C:\Program Files\Eclipse Adoptium\jdk-21.0.8.9-hotspot\bin\ssh.exe -V"
+[01:27:20.647] Got error from ssh: spawn C:\Program Files\Eclipse Adoptium\jdk-21.0.8.9-hotspot\bin\ssh.exe ENOENT
+[01:27:20.647] Checking ssh with "C:\Program Files (x86)\Common Files\Oracle\Java\java8path\ssh.exe -V"
+[01:27:20.648] Got error from ssh: spawn C:\Program Files (x86)\Common Files\Oracle\Java\java8path\ssh.exe ENOENT
+[01:27:20.648] Checking ssh with "C:\Program Files (x86)\Common Files\Oracle\Java\javapath\ssh.exe -V"
+[01:27:20.650] Got error from ssh: spawn C:\Program Files (x86)\Common Files\Oracle\Java\javapath\ssh.exe ENOENT
+[01:27:20.650] Checking ssh with "C:\Program Files\Eclipse Adoptium\jre-17.0.8.101-hotspot\bin\ssh.exe -V"
+[01:27:20.653] Got error from ssh: spawn C:\Program Files\Eclipse Adoptium\jre-17.0.8.101-hotspot\bin\ssh.exe ENOENT
+[01:27:20.653] Checking ssh with "C:\Windows\system32\ssh.exe -V"
+[01:27:20.655] Got error from ssh: spawn C:\Windows\system32\ssh.exe ENOENT
+[01:27:20.655] Checking ssh with "C:\Windows\ssh.exe -V"
+[01:27:20.657] Got error from ssh: spawn C:\Windows\ssh.exe ENOENT
+[01:27:20.657] Checking ssh with "C:\Windows\System32\Wbem\ssh.exe -V"
+[01:27:20.659] Got error from ssh: spawn C:\Windows\System32\Wbem\ssh.exe ENOENT
+[01:27:20.659] Checking ssh with "C:\Windows\System32\WindowsPowerShell\v1.0\ssh.exe -V"
+[01:27:20.661] Got error from ssh: spawn C:\Windows\System32\WindowsPowerShell\v1.0\ssh.exe ENOENT
+[01:27:20.661] Checking ssh with "C:\Windows\System32\OpenSSH\ssh.exe -V"
+[01:27:20.724] > OpenSSH_for_Windows_9.5p2, LibreSSL 3.8.2
+
+[01:27:20.738] Remote command length: 5051/8192 characters
+[01:27:20.738] Running script with connection command: "C:\Windows\System32\OpenSSH\ssh.exe" -T -D 28091 -p 22 "3d18fe18-49cb-4d5c-b908-0599fc01a62c@3d18fe18-49cb-4d5c-b908-0599fc01a62c-00-39tn00ki6b5vd.picard.replit.dev" powershell
+[01:27:20.741] Generated SSH command: 'type "C:\Users\thiag\AppData\Local\Temp\vscode-linux-multi-line-command-3d18fe18-49cb-4d5c-b908-0599fc01a62c-00-39tn00ki6b5vd.picard.replit.dev-290751459.sh" | "C:\Windows\System32\OpenSSH\ssh.exe" -T -D 28091 -p 22 "3d18fe18-49cb-4d5c-b908-0599fc01a62c@3d18fe18-49cb-4d5c-b908-0599fc01a62c-00-39tn00ki6b5vd.picard.replit.dev" powershell'
+[01:27:20.742] Using connect timeout of 17 seconds
+[01:27:20.744] Terminal shell path: C:\WINDOWS\System32\cmd.exe
+[01:27:21.080] > 
+[01:27:21.080] Got some output, clearing connection timeout
+[01:27:21.092] > 
+[01:27:22.326] > Welcome to the Replit SSH Proxy.
+> 
+> Visit https://docs.replit.com/replit-workspace/ssh to learn more about SSH on Replit.
+[01:27:22.801] > 3d18fe18-49cb-4d5c-b908-0599fc01a62c@3d18fe18-49cb-4d5c-b908-0599fc01a62c-00-39tn00ki6b5vd.picard.replit.dev's password: 
+[01:27:22.802] Showing password prompt
+[01:27:27.182] Got password response
+[01:27:27.183] "install" wrote data to terminal: "*************************************************************************************************"
+[01:27:27.223] > 
+[01:27:27.373] > Permission denied, please try again.
+> 3d18fe18-49cb-4d5c-b908-0599fc01a62c@3d18fe18-49cb-4d5c-b908-0599fc01a62c-00-39tn00ki6b5vd.picard.replit.dev's password: 
+[01:27:27.374] Showing password prompt
+[01:27:31.490] Got password response
+[01:27:31.490] "install" wrote data to terminal: "*************************************************************************************************"
+[01:27:31.525] > 
+[01:27:31.673] > Permission denied, please try again.
+> 3d18fe18-49cb-4d5c-b908-0599fc01a62c@3d18fe18-49cb-4d5c-b908-0599fc01a62c-00-39tn00ki6b5vd.picard.replit.dev's password: 
+[01:27:31.673] Showing password prompt

@@ -1,0 +1,117 @@
+# GitLab Agent for Kubernetes - Produção
+# Agente focado em produção e alta disponibilidade
+
+# Desenvolvimento remoto desabilitado por segurança
+remote_development:
+  enabled: false
+
+# Acesso CI/CD restrito para produção
+ci_access:
+  projects:
+    - id: thiagobodevan-a11y/assistente-juridico-p
+      default_namespace: production
+      access_as:
+        ci_job: {}  # Personificar trabalho CI/CD
+      environments:
+        - production
+        - prod
+      protected_branches_only: true  # APENAS branches protegidas em produção
+  groups:
+    - id: thiagobodevan-a11y
+      environments:
+        - production
+        - prod
+
+# Acesso de usuário limitado para produção
+user_access:
+  access_as:
+    agent: {} # for free
+    user: {} # for premium+
+  projects:
+    - id: thiagobodevan-a11y/assistente-juridico-p
+      default_namespace: production
+  groups:
+    - id: thiagobodevan-a11y
+
+# GitOps para manifestos de produção
+gitops:
+  manifest_projects:
+    - id: thiagobodevan-a11y/assistente-juridico-p
+      default_namespace: production
+      paths:
+        - glob: 'k8s/production/**/*.yaml'
+        - glob: 'k8s/production/**/*.yml'
+        - glob: 'k8s/shared/**/*.yaml'
+      reconcile:
+        mode: auto
+        timeout: 3600s
+
+# Observabilidade completa para produção
+network_policy:
+  enabled: true
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              environment: production
+        - podSelector:
+            matchLabels:
+              app: ingress-nginx
+  egress:
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 6379  # Redis
+    # Sem acesso a bancos de desenvolvimento
+
+# Configurações específicas de produção
+production:
+  high_availability: true
+  auto_scaling: true
+  backup_enabled: true
+  security_hardened: true
+  resource_limits:
+    cpu: "2000m"
+    memory: "4Gi"
+  resource_requests:
+    cpu: "500m"
+    memory: "1Gi"
+
+# Configurações de backup e recuperação
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Diariamente às 2h
+  retention_days: 30
+  storage_class: "fast-ssd"
+
+# Configurações de escalabilidade
+scaling:
+  hpa:
+    enabled: true
+    min_replicas: 3
+    max_replicas: 10
+    target_cpu: 70
+    target_memory: 80
+  pdb:
+    enabled: true
+    min_available: 2
+
+# Configurações de segurança
+security:
+  pod_security_context:
+    run_as_non_root: true
+    run_as_user: 1001
+  network_security:
+    tls_enabled: true
+    cert_manager: true
+  secrets_management:
+    external_secrets: true
+observability:
+  logging:
+    level: debug
+    grpc_level: warn

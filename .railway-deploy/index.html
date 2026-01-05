@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="pt-BR" class="notranslate" translate="no" dir="ltr" data-light="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="index, follow" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Assistente PJe" />
+    <meta name="application-name" content="Assistente Jurídico PJe" />
+    <meta name="google" content="notranslate" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta
+      name="description"
+      content="Sistema inteligente de gestão jurídica com IA: 15 agentes autônomos 24/7, monitoramento DJEN/DataJud, calculadora de prazos, CRM de processos e assistente Harvey Specter."
+    />
+    <meta
+      name="keywords"
+      content="assistente jurídico, pje, gestão jurídica, ia jurídica, monitoramento djen, datajud, prazos processuais, crm advocacia, automação jurídica, agentes ia, intimações, processos judiciais"
+    />
+    <link rel="canonical" href="https://assistente-juridico-github.vercel.app/" />
+
+    <!-- Alternate locales for SEO -->
+    <link rel="alternate" hreflang="pt-BR" href="https://assistente-juridico-github.vercel.app/" />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href="https://assistente-juridico-github.vercel.app/"
+    />
+
+    <!-- Preconnect para recursos críticos - melhora LCP e FCP -->
+    <link rel="preconnect" href="https://accounts.google.com" crossorigin />
+    <link rel="preconnect" href="https://apis.google.com" crossorigin />
+    <!-- Fontes hospedadas localmente em /fonts/ - sem necessidade de preconnect externo -->
+    <link rel="dns-prefetch" href="https://www.gstatic.com" />
+    <link rel="dns-prefetch" href="https://vercel.live" />
+
+    <!-- ✅ PRELOAD LCP: imagem hero (fallback OG) para antecipar carregamento -->
+    <!-- <link rel="preload" href="/og-image.png" as="image" /> -->
+
+    <!-- ✅ OTIMIZAÇÃO LCP: CSS crítico inline expandido para evitar render-blocking -->
+    <style>
+      /* Critical CSS - Above the fold styles */
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 240 10% 3.9%;
+        --primary: 217.2 91.2% 59.8%;
+        --muted-foreground: 240 3.8% 46.1%;
+        --card: 0 0% 100%;
+        --border: 240 5.9% 90%;
+      }
+
+      *,
+      ::after,
+      ::before {
+        box-sizing: border-box;
+        border-width: 0;
+        border-style: solid;
+      }
+
+      html {
+        line-height: 1.5;
+        -webkit-text-size-adjust: 100%;
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      body {
+        margin: 0;
+        line-height: inherit;
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+      }
+
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Loading Spinner */
+      .loading-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      .loading-spinner {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 9999px;
+        border: 2px solid transparent;
+        border-bottom-color: hsl(var(--primary));
+        animation: spin 1s linear infinite;
+      }
+
+      .loading-text {
+        font-size: 0.875rem;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .loading-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        margin-bottom: 0.5rem;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Utility classes */
+      .min-h-screen {
+        min-height: 100vh;
+      }
+
+      .flex {
+        display: flex;
+      }
+
+      .items-center {
+        align-items: center;
+      }
+
+      .justify-center {
+        justify-content: center;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .text-3xl {
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+      }
+
+      .font-bold {
+        font-weight: 700;
+      }
+
+      .rounded-full {
+        border-radius: 9999px;
+      }
+
+      .h-12 {
+        height: 3rem;
+      }
+
+      .w-12 {
+        width: 3rem;
+      }
+
+      /* Background & Card */
+      .bg-background {
+        background-color: hsl(var(--background));
+      }
+
+      .bg-card {
+        background-color: hsl(var(--card));
+      }
+
+      .border {
+        border-width: 1px;
+        border-color: hsl(var(--border));
+      }
+
+      .rounded-lg {
+        border-radius: 0.5rem;
+      }
+
+      .shadow-sm {
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: 240 10% 3.9%;
+          --foreground: 0 0% 98%;
+          --muted-foreground: 240 5% 64.9%;
+          --card: 240 10% 3.9%;
+          --border: 240 3.7% 15.9%;
+        }
+      }
+    </style>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://assistente-juridico-github.vercel.app/" />
+    <meta
+      property="og:title"
+      content="Assistente Jurídico PJe - Sistema Inteligente de Gestão Jurídica com IA"
+    />
+    <meta
+      property="og:description"
+      content="Sistema completo de gestão jurídica com IA: 15 agentes autônomos 24/7, monitoramento DJEN/DataJud, calculadora de prazos, CRM de processos e assistente Harvey Specter."
+    />
+    <meta
+      property="og:image"
+      content="https://assistente-juridico-github.vercel.app/og-image.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Assistente Jurídico PJe" />
+    <meta property="og:locale" content="pt_BR" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://assistente-juridico-github.vercel.app/" />
+    <meta name="twitter:title" content="Assistente Jurídico PJe - Gestão Jurídica com IA" />
+    <meta
+      name="twitter:description"
+      content="Sistema com IA: 15 agentes autônomos 24/7, monitoramento DJEN/DataJud, calculadora de prazos e CRM"
+    />
+    <meta
+      name="twitter:image"
+      content="https://assistente-juridico-github.vercel.app/og-image.png"
+    />
+
+    <!-- CSP moved to vercel.json HTTP headers for better security -->
+
+    <!-- ✅ SEO: Structured Data (JSON-LD) para Rich Snippets -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Assistente Jurídico PJe",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Sistema inteligente de gestão jurídica com IA: 15 agentes autônomos 24/7, monitoramento DJEN/DataJud, calculadora de prazos, CRM de processos e assistente Harvey Specter.",
+        "url": "https://assistente-juridico-github.vercel.app/",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "BRL"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "150"
+        },
+        "featureList": [
+          "15 Agentes de IA Autônomos",
+          "Monitoramento DJEN/DataJud",
+          "Calculadora de Prazos Processuais",
+          "CRM de Processos com Kanban",
+          "Integração Google Calendar",
+          "Gestão Financeira"
+        ],
+        "inLanguage": "pt-BR"
+      }
+    </script>
+
+    <title>Assistente Jurídico PJe - Sistema Inteligente de Gestão Jurídica</title>
+
+    <!-- Favicons com suporte a dark mode -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/favicon-dark.svg"
+      media="(prefers-color-scheme: dark)"
+    />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  </head>
+
+  <body class="notranslate" translate="no">
+    <div id="root">
+      <div class="loading-container" id="loading-screen">
+        <h1 class="loading-title">Assistente Jurídico PJe</h1>
+        <div class="loading-spinner"></div>
+        <p class="loading-text" id="loading-text">Carregando sistema...</p>
+        <button
+          id="reset-btn"
+          style="
+            display: none;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+          "
+        >
+          Limpar cache e recarregar
+        </button>
+      </div>
+    </div>
+
+    <!-- Script de fallback para problemas de carregamento -->
+    <script>
+      (function () {
+        // 🔄 FORÇA LIMPEZA DE CACHE na primeira visita após deploy
+        var CACHE_VERSION = "v2-" + Date.now().toString(36);
+        var lastVersion = localStorage.getItem("_cacheVersion");
+
+        // Se o erro "Activity" aparecer, limpa tudo automaticamente
+        window.addEventListener("error", function (e) {
+          if (e.message && e.message.includes("Activity")) {
+            console.warn('[CACHE] Erro "Activity" detectado - limpando cache...');
+            cleanAndReload();
+          }
+        });
+
+        function cleanAndReload() {
+          // Limpa Service Workers
+          if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+              registrations.forEach(function (reg) {
+                reg.unregister();
+              });
+            });
+          }
+          // Limpa caches
+          if ("caches" in window) {
+            caches.keys().then(function (names) {
+              names.forEach(function (name) {
+                caches.delete(name);
+              });
+            });
+          }
+          // Marca como limpo
+          localStorage.setItem("_cacheVersion", CACHE_VERSION);
+          // Recarrega sem cache
+          setTimeout(function () {
+            window.location.href = window.location.href.split("?")[0] + "?nocache=" + Date.now();
+          }, 300);
+        }
+
+        var timeout = setTimeout(function () {
+          var text = document.getElementById("loading-text");
+          var btn = document.getElementById("reset-btn");
+          if (text)
+            text.textContent =
+              "O carregamento está demorando... Clique abaixo para limpar o cache.";
+          if (btn) btn.style.display = "block";
+        }, 8000);
+
+        // Limpa o timeout quando o React carregar
+        window.__clearLoadingTimeout = function () {
+          clearTimeout(timeout);
+          var screen = document.getElementById("loading-screen");
+          if (screen) screen.style.display = "none";
+        };
+
+        // Handler do botão de reset
+        document.addEventListener("DOMContentLoaded", function () {
+          var btn = document.getElementById("reset-btn");
+          if (btn) {
+            btn.addEventListener("click", cleanAndReload);
+          }
+        });
+      })();
+    </script>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

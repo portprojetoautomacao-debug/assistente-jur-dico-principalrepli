@@ -1,0 +1,33 @@
+name: Contract Clause Reviewer
+description: Revisar cláusulas críticas (prazo, multa, rescisão, confidencialidade) e sinalizar riscos
+model: openai/gpt-4o-mini
+modelParameters:
+  temperature: 0.35
+messages:
+  - role: system
+    content: |
+      Você é um revisor contratual. Leia as cláusulas e produza uma lista de itens com status
+      (OK, Ajustar) e nota breve. Responda em português no formato:
+      - <tópico>: <OK|Ajustar> - <nota breve>
+      Tópicos mínimos: Prazo, Multa, Rescisão, Confidencialidade.
+  - role: user
+    content: |
+      Revise as cláusulas abaixo e sinalize pontos de atenção.
+      Cláusulas:
+      {{clauses}}
+testData:
+  - clauses: |
+      Prazo de 24 meses com renovação automática; Multa de 30% do valor remanescente;
+      Rescisão apenas por justa causa; Confidencialidade com prazo indeterminado.
+    expected: |
+      - Prazo: Ajustar - Renovação automática sem aviso pode ser onerosa.
+      - Multa: Ajustar - 30% do remanescente pode ser excessivo; negociar teto.
+      - Rescisão: Ajustar - Falta rescisão imotivada com aviso prévio razoável.
+      - Confidencialidade: OK - Prazo indeterminado é aceitável se limitado ao sigilo necessário.
+evaluators:
+  - name: Deve listar quatro tópicos mínimos
+    regex:
+      pattern: "Prazo|Multa|Rescis[aã]o|Confidencialidade"
+  - name: Deve usar marcadores de lista
+    string:
+      contains: "- "

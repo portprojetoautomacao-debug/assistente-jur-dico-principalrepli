@@ -34,7 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         # Testar apenas browsers habilitados no playwright.config.ts
-        browser: [chromium]
+        browser: [chromium, firefox]
 
     steps:
       - name: 📥 Checkout código

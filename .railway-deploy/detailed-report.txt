@@ -1,0 +1,154 @@
+╭────────────────────────────────────────────────────────╮
+│   📊 ANÁLISE DETALHADA - DUPLICAÇÃO + VIOLAÇÕES       │
+╰────────────────────────────────────────────────────────╯
+
+📝 1. ANÁLISE DE DUPLICAÇÃO DE CÓDIGO
+────────────────────────────────────────────────────────────
+
+📊 Métricas de Duplicação:
+
+   📈 Densidade de duplicação: 12.9%
+   📏 Linhas duplicadas: 8917
+   🔲 Blocos duplicados: 124
+   📁 Arquivos duplicados: 33
+
+🚨 2. RELATÓRIO DAS NOVAS VIOLAÇÕES
+────────────────────────────────────────────────────────────
+
+📊 Total de novas violações: 1522
+
+🛑 BLOCKER (13 issues):
+
+  📄 secrets:S6689 (2x)
+     Make sure this Github token gets revoked, changed, and removed from the code.
+     • .env.local.backup:N/A
+     • .env.vercel.backup:N/A
+
+  📄 secrets:S6334 (3x)
+     Make sure this Google API Key is either secured or revoked, changed, and removed from the code.
+     • .env.local.backup:N/A
+     • .env.local.backup:N/A
+     • .env.vercel.backup:N/A
+
+  📄 secrets:S6739 (2x)
+     Make sure these Redis credentials get revoked, changed, and removed from the code.
+     • .env.local.backup:N/A
+     • .env.local.backup:N/A
+
+  📄 secrets:S8135 (2x)
+     Make sure this JSON Web Token (JWT) gets revoked, changed, and removed from the code.
+     • .env.local.backup:N/A
+     • .env.vercel.backup:N/A
+
+  📄 secrets:S7402 (2x)
+     Make sure this Vercel API access token gets revoked, changed, and removed from the code.
+     • .env.local.backup:N/A
+     • .env.vercel.backup:N/A
+
+  ... e mais 2 regras diferentes
+
+⚠️ CRITICAL (1 issues):
+
+  📄 shelldre:S131 (1x)
+     Add a default case (*) to handle unexpected values.
+     • auto-create-issues.sh:N/A
+
+🟠 MAJOR (74 issues):
+
+  📄 shelldre:S7679 (18x)
+     Assign this positional parameter to a local variable.
+     • .github/scripts/analyze-vercel-build.sh:N/A
+     • .github/scripts/analyze-vercel-build.sh:N/A
+     • .github/scripts/analyze-vercel-build.sh:N/A
+     ... e mais 15 ocorrências
+
+  📄 shelldre:S7682 (33x)
+     Add an explicit return statement at the end of the function.
+     • .github/scripts/analyze-vercel-build.sh:N/A
+     • .github/scripts/analyze-vercel-build.sh:N/A
+     • .github/scripts/analyze-vercel-build.sh:N/A
+     ... e mais 30 ocorrências
+
+  📄 shelldre:S7688 (20x)
+     Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.
+     • .github/scripts/analyze-vercel-build.sh:N/A
+     • .github/scripts/analyze-vercel-build.sh:N/A
+     • .github/scripts/analyze-vercel-build.sh:N/A
+     ... e mais 17 ocorrências
+
+  📄 typescript:S878 (1x)
+     Unexpected use of comma operator.
+     • api/tests/process-task.test.ts:N/A
+
+  📄 typescript:S4624 (1x)
+     Refactor this code to not use nested template literals.
+     • api/tests/status.test.ts:N/A
+
+  ... e mais 1 regras diferentes
+
+🔵 MINOR (8 issues):
+
+  📄 typescript:S4323 (1x)
+     Replace this union type with a type alias.
+     • src/lib/agents/todoist-agent.ts:221
+
+  📄 typescript:S7781 (2x)
+     Prefer `String#replaceAll()` over `String#replace()`.
+     • src/lib/agents/todoist-agent.ts:323
+     • src/lib/agents/todoist-agent.ts:324
+
+  📄 shelldre:S1192 (3x)
+     Define a constant instead of using the literal '[0-9]*' 4 times.
+     • .github/scripts/analyze-vercel-build.sh:N/A
+     • .github/scripts/analyze-vercel-build.sh:N/A
+     • .github/scripts/analyze-vercel-build.sh:N/A
+
+  📄 typescript:S7764 (2x)
+     Prefer `globalThis` over `window`.
+     • agents-ui.spec.ts:N/A
+     • app-flow.spec.ts:N/A
+
+ℹ️ INFO (4 issues):
+
+  📄 typescript:S1135 (1x)
+     Complete the task associated to this "TODO" comment.
+     • src/lib/agents/todoist-agent.ts:371
+
+  📄 githubactions:S1135 (3x)
+     Complete the task associated to this "TODO" comment.
+     • .github/workflows/auto-create-issues.yml:N/A
+     • .github/workflows/auto-scan-issues-cron.yml:N/A
+     • .github/workflows/auto-scan-issues-cron.yml:N/A
+
+🏆 3. TOP 10 REGRAS MAIS VIOLADAS
+────────────────────────────────────────────────────────────
+
+1. shelldre:S7682: 161 ocorrências
+2. shelldre:S7679: 87 ocorrências
+3. shelldre:S7688: 83 ocorrências
+4. shelldre:S1192: 22 ocorrências
+5. javascript:S7772: 17 ocorrências
+6. shelldre:S7677: 14 ocorrências
+7. javascript:S7764: 8 ocorrências
+8. typescript:S7781: 7 ocorrências
+9. typescript:S1186: 7 ocorrências
+10. javascript:S2486: 7 ocorrências
+
+📁 4. ARQUIVOS COM MAIS PROBLEMAS
+────────────────────────────────────────────────────────────
+
+1. auto-test-fix.sh: 33 issues
+2. .github/scripts/analyze-vercel-build.sh: 24 issues
+3. manage-autodevops.sh: 24 issues
+4. gitlab-agents-manager.sh: 22 issues
+5. manage-gitlab-agents.sh: 19 issues
+6. validate-e2e-setup.sh: 18 issues
+7. debug-gitlab-agents.sh: 17 issues
+8. health-check-agents.sh: 15 issues
+9. test-auto-issues.sh: 15 issues
+10. remove-gitlab-agents.sh: 14 issues
+
+────────────────────────────────────────────────────────────
+✅ Análise detalhada finalizada!
+────────────────────────────────────────────────────────────
+

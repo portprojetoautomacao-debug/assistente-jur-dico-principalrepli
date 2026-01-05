@@ -1,0 +1,50 @@
+# Agente GitLab - Desenvolvimento
+# Configuração para ambiente de desenvolvimento
+
+name: assistente-juridico-dev
+url: https://gitlab.com/
+token: $AGENTE_DESENVOLVIMENTO_TOKEN
+executor: docker
+environment: desenvolvimento
+
+stages:
+  - build
+  - test
+  - deploy-dev
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+
+# Jobs específicos para desenvolvimento
+build:dev:
+  stage: build
+  script:
+    - echo "🏗️ Build para desenvolvimento"
+    - npm ci
+    - npm run build:dev
+  only:
+    - merge_requests
+    - develop
+
+test:dev:
+  stage: test
+  script:
+    - echo "🧪 Testes para desenvolvimento"
+    - npm run test
+    - npm run lint
+  coverage: '/Lines\s*:\s*(\d+\.\d+)%/'
+  only:
+    - merge_requests
+    - develop
+
+deploy:dev:
+  stage: deploy-dev
+  script:
+    - echo "🚀 Deploy para desenvolvimento"
+    - echo "Deploying to dev environment"
+  environment:
+    name: development
+    url: https://dev.assistente-juridico.com
+  only:
+    - develop

@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>ADVBOX</title>
+  <meta name="keywords" content="Plataforma para advocacia digital, Gestão" />
+  <meta name="csrf-token" content="BJVQLVMIjxOmyMNQHDQFgu9g42rkJNUIfJeJF8iQ">
+  <meta name="description" content="A ADVBOX é uma plataforma para advocacia digital para escritórios que buscam atualizar seus advogados e se manterem competitivos no setor." />
+  <meta property="og:title" content="ADVBOX" />
+  <meta property="og:description" content="A ADVBOX é uma plataforma para advocacia digital para escritórios que buscam atualizar seus advogados e se manterem competitivos no setor." />
+  <meta property="og:url" content="https://app.advbox.com.br/home" />
+  <meta property="og:image" content="https://app.advbox.com.br/images/advbox.jpg" />
+  <meta name="author" content="ADVBOX" />
+  <link rel="stylesheet" href="/css/app.css?id=f7d61c269a319a43d040">
+  <link rel="icon" type="image/png" href="https://app.advbox.com.br/images/favicon.png">
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-N6T7H5M');</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body class="">
+
+  <header class="header-top">
+  <a href="home" class="advbox-logo redirect">&nbsp;</a>
+  <div class="form-search-fieldset">
+  <form method="POST" action="https://app.advbox.com.br/search" accept-charset="UTF-8" class="form-search"><input name="_token" type="hidden" value="BJVQLVMIjxOmyMNQHDQFgu9g42rkJNUIfJeJF8iQ">
+    <i class="form-search-icon material-icons">search</i>
+    <input placeholder="Digite / para pesquisar" autocomplete="off" maxlength="40" name="search" type="text">
+    <a href="javascript: void(0);" class="clean-input material-icons">close</a>
+    <div class="form-search-results">
+      <ul class="nav">
+        <li class="active">
+          <a href="javascript: void(0);" data-item="all"><p class="item">Tudo</p><p class="total">0</p></a>
+        </li>
+        <li>
+          <a href="javascript: void(0);" data-item="customers"><p class="item">Pessoas</p><p class="total">0</p></a>
+        </li>
+        <li>
+          <a href="javascript: void(0);" data-item="lawsuits" class="display-lawsuits"><p class="item">Processos</p><p class="total">0</p></a>
+        </li>
+        <!--<li>
+          <a href="javascript: void(0);" data-item="files"><p class="item">Cloud</p><p class="total">0</p></a>
+        </li>-->
+      </ul>
+      <ul class="items">
+        <li class="no-rows">
+          <i class="material-icons">error</i>
+          <p class="no-rows-title">Nenhum resultado encontrado</p>
+          <p class="no-rows-description">
+            &ldquo;<span id="response-global-search">####</span>&rdquo; não retornou nenhum resultado.<br />
+            Por favor, tente novamente.
+          </p>
+        </li>
+        <li class="loading">
+          <a href="javascript: void(0);" class="row load">
+            <p class="title">&nbsp;</p>
+            <p class="info">&nbsp;</p>
+          </a>
+        </li>
+        <li class="loading">
+          <a href="javascript: void(0);" class="row load">
+            <p class="title">&nbsp;</p>
+            <p class="info">&nbsp;</p>
+          </a>
+        </li>
+        <li class="loading">
+          <a href="javascript: void(0);" class="row load">
+            <p class="title">&nbsp;</p>
+            <p class="info">&nbsp;</p>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </form>
+  </div>
+
+  <div class="navbar">
+    
+    <!--
+        -->
+
+    <ul class="section-users">
+                </ul>
+
+    <ul class="choose-theme">
+      <li><a href="javascript: void(0);" data-theme="light" class="theme active light-mode-icon">&nbsp;</a></li>
+      <li><a href="javascript: void(0);" data-theme="dark" class="theme dark-mode-icon">&nbsp;</a></li>
+    </ul>
+
+    <a href="javascript: void(0);" class="icon-button open-notifications" title="Você não possui nenhuma nova notificação.">
+      <i class="material-icons">notifications</i>
+      <div id="new-notifications" class="notifications"></div>
+    </a>
+
+    <div class="btn-group dropdown--default-toggle">
+      <a href="javascript: void(0);" class="button block">Adicionar <i class="material-icons">keyboard_arrow_down</i></a>
+      <div class="dropdown--default dropdown">
+        <div class="dropdown--default-fake"></div>
+        <div class="dropdown--default-caret"></div>
+        <ul>
+          <li><a href="posts/create" class="add-new-message">Nova tarefa</a></li>
+          <li><a href="customers/create" class="popup">Novo contato</a></li>
+          <li><a href="lawsuits/create" class="popup">Novo processo</a></li>
+                    <li><a href="transactions/create" class="popup">Nova receita/despesa</a></li>
+                  </ul>
+      </div>
+    </div>
+
+        <a href="settings?page=bots" title="&ldquo;1&rdquo; agente(s) AI ativos" class="redirect ai-bot-logo actived">&nbsp;</a>
+    
+    <div class="navbar-profile dropdown--default-toggle">
+      <a href="javascript: void(0);" class="navbar-profile-user">
+        <img src="https://s3-sa-east-1.amazonaws.com/advbox/files/profiles/234274.jpg" alt="profile" class="navbar-profile-image" onerror="this.src='images/user.png'" />
+        <p class="navbar-profile-name">Olá, <span>Thiago</span> <i class="material-icons">keyboard_arrow_down</i></p>
+      </a>
+
+      <nav class="dropdown--default main-profile">
+        <div class="dropdown--default-fake"></div>
+        <div class="dropdown--default-caret"></div>
+        <ul>
+          <li><a href="users/234274/edit" class="popup">Meus dados</a></li>
+                    <li><a href="settings?page=account&tab=2" class="redirect">Assinatura e pagamento</a></li>
+                    <li><a href="http://ajuda.advbox.com.br" target="_blank">Central de ajuda</a></li>
+                    <li class="bottom"><a href="logout">Sair</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div id="notifications" class="show-notifications">
+      <a href="javascript: void(0);" class="clear-all-notifications"><i class="material-icons">clear</i> Limpar todas</a>
+      <ul></ul>
+    </div>
+
+    <a href="javascript: void(0);" class="icon-tour start-tour">
+      <i class="material-icons play">play_arrow</i>
+      <i class="material-icons stop">pause</i>
+      <span>Iniciar tour</span>
+    </a>
+  </div>
+</header>
+
+  <div class="sidebar">
+  <div class="scroll">
+    <nav class="main">
+      <ul>
+                <li>
+          <a href="https://app.advbox.com.br/home" class=" new-feature" title="Meu Painel"><i class="material-icons icon">space_dashboard</i></a>
+        </li>
+
+        
+                <li>
+          <a href="https://app.advbox.com.br/customers" class="" title="Contatos"><i class="material-icons icon">people</i></a>
+        </li>
+        <li>
+          <a href="https://app.advbox.com.br/lawsuits" class="" title="Processos"><i class="material-icons icon">folder</i></a>
+        </li>
+        
+        
+        <li>
+          <a href="https://app.advbox.com.br/schedules" class="" title="Agenda"><i class="material-icons icon">calendar_month</i></a>
+        </li>
+
+        <li>
+          <a href="https://app.advbox.com.br/friendship" class="" title="Parceiros"><i class="material-icons icon">public</i></a>
+        </li>
+        <li>
+          <a href="https://app.advbox.com.br/library" class="" title="Modelos"><i class="material-icons icon">file_copy</i></a>
+        </li>
+                <li>
+          <a href="https://app.advbox.com.br/posts" class="" title="Atividades"><i class="material-icons icon">check_box</i></a>
+        </li>
+        
+                <li>
+          <a href="https://app.advbox.com.br/transactions" class="" title="Financeiro"><i class="material-icons icon">monetization_on</i></a>
+        </li>
+        
+                                          <li>
+              <a href="https://app.advbox.com.br/management" class="" title="Gestão"><i class="material-icons icon">pie_chart</i></a>
+            </li>
+                                <li>
+            <a href="https://app.advbox.com.br/settings" class="active" title="Configurações"><i class="material-icons icon">settings</i></a>
+          </li>
+        
+                <li>
+          <a href="javascript: void(0);" class="help support-button" title="Suporte"><i class="material-icons icon">help</i></a>
+        </li>
+                <li>
+          <a href="javascript: void(0);" class="invite" title="Indique a ADVBOX"><i class="material-icons icon">group_add</i></a>
+        </li>
+
+                      </ul>
+    </nav>
+  </div>
+</div>
+
+  
+    
+  <section class="content min-width">
+      </section>
+
+	<section class="popup">&nbsp;</section>
+  <section class="popup-background">&nbsp;</section>
+
+  	<div id="loading" class="page-loader"></div>
+
+  <script src="/js/app.js?id=c201ef0d3665d6800cb1"></script>
+  <script>
+    let enable_sessions = 0;
+    let userId = "user-234274";
+    let userPush = "false";
+  </script>
+  <script src="https://js.pusher.com/3.2/pusher.min.js"></script>
+    <script>$(function(){$('body').pusher(234274, 91778, 'BJVQLVMIjxOmyMNQHDQFgu9g42rkJNUIfJeJF8iQ');});</script>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N6T7H5M"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <script async defer src="https://app.atendedireito.com.br/js/widget/pqkedtbdsy5bng4a/float.js?ref=wf92599w45365"></script>
+  <script>
+  window.addEventListener("chatbot:ready", function () {
+    window.$chatbot.setUser("234274", {
+      email: "thiagobodevanadvocacia@gmail.com",
+      name: "Thiago Bodevan Veiga",
+      identifier_hash: "0685c4d287540389ae1b625971bdc3364496819b796c0191c067aa368ac3071b",
+      avatar_url: "https://s3-sa-east-1.amazonaws.com/advbox/files/profiles/234274.jpg"
+    });
+  });
+
+  $('body').addClass('hide--uchat');
+  window.setTimeout(function() {
+    $('.main .support-button').trigger('click');
+
+    window.setTimeout(function() {
+      $('.main .support-button').trigger('click');
+
+      window.$chatbot.setCustomAttributes({
+        user_fields: {
+          contact: "(37) 98415-8452",
+          plan: "BANCA JURÍDICA",
+          account_id: "91778",
+          account_is: "joao.valentim@escritoriosdigitais.com.br",
+          company: "Thiago Bodevan Veiga",
+          company_cep: "35500-002",
+          role: "OWNER",
+          user_name: "Thiago Bodevan Veiga",
+          user_email: "thiagobodevanadvocacia@gmail.com",
+          subscription_date: "2025-11-13",
+        }
+      });
+
+      $('body').removeClass('hide--uchat');
+     }, 2000);
+
+  }, 5000);
+  </script>
+
+  <div class="support-widget">
+  <div class="support-container">
+    <div class="support-header">Suporte ADVBOX<a href="javascript: void(0);" class="support-button close material-icons">clear</a></div>
+    <form method="POST" action="https://app.advbox.com.br/support" accept-charset="UTF-8" class="support-form"><input name="_token" type="hidden" value="BJVQLVMIjxOmyMNQHDQFgu9g42rkJNUIfJeJF8iQ">
+      <div class="support-content">
+        <ul>
+          <li>
+            <label>Assunto*</label>
+            <select name="tasks_id"><option value="" selected="selected">Selecione</option><option value="569854">Dúvidas ou sugestões</option><option value="569855">Financeiro</option></select>
+          </li>
+          <li>
+            <label>Celular</label>
+            <input class="cellphone" name="mobile" type="text" value="(37) 98415-8452">
+          </li>
+          <li>
+            <label>Como podemos ajudar?*</label>
+            <textarea name="description" cols="50" rows="10"></textarea>
+          </li>
+        </ul>
+      </div>
+      <div class="support-footer">
+        <a href="http://ajuda.advbox.com.br" target="_blank" class="link">Tente você mesmo</a>
+        <button class="btn" type="submit">Enviar</button>
+      </div>
+    </form>
+    <div class="support-buttons">
+      <a href="http://ajuda.advbox.com.br" target="_blank" class="button">
+        <i class="material-icons">explore</i>
+        Tente você mesmo
+      </a>
+      <a href="javascript: void(0);" class="button right open-ticket">
+        <i class="material-icons">chat</i>
+        Abrir chamado
+      </a>
+    </div>
+  </div>
+</div>
+
+  
+  
+  
+  <!-- Convert buttons -->
+  
+  <!-- Invite friend -->
+  <div class="invite-friend">
+    <div class="invite-friend-inner">
+      <a href="javascript: void(0);" class="close-invite-box material-icons">close</a>
+      <div class="header">
+        <h1 class="title">Indique a ADVBOX para outros escritórios!</h1>
+        <h2 class="subtitle">Selecione por onde você quer indicar</h2>
+        <ul class="main">
+          <li><a href="javascript: void(0);" class="active">Link</a></li>
+          <li><a href="https://api.whatsapp.com/send?text=https%3A%2F%2Fapp.advbox.com.br%2Fregister%3Fname%3DThiago%2520Bodevan%2520Veiga%26invite_by%3D91778" target="_blank">Compartilhar no WhatsApp</a></li>
+        </ul>
+      </div>
+      <div class="invite-wrapper">
+        <div class="link-address">
+          <input readonly class="link" value="https://app.advbox.com.br/register?name=Thiago%20Bodevan%20Veiga&amp;invite_by=91778" />
+          <a href="javascript: void(0);" class="copy-clipboard" data-copy="https://app.advbox.com.br/register?name=Thiago%20Bodevan%20Veiga&amp;invite_by=91778"><i class="material-icons">content_copy</i> Copiar Link</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a56df9cf95564f0',t:'MTc2NDMwMTUzNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

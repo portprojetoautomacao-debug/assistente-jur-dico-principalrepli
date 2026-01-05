@@ -1,0 +1,503 @@
+
+> assistente-juridico-p@1.0.1 test:run
+> vitest run tests/integration/agents-integration-completa.test.ts
+
+[dotenv@17.2.3] injecting env (23) from .env.test -- tip: ⚙️  enable debug logging with { debug: true }
+[1m[43m DEPRECATED [49m[22m [33m`test.poolOptions` was removed in Vitest 4. All previous `poolOptions` are now top-level options. Please, refer to the migration guide: https://vitest.dev/guide/migration#pool-rework[39m
+
+[1m[46m RUN [49m[22m [36mv4.0.16 [39m[90m/workspaces/assistente-jur-dico-principalrepli[39m
+
+ [31m❯[39m tests/integration/agents-integration-completa.test.ts [2m([22m[2m28 tests[22m[2m | [22m[31m28 failed[39m[2m)[22m[33m 309[2mms[22m[39m
+[31m       [31m×[31m deve listar todos os 14 agentes disponíveis[39m[32m 44[2mms[22m[39m
+[31m       [31m×[31m deve retornar timestamp no formato ISO[39m[32m 14[2mms[22m[39m
+[31m       [31m×[31m deve executar Harvey Specter com sucesso[39m[32m 51[2mms[22m[39m
+[31m       [31m×[31m deve executar Mrs. Justine com sucesso[39m[32m 11[2mms[22m[39m
+[31m       [31m×[31m deve executar Gestão de Prazos com sucesso[39m[32m 8[2mms[22m[39m
+[31m       [31m×[31m deve rejeitar agente inexistente[39m[32m 6[2mms[22m[39m
+[31m       [31m×[31m deve rejeitar payload sem agentId[39m[32m 4[2mms[22m[39m
+[31m       [31m×[31m deve rejeitar payload sem task[39m[32m 8[2mms[22m[39m
+[31m       [31m×[31m deve orquestrar 2 agentes em sequência[39m[32m 10[2mms[22m[39m
+[31m       [31m×[31m deve orquestrar 3 agentes[39m[32m 7[2mms[22m[39m
+[31m       [31m×[31m deve filtrar agentes inválidos na orquestração[39m[32m 13[2mms[22m[39m
+[31m       [31m×[31m deve rejeitar orquestração sem agents[39m[32m 17[2mms[22m[39m
+[31m       [31m×[31m deve rejeitar orquestração com array vazio[39m[32m 8[2mms[22m[39m
+[31m       [31m×[31m deve obter estatísticas atualizadas[39m[32m 9[2mms[22m[39m
+[31m       [31m×[31m deve incrementar totalExecutions após execução[39m[32m 8[2mms[22m[39m
+[31m       [31m×[31m deve resetar estatísticas[39m[32m 4[2mms[22m[39m
+[31m       [31m×[31m deve calcular averageExecutionTime corretamente[39m[32m 13[2mms[22m[39m
+[31m       [31m×[31m deve retornar health status completo[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m deve incluir informações de ambiente[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m deve listar agentes unhealthy (se houver)[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m deve incluir stats agregados no health[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m deve validar config do Gemini[39m[32m 3[2mms[22m[39m
+[31m       [31m×[31m deve lidar com timeout configurado[39m[32m 4[2mms[22m[39m
+[31m       [31m×[31m deve lidar com múltiplas execuções concorrentes[39m[32m 7[2mms[22m[39m
+[31m       [31m×[31m deve registrar degraded mode quando apropriado[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m todas as respostas devem incluir timestamp[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m todas as respostas devem incluir flag success[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m respostas de erro devem incluir mensagem descritiva[39m[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 28 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m1. Listagem de Agentes[2m > [22mdeve listar todos os 14 agentes disponíveis
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m30:27[22m[39m
+    [90m 28| [39m    [34mit[39m([32m"deve listar todos os 14 agentes disponíveis"[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m 29| [39m      [35mconst[39m response [33m=[39m [35mawait[39m [34mfetch[39m([32m`[39m[36m${[39m[33mBASE_URL[39m[36m}[39m[32m/list`[39m)[33m;[39m
+    [90m 30| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                          [31m^[39m
+    [90m 31| [39m
+    [90m 32| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m1. Listagem de Agentes[2m > [22mdeve retornar timestamp no formato ISO
+[31m[1mAssertionError[22m: expected undefined to be defined[39m
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m58:30[22m[39m
+    [90m 56| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m 57| [39m
+    [90m 58| [39m      [34mexpect[39m(data[33m.[39mtimestamp)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m 59| [39m      [34mexpect[39m(() [33m=>[39m [35mnew[39m [33mDate[39m(data[33m.[39mtimestamp))[33m.[39mnot[33m.[39m[34mtoThrow[39m()[33m;[39m
+    [90m 60| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m2. Execução Individual de Agentes[2m > [22mdeve executar Harvey Specter com sucesso
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m78:29[22m[39m
+    [90m 76| [39m        })[33m;[39m
+    [90m 77| [39m
+    [90m 78| [39m        [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                            [31m^[39m
+    [90m 79| [39m
+    [90m 80| [39m        [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m2. Execução Individual de Agentes[2m > [22mdeve executar Mrs. Justine com sucesso
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m106:29[22m[39m
+    [90m104| [39m        })[33m;[39m
+    [90m105| [39m
+    [90m106| [39m        [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                            [31m^[39m
+    [90m107| [39m
+    [90m108| [39m        [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m2. Execução Individual de Agentes[2m > [22mdeve executar Gestão de Prazos com sucesso
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m130:29[22m[39m
+    [90m128| [39m        })[33m;[39m
+    [90m129| [39m
+    [90m130| [39m        [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                            [31m^[39m
+    [90m131| [39m        [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m132| [39m        [34mexpect[39m(data[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m2. Execução Individual de Agentes[2m > [22mdeve rejeitar agente inexistente
+[31m[1mAssertionError[22m: expected 429 to be 404 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 404[39m
+[31m+ 429[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m150:31[22m[39m
+    [90m148| [39m      })[33m;[39m
+    [90m149| [39m
+    [90m150| [39m      [34mexpect[39m(response[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m404[39m)[33m;[39m
+    [90m   | [39m                              [31m^[39m
+    [90m151| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m152| [39m      [34mexpect[39m(data[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m2. Execução Individual de Agentes[2m > [22mdeve rejeitar payload sem agentId
+[31m[1mAssertionError[22m: expected 429 to be 400 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 400[39m
+[31m+ 429[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m167:31[22m[39m
+    [90m165| [39m      })[33m;[39m
+    [90m166| [39m
+    [90m167| [39m      [34mexpect[39m(response[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m400[39m)[33m;[39m
+    [90m   | [39m                              [31m^[39m
+    [90m168| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m169| [39m      [34mexpect[39m(data[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m2. Execução Individual de Agentes[2m > [22mdeve rejeitar payload sem task
+[31m[1mAssertionError[22m: expected 429 to be 400 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 400[39m
+[31m+ 429[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m184:31[22m[39m
+    [90m182| [39m      })[33m;[39m
+    [90m183| [39m
+    [90m184| [39m      [34mexpect[39m(response[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m400[39m)[33m;[39m
+    [90m   | [39m                              [31m^[39m
+    [90m185| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m186| [39m      [34mexpect[39m(data[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m3. Orquestração Multi-Agente[2m > [22mdeve orquestrar 2 agentes em sequência
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m206:29[22m[39m
+    [90m204| [39m        })[33m;[39m
+    [90m205| [39m
+    [90m206| [39m        [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                            [31m^[39m
+    [90m207| [39m
+    [90m208| [39m        [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m3. Orquestração Multi-Agente[2m > [22mdeve orquestrar 3 agentes
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m234:29[22m[39m
+    [90m232| [39m        })[33m;[39m
+    [90m233| [39m
+    [90m234| [39m        [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                            [31m^[39m
+    [90m235| [39m        [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m236| [39m        [34mexpect[39m(data[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m3. Orquestração Multi-Agente[2m > [22mdeve filtrar agentes inválidos na orquestração
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m256:29[22m[39m
+    [90m254| [39m        })[33m;[39m
+    [90m255| [39m
+    [90m256| [39m        [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                            [31m^[39m
+    [90m257| [39m        [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m258| [39m        [34mexpect[39m(data[33m.[39magentsUsed)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"agente-invalido"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m3. Orquestração Multi-Agente[2m > [22mdeve rejeitar orquestração sem agents
+[31m[1mAssertionError[22m: expected 429 to be 400 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 400[39m
+[31m+ 429[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m275:31[22m[39m
+    [90m273| [39m      })[33m;[39m
+    [90m274| [39m
+    [90m275| [39m      [34mexpect[39m(response[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m400[39m)[33m;[39m
+    [90m   | [39m                              [31m^[39m
+    [90m276| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m277| [39m      [34mexpect[39m(data[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m3. Orquestração Multi-Agente[2m > [22mdeve rejeitar orquestração com array vazio
+[31m[1mAssertionError[22m: expected 429 to be 400 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 400[39m
+[31m+ 429[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m292:31[22m[39m
+    [90m290| [39m      })[33m;[39m
+    [90m291| [39m
+    [90m292| [39m      [34mexpect[39m(response[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m400[39m)[33m;[39m
+    [90m   | [39m                              [31m^[39m
+    [90m293| [39m    })[33m;[39m
+    [90m294| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m4. Métricas e Estatísticas[2m > [22mdeve obter estatísticas atualizadas
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m299:27[22m[39m
+    [90m297| [39m    [34mit[39m([32m"deve obter estatísticas atualizadas"[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m298| [39m      [35mconst[39m response [33m=[39m [35mawait[39m [34mfetch[39m([32m`[39m[36m${[39m[33mBASE_URL[39m[36m}[39m[32m/stats`[39m)[33m;[39m
+    [90m299| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                          [31m^[39m
+    [90m300| [39m
+    [90m301| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m4. Métricas e Estatísticas[2m > [22mdeve incrementar totalExecutions após execução
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'totalExecutions')[39m
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m315:48[22m[39m
+    [90m313| [39m        [35mconst[39m initialResponse [33m=[39m [35mawait[39m [34mfetch[39m([32m`[39m[36m${[39m[33mBASE_URL[39m[36m}[39m[32m/stats`[39m)[33m;[39m
+    [90m314| [39m        [35mconst[39m initialData [33m=[39m [35mawait[39m initialResponse[33m.[39m[34mjson[39m()[33m;[39m
+    [90m315| [39m        [35mconst[39m initialCount [33m=[39m initialData[33m.[39mstats[33m.[39mtotalExecutions[33m;[39m
+    [90m   | [39m                                               [31m^[39m
+    [90m316| [39m
+    [90m317| [39m        [90m// Execute an agent[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m4. Métricas e Estatísticas[2m > [22mdeve resetar estatísticas
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m343:27[22m[39m
+    [90m341| [39m      })[33m;[39m
+    [90m342| [39m
+    [90m343| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                          [31m^[39m
+    [90m344| [39m
+    [90m345| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m4. Métricas e Estatísticas[2m > [22mdeve calcular averageExecutionTime corretamente
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'averageExecutionTime')[39m
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m377:32[22m[39m
+    [90m375| [39m        [35mconst[39m statsData [33m=[39m [35mawait[39m statsResponse[33m.[39m[34mjson[39m()[33m;[39m
+    [90m376| [39m
+    [90m377| [39m        expect(statsData.stats.averageExecutionTime).toBeGreaterThan(0…
+    [90m   | [39m                               [31m^[39m
+    [90m378| [39m        [34mexpect[39m(statsData[33m.[39mstats[33m.[39mtotalExecutions)[33m.[39m[34mtoBe[39m([34m2[39m)[33m;[39m
+    [90m379| [39m      }[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m5. Health Checks[2m > [22mdeve retornar health status completo
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m387:27[22m[39m
+    [90m385| [39m    [34mit[39m([32m"deve retornar health status completo"[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m386| [39m      [35mconst[39m response [33m=[39m [35mawait[39m [34mfetch[39m([32m`[39m[36m${[39m[33mBASE_URL[39m[36m}[39m[32m/health`[39m)[33m;[39m
+    [90m387| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                          [31m^[39m
+    [90m388| [39m
+    [90m389| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m5. Health Checks[2m > [22mdeve incluir informações de ambiente
+[31m[1mAssertionError[22m: expected undefined to be defined[39m
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m401:38[22m[39m
+    [90m399| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m400| [39m
+    [90m401| [39m      [34mexpect[39m(data[33m.[39menvironmentHealth)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m   | [39m                                     [31m^[39m
+    [90m402| [39m      [34mexpect[39m(data[33m.[39menvironmentHealth)[33m.[39m[34mtoHaveProperty[39m([32m"geminiApiKey"[39m)[33m;[39m
+    [90m403| [39m      [34mexpect[39m(data[33m.[39menvironmentHealth)[33m.[39m[34mtoHaveProperty[39m([32m"upstashRedis"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m5. Health Checks[2m > [22mdeve listar agentes unhealthy (se houver)
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m411:51[22m[39m
+    [90m409| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m410| [39m
+    [90m411| [39m      [34mexpect[39m([33mArray[39m[33m.[39m[34misArray[39m(data[33m.[39munhealthyAgents))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                                                  [31m^[39m
+    [90m412| [39m      [34mexpect[39m([33mArray[39m[33m.[39m[34misArray[39m(data[33m.[39mdegradedAgents))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m413| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m5. Health Checks[2m > [22mdeve incluir stats agregados no health
+[31m[1mAssertionError[22m: expected undefined to be defined[39m
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m419:26[22m[39m
+    [90m417| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m418| [39m
+    [90m419| [39m      [34mexpect[39m(data[33m.[39mstats)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m   | [39m                         [31m^[39m
+    [90m420| [39m      [34mexpect[39m(data[33m.[39mstats)[33m.[39m[34mtoHaveProperty[39m([32m"totalExecutions"[39m)[33m;[39m
+    [90m421| [39m      [34mexpect[39m(data[33m.[39mstats)[33m.[39m[34mtoHaveProperty[39m([32m"successRate"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m5. Health Checks[2m > [22mdeve validar config do Gemini
+[31m[1mAssertionError[22m: expected { Object (error) } to have property "geminiConfigValid"[39m
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m429:20[22m[39m
+    [90m427| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m428| [39m
+    [90m429| [39m      [34mexpect[39m(data)[33m.[39m[34mtoHaveProperty[39m([32m"geminiConfigValid"[39m)[33m;[39m
+    [90m   | [39m                   [31m^[39m
+    [90m430| [39m      [34mexpect[39m([35mtypeof[39m data[33m.[39mgeminiConfigValid)[33m.[39m[34mtoBe[39m([32m"boolean"[39m)[33m;[39m
+    [90m431| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m6. Testes de Robustez[2m > [22mdeve lidar com timeout configurado
+[31m[1mAssertionError[22m: expected [ 200, 500 ] to include 429[39m
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m451:26[22m[39m
+    [90m449| [39m
+    [90m450| [39m      [90m// Should complete or timeout gracefully[39m
+    [90m451| [39m      [34mexpect[39m([[34m200[39m[33m,[39m [34m500[39m])[33m.[39m[34mtoContain[39m(response[33m.[39mstatus)[33m;[39m
+    [90m   | [39m                         [31m^[39m
+    [90m452| [39m    }[33m,[39m [34m10000[39m)[33m;[39m
+    [90m453| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m6. Testes de Robustez[2m > [22mdeve lidar com múltiplas execuções concorrentes
+[31m[1mAssertionError[22m: expected [ 200, 500 ] to include 429[39m
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m475:30[22m[39m
+    [90m473| [39m        [90m// All should complete successfully[39m
+    [90m474| [39m        responses[33m.[39m[34mforEach[39m((response) [33m=>[39m {
+    [90m475| [39m          [34mexpect[39m([[34m200[39m[33m,[39m [34m500[39m])[33m.[39m[34mtoContain[39m(response[33m.[39mstatus)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m476| [39m        })[33m;[39m
+    [90m477| [39m      }[33m,[39m
+[90m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m474:19[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m6. Testes de Robustez[2m > [22mdeve registrar degraded mode quando apropriado
+[31m[1mAssertionError[22m: expected { Object (error) } to have property "degraded"[39m
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m497:22[22m[39m
+    [90m495| [39m
+    [90m496| [39m        [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m497| [39m        [34mexpect[39m(data)[33m.[39m[34mtoHaveProperty[39m([32m"degraded"[39m)[33m;[39m
+    [90m   | [39m                     [31m^[39m
+    [90m498| [39m        [34mexpect[39m([35mtypeof[39m data[33m.[39mdegraded)[33m.[39m[34mtoBe[39m([32m"boolean"[39m)[33m;[39m
+    [90m499| [39m      }[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m7. Validação de Respostas[2m > [22mtodas as respostas devem incluir timestamp
+[31m[1mAssertionError[22m: expected undefined to be defined[39m
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m516:32[22m[39m
+    [90m514| [39m        [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m515| [39m
+    [90m516| [39m        [34mexpect[39m(data[33m.[39mtimestamp)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m   | [39m                               [31m^[39m
+    [90m517| [39m        [34mexpect[39m(() [33m=>[39m [35mnew[39m [33mDate[39m(data[33m.[39mtimestamp))[33m.[39mnot[33m.[39m[34mtoThrow[39m()[33m;[39m
+    [90m518| [39m      }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m7. Validação de Respostas[2m > [22mtodas as respostas devem incluir flag success
+[31m[1mAssertionError[22m: expected { Object (error) } to have property "success"[39m
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m534:22[22m[39m
+    [90m532| [39m
+    [90m533| [39m        [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m534| [39m        [34mexpect[39m(data)[33m.[39m[34mtoHaveProperty[39m([32m"success"[39m)[33m;[39m
+    [90m   | [39m                     [31m^[39m
+    [90m535| [39m        [34mexpect[39m([35mtypeof[39m data[33m.[39msuccess)[33m.[39m[34mtoBe[39m([32m"boolean"[39m)[33m;[39m
+    [90m536| [39m      }[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/agents-integration-completa.test.ts[2m > [22mIntegração Completa dos Agentes[2m > [22m7. Validação de Respostas[2m > [22mrespostas de erro devem incluir mensagem descritiva
+[31m[1mAssertionError[22m: expected undefined to be false // Object.is equality[39m
+
+[32m- Expected:[39m 
+false
+
+[31m+ Received:[39m 
+undefined
+
+[36m [2m❯[22m tests/integration/agents-integration-completa.test.ts:[2m551:28[22m[39m
+    [90m549| [39m
+    [90m550| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m551| [39m      [34mexpect[39m(data[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m552| [39m      [34mexpect[39m(data[33m.[39merror)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m553| [39m      [34mexpect[39m([35mtypeof[39m data[33m.[39merror)[33m.[39m[34mtoBe[39m([32m"string"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/28]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m28 failed[39m[22m[90m (28)[39m
+[2m   Start at [22m 11:13:16
+[2m   Duration [22m 1.74s[2m (transform 248ms, setup 352ms, import 199ms, tests 309ms, environment 639ms)[22m
+

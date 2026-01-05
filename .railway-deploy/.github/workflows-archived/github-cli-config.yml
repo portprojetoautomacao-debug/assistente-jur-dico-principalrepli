@@ -1,0 +1,121 @@
+name: Configure GitHub CLI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  issues:
+    types:
+      - opened
+  schedule:
+    - cron: "20 8 * * *"
+
+jobs:
+  configure-cli:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      repository-projects: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh --version
+          gh auth status
+
+      - name: Comment on issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.event_name == 'issues' && github.event.action == 'opened'
+        run: |
+          gh issue comment ${{ github.event.issue.number }} \
+            --body "Obrigado por abrir esta issue! 🎉
+
+          Este repositório possui um sistema de agentes jurídicos V2 100% alinhado com:
+          - ✅ 15 agentes especializados
+          - ✅ Endpoints wrappers funcionais
+          - ✅ Dados reais integrados
+          - ✅ Pronto para produção
+
+          Estamos analisando sua contribuição. Por favor, aguarde feedback do time."
+
+      - name: Report metrics
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=== GitHub CLI Repository Metrics ==="
+
+          # Extract repo name from github.repository (format: owner/repo)
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+
+          # Get open issues count
+          OWNER="${GITHUB_REPOSITORY%%/*}"
+          numOpenIssues="$(gh api graphql -F owner=$OWNER -F name=$REPO_NAME -f query='
+            query($name: String!, $owner: String!) {
+              repository(owner: $owner, name: $name) {
+                issues(states:OPEN){
+                  totalCount
+                }
+              }
+            }
+          ' --jq '.data.repository.issues.totalCount')"
+
+          echo "Open Issues: $numOpenIssues"
+          echo 'NUM_OPEN_ISSUES='$numOpenIssues >> $GITHUB_ENV
+
+          # Get open PRs count
+          numOpenPRs="$(gh api graphql -F owner=$OWNER -F name=$REPO_NAME -f query='
+            query($name: String!, $owner: String!) {
+              repository(owner: $owner, name: $name) {
+                pullRequests(states:OPEN){
+                  totalCount
+                }
+              }
+            }
+          ' --jq '.data.repository.pullRequests.totalCount')"
+
+          echo "Open PRs: $numOpenPRs"
+          echo 'NUM_OPEN_PRS='$numOpenPRs >> $GITHUB_ENV
+
+      - name: Create summary (in step summary instead of issue)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: always()
+        run: |
+          echo "## 📊 Repository Status Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Open Issues:** ${NUM_OPEN_ISSUES:-N/A}" >> $GITHUB_STEP_SUMMARY
+          echo "**Open PRs:** ${NUM_OPEN_PRS:-N/A}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Generated at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+
+      - name: List recent commits
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=== Recent Commits ==="
+          gh api repos/${{ github.repository }}/commits \
+            --jq '.[] | "\(.commit.message | split("\n")[0]) - \(.author.login) (\(.commit.author.date))"' \
+            | head -10
+
+      - name: Check deployment status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=== Deployment Status ==="
+          gh api repos/${{ github.repository }}/deployments \
+            --jq '.[] | "Environment: \(.environment) | Status: \(.state) | Created: \(.created_at)"' \
+            | head -5 || echo "No deployments found"

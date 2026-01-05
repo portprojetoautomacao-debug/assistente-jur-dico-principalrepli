@@ -39,8 +39,10 @@ jobs:
     steps:
       - name: Verificar se API key está configurada
         id: check_key
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          if [ -z "${{ secrets.GEMINI_API_KEY }}" ]; then
+          if [ -z "$GEMINI_API_KEY" ]; then
             echo "has_key=false" >> $GITHUB_OUTPUT
             echo "⚠️ GEMINI_API_KEY não configurada. Workflow será pulado." >> "$GITHUB_STEP_SUMMARY"
           else
@@ -68,19 +70,22 @@ jobs:
           gemini_model: ${{ inputs.model }}
           gemini_cli_version: ${{ inputs.cli_version }}
           gemini_debug: ${{ inputs.debug }}
-          prompt: ${{ inputs.prompt }}${{ inputs.additional_context != '' && format('\n\nContexto adicional fornecido pelo usuário (PT-BR): {0}', inputs.additional_context) || '' }}
+          prompt: "${{ inputs.prompt }}${{ inputs.additional_context != '' && format('\n\nContexto adicional fornecido pelo usuário (PT-BR): {0}', inputs.additional_context) || '' }}"
 
       - name: Publicar resumo
         if: always()
+        env:
+          GEMINI_SUMMARY: ${{ steps.gemini.outputs.summary }}
+          GEMINI_ERROR: ${{ steps.gemini.outputs.error }}
         run: |
           echo "## Resultado da revisão do Gemini" >> "$GITHUB_STEP_SUMMARY"
-          if [ -n "${{ steps.gemini.outputs.summary }}" ]; then
-            echo "${{ steps.gemini.outputs.summary }}" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$GEMINI_SUMMARY" ]; then
+            printf '%s\n' "$GEMINI_SUMMARY" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "Nenhum resumo retornado pela CLI." >> "$GITHUB_STEP_SUMMARY"
           fi
-          if [ -n "${{ steps.gemini.outputs.error }}" ]; then
+          if [ -n "$GEMINI_ERROR" ]; then
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "### Erro" >> "$GITHUB_STEP_SUMMARY"
-            echo "${{ steps.gemini.outputs.error }}" >> "$GITHUB_STEP_SUMMARY"
+            printf '%s\n' "$GEMINI_ERROR" >> "$GITHUB_STEP_SUMMARY"
           fi

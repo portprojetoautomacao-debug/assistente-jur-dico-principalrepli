@@ -1,0 +1,55 @@
+faça uma analise pra min conforme a seguir: graph TD
+A[API DJEN CNJ] -->|1. Busca publicações| B[djen-monitor.ts]
+B -->|2. Deduplica Redis| C[use-djen-publications.ts]
+C -->|3. Carrega no painel| D[ExpedientePanel.tsx]
+D -->|4. Detecta pendentes| E[useEffect - linha 645]
+E -->|5. Dispara após 2s| F[runAutoAnalysis]
+F -->|6. Para cada expediente| G[analyzeExpediente]
+G -->|7. Chama IA| H[Mrs. Justin-e Gemini 2.5 Pro]
+H -->|8. Retorna análise| I[Parse JSON + Validações]
+I -->|9. Cria tarefas| J[getAgentTasksFromAnalysis]
+J -->|10. Distribui para| K[6 Agentes Especializados]
+K --> L[✅ Publicação Analisada + Tarefas Criadas]const analyzeExpediente = async (exp: Expediente) => {
+// 1. Chama API Gemini via /api/llm-proxy
+// 2. Prompt especializado em intimações BR
+// 3. Retorna JSON estruturado:
+{
+summary: "Resumo da intimação",
+documentType: "Tipo do documento",
+priority: "alta" | "média" | "baixa",
+deadline: { days, type, endDate },
+suggestedActions: ["ações recomendadas"],
+nextSteps: ["próximos passos"]
+}
+
+// 4. Cria tarefas para outros agentes:
+const agentTasks = getAgentTasksFromAnalysis(analyzedExp, analysisData);
+// - gestao-prazos (se tem prazo)
+// - monitor-djen (registra processamento)
+// - analise-risco (se prioridade alta)
+// - redacao-peticoes (se precisa resposta)
+// - pesquisa-juris (se precisa pesquisa)// Linha 645-659: Análise automática ao carregar
+useEffect(() => {
+if (autoAnalysisRanRef.current) return; // Executa apenas 1x por sessão
+if (safeExpedientes.length === 0) return;
+if (loading) return;
+
+const pending = safeExpedientes.filter(needsAnalysis);
+if (pending.length > 0) {
+autoAnalysisRanRef.current = true;
+setTimeout(() => {
+runAutoAnalysis(); // 🔥 Inicia análise após 2s
+}, 2000);
+}import { getEventBadgeStyle, getStatusBadgeStyle, themeConfig } from '@/lib/themes'
+// ⚠️ Funciona mas não recomendado (classes Tailwind hardcoded)
+<Badge className={getEventBadgeClass('intimacao')}>
+<Badge className={getStatusBadgeClass('ativo')}>
+// Badges de eventos
+<Badge style={getEventBadgeStyle('intimacao')}>Intimação</Badge>
+
+// Badges de status
+<Badge style={getStatusBadgeStyle('ativo')}>Ativo</Badge>
+
+// Cores diretas para ícones/textos
+
+<div style={{ color: themeConfig.colors.urgente }}> {stats.urgentDeadlines} </div> }, [safeExpedientes, loading, runAutoAnalysis]); // - estrategia-processual (sempre) }

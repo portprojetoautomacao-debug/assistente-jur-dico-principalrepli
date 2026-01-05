@@ -1,0 +1,158 @@
+{
+  "name": "Assistente Jurídico PJe",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    },
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.vscode-pull-request-github",
+        "ms-playwright.playwright",
+        "SonarSource.sonarlint-vscode",
+        "vscjava.vscode-java-pack",
+        "GitHub.codespaces",
+        "google.geminicodeassist",
+        "MS-SarifVSCode.sarif-viewer",
+        "trailofbits.sarif-explorer",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "golang.go",
+        "sonar-copilot-assistant.sonar-copilot-assistant",
+        "ms-windows-ai-studio.windows-ai-studio",
+        "coderabbit.coderabbit-vscode",
+        "ms-azuretools.vscode-azure-github-copilot",
+        "ms-codespaces-tools.ado-codespaces-auth",
+        "frenco.vscode-vercel",
+        "ms-edgedevtools.vscode-edge-devtools",
+        "QuentinN42.sentry-issues-viewer"
+      ],
+      "settings": {
+        // ========================================
+        // 🤖 GITHUB COPILOT - AUTOMAÇÃO MÁXIMA
+        // ========================================
+        "github.copilot.enable": {
+          "*": true,
+          "yaml": true,
+          "plaintext": true,
+          "markdown": true,
+          "typescript": true,
+          "typescriptreact": true,
+          "javascript": true,
+          "json": true
+        },
+        "github.copilot.chat.enable": true,
+        "github.copilot.chat.useInstructionFiles": true,
+        "github.copilot.inlineSuggest.enable": true,
+        "github.copilot.editor.enableAutoCompletions": true,
+
+        // 🚀 FERRAMENTAS DE EDIÇÃO - Sem confirmação
+        "chat.editing.enabled": true,
+        "chat.editing.confirmEditRequestRemoval": false,
+        "chat.extensionTools.enabled": true,
+        "chat.tools.terminal.autoApprove": true,
+        "chat.tools.terminal.autoReplyToPrompts": true,
+        "github.copilot.chat.defaultToolset": "fullEditingTools",
+
+        // 🤖 AGENTE DE CODIFICAÇÃO - Automação total
+        "githubPullRequests.codingAgent.enabled": true,
+        "githubPullRequests.codingAgent.autoDelegate": true,
+        "githubPullRequests.codingAgent.uiIntegration": true,
+        "githubPullRequests.pullRequestCardEnabled": true,
+        "chat.agentSessionsViewLocation": "view",
+
+        // ========================================
+        // 🔒 SEGURANÇA E WORKSPACE TRUST
+        // ========================================
+        // WARNING: Trust workspace enabled for seamless automation
+        "security.workspace.trust.enabled": true,
+        "security.workspace.trust.untrustedFiles": "open",
+        "security.workspace.trust.emptyWindow": true,
+
+        // ========================================
+        // 📦 GIT AUTOMÁTICO
+        // ========================================
+        "git.enableSmartCommit": true,
+        "git.autofetch": true,
+        "git.confirmSync": false,
+        "git.fetchOnPull": true,
+        "git.pruneOnFetch": true,
+
+        // ========================================
+        // 🛠️ TASKS E AUTOMAÇÃO
+        // ========================================
+        "task.allowAutomaticTasks": "on",
+        "task.autoDetect": "on",
+        "task.problemMatchers.neverPrompt": true,
+        "task.saveBeforeRun": "always",
+
+        // ========================================
+        // ✏️ EDITOR - FORMATAÇÃO AUTOMÁTICA
+        // ========================================
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit",
+          "source.organizeImports": "explicit"
+        },
+        "files.autoSave": "afterDelay",
+        "files.autoSaveDelay": 1000,
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+
+        // ========================================
+        // 🔧 TYPESCRIPT E TERMINAL
+        // ========================================
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "typescript.suggest.autoImports": true,
+        "terminal.integrated.shellIntegration.enabled": true,
+        "terminal.integrated.shellIntegration.decorationsEnabled": "both",
+
+        // ========================================
+        // 🧪 EXTENSÕES E ATUALIZAÇÕES
+        // ========================================
+        "extensions.autoCheckUpdates": true,
+        "extensions.autoUpdate": true,
+        "chat.useNestedAgentsMdFiles": true,
+
+        // ========================================
+        // 📊 TELEMETRIA
+        // ========================================
+        "telemetry.telemetryLevel": "off",
+        "redhat.telemetry.enabled": false
+      }
+    }
+  },
+  "postCreateCommand": "npm install",
+  // Modo LITE para Codespaces - evita sobrecarga de recursos
+  // Para ativar modo completo: bash auto-init.sh
+  "postStartCommand": "echo '✅ Codespace pronto! Use: npm run dev' > /tmp/codespace-ready.log",
+  "forwardPorts": [5173, 5000],
+  "portsAttributes": {
+    "5173": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "notify"
+    },
+    "5000": {
+      "label": "Preview Server",
+      "onAutoForward": "notify"
+    }
+  },
+  "remoteUser": "node"
+}

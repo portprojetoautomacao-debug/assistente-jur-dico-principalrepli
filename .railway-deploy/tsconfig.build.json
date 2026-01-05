@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": ["src", "api"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "src/test",
+    "src/**/*.test.*",
+    "src/setupTests.ts",
+    "src/components/archive",
+    "src/examples",
+    "src/hooks/useErrorTracking.ts",
+    "api/tests",
+    "node_modules"
+  ]
+}

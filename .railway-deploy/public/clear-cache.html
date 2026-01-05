@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpar Cache - Assistente Jurídico PJe</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: #888;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .status {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 0.875rem;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .status.success {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .status.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .version {
+            color: #666;
+            font-size: 0.75rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧹 Limpar Cache</h1>
+        <p>Esta página remove o Service Worker antigo e limpa todos os caches do navegador para resolver problemas de
+            carregamento.</p>
+
+        <div id="status" class="status">Aguardando...</div>
+
+        <button id="clearBtn" onclick="clearAllCache()">
+            Limpar Tudo e Recarregar
+        </button>
+        <button onclick="window.location.href='/'">
+            Ir para Home
+        </button>
+
+        <p class="version">v1.0.1 | Build: 2024-12-03</p>
+    </div>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const clearBtn = document.getElementById('clearBtn');
+
+        function log(msg, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            statusEl.innerHTML += `<div style="color: ${type === 'error' ? '#ef4444' : type === 'success' ? '#22c55e' : '#888'}">[${time}] ${msg}</div>`;
+            statusEl.scrollTop = statusEl.scrollHeight;
+        }
+
+        async function clearAllCache() {
+            clearBtn.disabled = true;
+            clearBtn.innerHTML = '<span class="spinner"></span>Limpando...';
+            statusEl.innerHTML = '';
+
+            try {
+                // 1. Unregister all Service Workers
+                log('Removendo Service Workers...');
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (const reg of registrations) {
+                        await reg.unregister();
+                        log(`✓ SW removido: ${reg.scope}`, 'success');
+                    }
+                    if (registrations.length === 0) {
+                        log('Nenhum Service Worker encontrado');
+                    }
+                }
+
+                // 2. Clear all caches
+                log('Limpando caches...');
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    for (const name of cacheNames) {
+                        await caches.delete(name);
+                        log(`✓ Cache removido: ${name}`, 'success');
+                    }
+                    if (cacheNames.length === 0) {
+                        log('Nenhum cache encontrado');
+                    }
+                }
+
+                // 3. Clear localStorage
+                log('Limpando localStorage...');
+                const lsKeys = Object.keys(localStorage);
+                localStorage.clear();
+                log(`✓ ${lsKeys.length} itens removidos do localStorage`, 'success');
+
+                // 4. Clear sessionStorage
+                log('Limpando sessionStorage...');
+                const ssKeys = Object.keys(sessionStorage);
+                sessionStorage.clear();
+                log(`✓ ${ssKeys.length} itens removidos do sessionStorage`, 'success');
+
+                // 5. Clear IndexedDB (workbox)
+                log('Limpando IndexedDB...');
+                const dbs = await indexedDB.databases();
+                for (const db of dbs) {
+                    if (db.name) {
+                        indexedDB.deleteDatabase(db.name);
+                        log(`✓ DB removido: ${db.name}`, 'success');
+                    }
+                }
+
+                statusEl.classList.add('success');
+                log('');
+                log('🎉 Cache limpo com sucesso!', 'success');
+                log('Recarregando em 2 segundos...', 'success');
+
+                // 6. Force reload
+                setTimeout(() => {
+                    window.location.href = '/?cache_bust=' + Date.now();
+                }, 2000);
+
+            } catch (err) {
+                statusEl.classList.add('error');
+                log(`❌ Erro: ${err.message}`, 'error');
+                clearBtn.disabled = false;
+                clearBtn.innerHTML = 'Tentar Novamente';
+            }
+        }
+
+        // Auto-detect issues
+        window.addEventListener('load', async () => {
+            log('Verificando estado atual...');
+
+            if ('serviceWorker' in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                log(`Service Workers ativos: ${regs.length}`);
+            }
+
+            if ('caches' in window) {
+                const names = await caches.keys();
+                log(`Caches: ${names.length > 0 ? names.join(', ') : 'nenhum'}`);
+            }
+
+            log(`localStorage: ${Object.keys(localStorage).length} itens`);
+            log('');
+            log('Clique no botão para limpar tudo.');
+        });
+    </script>
+</body>
+
+</html>

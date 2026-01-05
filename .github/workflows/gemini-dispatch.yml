@@ -73,8 +73,11 @@ jobs:
     steps:
       - name: "Check credentials"
         id: "check_credentials"
+        env:
+          API_KEY: "${{ secrets.GEMINI_API_KEY }}"
+          APP_ID_VAR: "${{ vars.APP_ID }}"
         run: |
-          if [ -n "${{ secrets.GEMINI_API_KEY }}" ] || [ -n "${{ vars.APP_ID }}" ]; then
+          if [ -n "$API_KEY" ] || [ -n "$APP_ID_VAR" ]; then
             echo "has_credentials=true" >> $GITHUB_OUTPUT
           else
             echo "has_credentials=false" >> $GITHUB_OUTPUT

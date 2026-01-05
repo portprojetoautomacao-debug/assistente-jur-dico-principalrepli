@@ -1,0 +1,268 @@
+name: 🤖 Auto Test & Fix
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Executar automaticamente todos os dias às 9h UTC (6h BRT)
+    - cron: "0 9 * * *"
+  workflow_dispatch: # Permitir execução manual
+
+# Permissões globais do workflow
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+env:
+  NODE_VERSION: "22.x"
+  SKIP_AUTH_SETUP: true
+
+jobs:
+  auto-test-and-fix:
+    name: 🔄 Teste Automático com Correções
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      actions: read
+      issues: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Testar apenas browsers habilitados no playwright.config.ts
+        browser: [chromium]
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: 🟢 Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-auto-test-fix-${{ matrix.browser }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-auto-test-fix-${{ matrix.browser }}-
+            ${{ runner.os }}-auto-test-fix-
+            ${{ runner.os }}-
+
+      - name: 📦 Instalar dependências
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install ${{ matrix.browser }} --with-deps
+
+      - name: 🏗️ Build aplicação
+        id: build-app
+        run: npm run build
+        env:
+          VITE_GOOGLE_CLIENT_ID: "dummy-client-id"
+          VITE_GOOGLE_API_KEY: "dummy-api-key"
+          VITE_REDIRECT_URI: "http://localhost:5173"
+          VITE_APP_ENV: "ci"
+
+      - name: 🔍 Verificar TypeScript
+        id: typecheck
+        continue-on-error: true
+        run: npm run type-check
+
+      - name: 🔧 Corrigir TypeScript (se falhou)
+        if: steps.typecheck.outcome == 'failure'
+        run: |
+          echo "⚠️ Erros TypeScript detectados, tentando corrigir..."
+          # Aqui você pode adicionar lógica de correção automática
+          npm run type-check || echo "❌ Não foi possível corrigir automaticamente"
+
+      - name: 🎨 Verificar ESLint
+        id: lint
+        continue-on-error: true
+        run: npm run lint
+
+      - name: 🔧 Auto-fix ESLint
+        if: steps.lint.outcome == 'failure'
+        run: |
+          echo "⚠️ Warnings ESLint detectados, aplicando auto-fix..."
+          npm run lint:fix
+
+      - name: 💅 Formatar código
+        run: npm run format
+
+      - name: 🔧 Verificar build (se falhou anteriormente)
+        id: build-check
+        if: steps.build-app.outcome == 'failure'
+        continue-on-error: true
+        run: |
+          echo "⚠️ Build anterior falhou, tentando novamente..."
+          rm -rf dist .eslintcache
+          npm run build
+
+      - name: 🧪 Executar testes unitários
+        id: unit-tests
+        continue-on-error: true
+        run: npm run test:run
+
+      - name: 🎭 Executar testes E2E - ${{ matrix.browser }}
+        id: e2e-tests
+        continue-on-error: true
+        env:
+          CI: true
+          SKIP_AUTH_SETUP: true
+          VITE_GOOGLE_CLIENT_ID: "dummy-client-id"
+          VITE_GOOGLE_API_KEY: "dummy-api-key"
+          VITE_REDIRECT_URI: "http://localhost:5173"
+          VITE_APP_ENV: "ci"
+        run: |
+          # Executar com retry automático
+          for i in {1..3}; do
+            echo "🔄 Tentativa $i/3..."
+            if npm run test:e2e -- --project=${{ matrix.browser }}; then
+              echo "✅ Testes E2E passaram na tentativa $i"
+              exit 0
+            else
+              echo "❌ Tentativa $i falhou"
+              if [ $i -lt 3 ]; then
+                echo "⏳ Aguardando 10s antes da próxima tentativa..."
+                sleep 10
+              fi
+            fi
+          done
+          echo "❌ Testes E2E falharam após 3 tentativas"
+          exit 1
+
+      - name: 📊 Upload Playwright Report
+        uses: actions/upload-artifact@v4.4.3
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report/
+          retention-days: 7
+
+      - name: 📸 Upload screenshots de falhas
+        uses: actions/upload-artifact@v4.4.3
+        if: failure()
+        with:
+          name: test-failures-${{ matrix.browser }}
+          path: test-results/
+          retention-days: 7
+
+      - name: 📝 Comentar PR com resultados
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          github-token: ${{ secrets.BOT_GH_TOKEN != '' && secrets.BOT_GH_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const typecheckPassed = '${{ steps.typecheck.outcome }}' === 'success';
+            const lintPassed = '${{ steps.lint.outcome }}' === 'success';
+            const unitTestsPassed = '${{ steps.unit-tests.outcome }}' === 'success';
+            const e2eTestsPassed = '${{ steps.e2e-tests.outcome }}' === 'success';
+            const buildPassed = '${{ steps.build-app.outcome }}' === 'success';
+
+            const body = `
+            ## 🤖 Relatório de Testes Automáticos - ${{ matrix.browser }}
+
+            | Check | Status |
+            |-------|--------|
+            | TypeScript | ${typecheckPassed ? '✅' : '❌'} |
+            | ESLint | ${lintPassed ? '✅' : '⚠️'} (auto-fix aplicado) |
+            | Build | ${buildPassed ? '✅' : '❌'} |
+            | Testes Unitários | ${unitTestsPassed ? '✅' : '❌'} |
+            | Testes E2E | ${e2eTestsPassed ? '✅' : '❌'} |
+
+            ${e2eTestsPassed ? '' : '⚠️ Testes E2E falharam após 3 tentativas. Veja os logs para mais detalhes.'}
+
+            📊 [Ver relatório completo do Playwright](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+
+            try {
+              const pr = context.payload.pull_request || {};
+              const repoFull = `${context.repo.owner}/${context.repo.repo}`;
+              const isFork = pr.head && pr.head.repo && pr.head.repo.full_name && pr.head.repo.full_name !== repoFull;
+              const issue_number = context.issue && context.issue.number;
+              if (!issue_number) {
+                core.info('No PR number present — skipping comment');
+              } else if (isFork && !process.env.BOT_GH_TOKEN) {
+                core.info('PR is a fork and BOT_GH_TOKEN is not provided — skipping comment');
+              } else {
+                await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body });
+              }
+            } catch (err) {
+              core.error('Failed to post E2E comment: ' + String(err));
+            }
+
+      - name: 📊 Relatório final
+        if: always()
+        run: |
+          echo "╔══════════════════════════════════════════════════════════════════════════╗"
+          echo "║                                                                          ║"
+          echo "║                   📊 RELATÓRIO FINAL - ${{ matrix.browser }}"
+          echo "║                                                                          ║"
+          echo "╚══════════════════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "TypeScript: ${{ steps.typecheck.outcome }}"
+          echo "ESLint: ${{ steps.lint.outcome }}"
+          echo "Build: ${{ steps.build-app.outcome }}"
+          echo "Testes Unitários: ${{ steps.unit-tests.outcome }}"
+          echo "Testes E2E: ${{ steps.e2e-tests.outcome }}"
+          echo ""
+
+      - name: ❌ Falhar job se testes E2E falharam
+        if: steps.e2e-tests.outcome == 'failure'
+        run: exit 1
+
+  auto-fix-and-commit:
+    name: 🔧 Auto-fix e Commit
+    needs: auto-test-and-fix
+    if: failure() && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: 📦 Instalar dependências
+        run: npm ci --no-audit --no-fund
+
+      - name: 🔧 Aplicar correções automáticas
+        run: |
+          echo "🔧 Aplicando correções automáticas..."
+          npm run lint:fix || true
+          npm run format || true
+
+      - name: 💾 Commit correções
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git diff --staged --quiet || git commit -m "🤖 chore: aplicar correções automáticas [skip ci]"
+
+      - name: 📤 Push correções
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}

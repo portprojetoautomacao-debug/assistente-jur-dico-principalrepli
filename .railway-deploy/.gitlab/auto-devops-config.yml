@@ -1,0 +1,235 @@
+# Configuração Híbrida: Auto DevOps + Componentes Customizados
+# Permite escolher entre pipeline automático ou customizado
+
+# Para usar Auto DevOps padrão (mais simples):
+# 1. Remova/comente o .gitlab-ci.yml atual
+# 2. Habilite Auto DevOps no projeto
+# 3. Configure as variáveis abaixo
+
+# Para usar nossos componentes customizados (mais controle):
+# 1. Mantenha o .gitlab-ci.yml atual
+# 2. Desabilite Auto DevOps no projeto
+
+# =============================================================================
+# CONFIGURAÇÃO PARA AUTO DEVOPS (GitLab Nativo)
+# =============================================================================
+
+# Variáveis para Auto DevOps personalizado
+variables:
+  # Configurações básicas
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+
+  # Configurações de build
+  AUTO_DEVOPS_BUILD_IMAGE_CANDIDATE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+  AUTO_DEVOPS_BUILD_IMAGE_TAG: "$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA"
+
+  # Configurações de deploy
+  AUTO_DEVOPS_DEPLOY_STRATEGY: "rolling"
+  AUTO_DEVOPS_DEPLOY_DEBUG: "false"
+
+  # Configurações de ambiente
+  STAGING_ENABLED: "1"
+  PRODUCTION_ENABLED: "1"
+  INCREMENTAL_ROLLOUT_ENABLED: "1"
+  CANARY_ENABLED: "0"
+
+  # Configurações de segurança (específicas para jurídico)
+  SAST_EXCLUDED_PATHS: "node_modules,dist,.git"
+  SECRET_DETECTION_EXCLUDED_PATHS: ".env*,*.key,secrets/"
+  DEPENDENCY_SCANNING_DISABLED: "false"
+
+  # Configurações de performance
+  BROWSER_PERFORMANCE_DISABLED: "false"
+  LOAD_PERFORMANCE_DISABLED: "false"
+
+  # Configurações específicas do projeto jurídico
+  LEGAL_COMPLIANCE_ENABLED: "1"
+  LGPD_AUDIT_ENABLED: "1"
+  BACKUP_ENABLED: "1"
+  NOTIFICATIONS_ENABLED: "1"
+
+# =============================================================================
+# AUTO DEVOPS WORKFLOW (GitLab Nativo)
+# =============================================================================
+
+# Este workflow só executa se Auto DevOps estiver habilitado
+# e não houver .gitlab-ci.yml customizado
+
+stages:
+  - build
+  - test
+  - deploy
+  - monitor
+
+# Build automático (detecta automaticamente React/TypeScript)
+build:
+  stage: build
+  image: node:22-alpine
+  script:
+    - echo "🏗️ Auto DevOps Build para Assistente Jurídico"
+    - npm ci --cache .npm --prefer-offline
+    - npm run build
+    - echo "📦 Build concluído"
+  artifacts:
+    paths:
+      - dist/
+      - node_modules/
+    expire_in: 1 hour
+  only:
+    - main
+    - develop
+
+# Testes automáticos (Jest, Lighthouse, etc.)
+test:
+  stage: test
+  image: node:22-alpine
+  script:
+    - echo "🧪 Auto DevOps Test Suite"
+    - npm ci --cache .npm --prefer-offline
+    - npm run test -- --coverage --watchAll=false
+    - npm run lint
+    - echo "✅ Testes concluídos"
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+      junit: junit-report.xml
+    paths:
+      - coverage/
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+
+# Deploy automático para staging
+deploy_staging:
+  stage: deploy
+  image: google/cloud-sdk:alpine
+  script:
+    - echo "🚀 Deploy automático para Staging"
+    - echo "📍 Ambiente: Staging"
+    - echo "🌐 URL: https://staging.assistente-juridico.example.com"
+    - echo "✅ Deploy simulado concluído"
+  environment:
+    name: staging
+    url: https://staging.assistente-juridico.example.com
+  only:
+    - develop
+
+# Deploy automático para produção
+deploy_production:
+  stage: deploy
+  image: google/cloud-sdk:alpine
+  script:
+    - echo "🚀 Deploy automático para Produção"
+    - echo "📍 Ambiente: Produção"
+    - echo "🌐 URL: https://assistente-juridico-p.vercel.app"
+    - echo "✅ Deploy simulado concluído"
+  environment:
+    name: production
+    url: https://assistente-juridico-p.vercel.app
+  only:
+    - main
+  when: manual
+
+# =============================================================================
+# EXTENSÕES JURÍDICAS PARA AUTO DEVOPS
+# =============================================================================
+
+# Auditoria LGPD adicional
+lgpd_compliance:
+  stage: test
+  image: node:22-alpine
+  script:
+    - echo "⚖️ Auditoria LGPD para Auto DevOps"
+    - |
+      # Verificar se há dados pessoais hardcoded
+      if grep -r "CPF\|CNPJ\|RG\|telefone\|email" src/ --include="*.ts" --include="*.tsx" | grep -v "test\|mock"; then
+        echo "⚠️ Possível exposição de dados pessoais detectada"
+        exit 1
+      fi
+      echo "✅ Conformidade LGPD verificada"
+  only:
+    variables:
+      - $LGPD_AUDIT_ENABLED == "1"
+
+# Backup automático de dados jurídicos
+backup_legal_data:
+  stage: monitor
+  image: alpine:latest
+  script:
+    - echo "💾 Backup automático de dados jurídicos"
+    - |
+      # Simulação de backup (em produção seria real)
+      TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+      BACKUP_FILE="backup_legal_$TIMESTAMP.tar.gz"
+
+      # Criar backup dos dados jurídicos
+      tar -czf "$BACKUP_FILE" \
+        --exclude='node_modules' \
+        --exclude='dist' \
+        --exclude='.git' \
+        .
+
+      echo "📦 Backup criado: $BACKUP_FILE"
+      echo "✅ Backup concluído"
+  only:
+    variables:
+      - $BACKUP_ENABLED == "1"
+    schedules:
+      - "0 2 * * 1"  # Todo domingo às 2h
+
+# Notificações automáticas
+notify_deploy:
+  stage: monitor
+  image: alpine:latest
+  script:
+    - echo "📢 Notificação de deploy automático"
+    - |
+      echo "🚀 Deploy concluído com sucesso!"
+      echo "📊 Ambiente: $CI_ENVIRONMENT_NAME"
+      echo "🏷️ Versão: $CI_COMMIT_SHA"
+      echo "👤 Autor: $GITLAB_USER_NAME"
+      echo "🔗 URL: $CI_ENVIRONMENT_URL"
+  only:
+    variables:
+      - $NOTIFICATIONS_ENABLED == "1"
+
+# =============================================================================
+# CONFIGURAÇÕES DE AMBIENTE PARA AUTO DEVOPS
+# =============================================================================
+
+# Ambiente de staging
+staging:
+  name: staging
+  url: https://staging.assistente-juridico.example.com
+  on_stop: stop_staging
+
+# Ambiente de produção
+production:
+  name: production
+  url: https://assistente-juridico-p.vercel.app
+  on_stop: stop_production
+
+# Job para parar staging
+stop_staging:
+  stage: deploy
+  script:
+    - echo "🛑 Parando ambiente de staging"
+  environment:
+    name: staging
+    action: stop
+  when: manual
+
+# Job para parar produção
+stop_production:
+  stage: deploy
+  script:
+    - echo "🛑 Parando ambiente de produção"
+  environment:
+    name: production
+    action: stop
+  when: manual

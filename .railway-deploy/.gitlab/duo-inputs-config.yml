@@ -1,0 +1,140 @@
+# GitLab Duo CI/CD Inputs Configuration
+# Utilizando a nova funcionalidade CI/CD Inputs do GitLab para configurações flexíveis
+# TESTE: Esta é uma MR de teste para validar as configurações do GitLab Duo com CI/CD Inputs
+
+spec:
+  inputs:
+    # Configurações básicas do Duo
+    duo_enabled:
+      type: boolean
+      default: true
+      description: "Habilitar GitLab Duo no projeto"
+
+    auto_review:
+      type: boolean
+      default: true
+      description: "Habilitar revisão automática em MRs"
+
+    max_comments:
+      type: number
+      default: 25
+      description: "Número máximo de comentários por revisão"
+
+    # Configurações de análise
+    analysis_scope:
+      type: array
+      default: ["performance", "security", "maintainability", "legal_compliance"]
+      description: "Escopo de análise do código"
+
+    languages:
+      type: array
+      default: ["typescript", "javascript", "yaml", "markdown"]
+      description: "Linguagens suportadas para análise"
+
+    # Configurações do Agent Platform
+    agent_platform_enabled:
+      type: boolean
+      default: true
+      description: "Habilitar Agent Platform"
+
+    custom_agents:
+      type: array
+      default: ["assistente-juridico-reviewer", "assistente-juridico-generator", "assistente-juridico-optimizer"]
+      description: "Agentes personalizados disponíveis"
+
+    # Configurações do Knowledge Graph
+    knowledge_graph_enabled:
+      type: boolean
+      default: true
+      description: "Habilitar Knowledge Graph"
+
+    domain_context:
+      type: string
+      default: "legal_technology"
+      description: "Contexto de domínio para análise"
+
+    # Configurações do Model Context Protocol
+    mcp_enabled:
+      type: boolean
+      default: true
+      description: "Habilitar Model Context Protocol"
+
+    legal_integrations:
+      type: array
+      default: ["djen_monitoring", "google_calendar_sync", "todoist_tasks"]
+      description: "Integrações jurídicas habilitadas"
+
+    # Configurações específicas do projeto jurídico
+    legal_compliance_checks:
+      type: array
+      default: ["lgpd_compliance", "legal_documentation", "court_deadlines"]
+      description: "Verificações de conformidade legal"
+
+    document_types:
+      type: array
+      default: ["peticao_inicial", "recurso", "contrato", "parecer_juridico"]
+      description: "Tipos de documentos jurídicos suportados"
+
+    # Configurações de comandos
+    chat_commands:
+      type: array
+      default: ["/legal-review", "/generate-docs", "/optimize-performance"]
+      description: "Comandos de chat disponíveis"
+
+    # Configurações de segurança
+    security_level:
+      type: string
+      options: ["basic", "standard", "strict"]
+      default: "standard"
+      description: "Nível de segurança das análises"
+
+    audit_logging:
+      type: boolean
+      default: true
+      description: "Habilitar logging de auditoria"
+
+---
+
+# Configuração principal usando inputs
+duo_review:
+  enabled: $[[ inputs.duo_enabled ]]
+  auto_review: $[[ inputs.auto_review ]]
+  max_comments: $[[ inputs.max_comments ]]
+  analysis_scope: $[[ inputs.analysis_scope ]]
+  languages: $[[ inputs.languages ]]
+  exclude_paths:
+    - "node_modules/**"
+    - "dist/**"
+    - "build/**"
+    - "*.lock"
+    - ".git/**"
+
+# Agent Platform com inputs
+agent_platform:
+  enabled: $[[ inputs.agent_platform_enabled ]]
+  config_file: ".gitlab/duo-agent-platform.toml"
+  custom_agents: $[[ inputs.custom_agents ]]
+
+# Knowledge Graph com inputs
+knowledge_graph:
+  enabled: $[[ inputs.knowledge_graph_enabled ]]
+  config_file: ".gitlab/duo-knowledge-graph.toml"
+  domain_context: $[[ inputs.domain_context ]]
+
+# Model Context Protocol com inputs
+mcp:
+  enabled: $[[ inputs.mcp_enabled ]]
+  config_file: ".gitlab/duo-mcp.toml"
+  legal_integrations: $[[ inputs.legal_integrations ]]
+
+# Configurações jurídicas específicas
+legal_config:
+  enabled: $[[ inputs.duo_enabled ]]
+  compliance_checks: $[[ inputs.legal_compliance_checks ]]
+  document_types: $[[ inputs.document_types ]]
+  security_level: $[[ inputs.security_level ]]
+  audit_logging: $[[ inputs.audit_logging ]]
+
+# Comandos de chat
+commands:
+  available: $[[ inputs.chat_commands ]]

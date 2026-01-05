@@ -1,0 +1,187 @@
+name: Auto Changelog
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag (e.g., v1.2.3)"
+        required: false
+        type: string
+
+concurrency:
+  group: changelog-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  generate-changelog:
+    name: Generate Changelog
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-changelog-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-changelog-
+            ${{ runner.os }}-
+
+      - name: Get version info
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [ "${{ github.event_name }}" = "release" ] && [ -n "${{ github.event.release.tag_name }}" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+          else
+            VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "## 📝 Generating Changelog for $VERSION" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate changelog content
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Criar arquivo CHANGELOG.md se não existir
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "All notable changes to this project will be documented in this file." >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)," >> CHANGELOG.md
+            echo "and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)." >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+
+          # Obter data da versão anterior
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -n "$PREVIOUS_TAG" ]; then
+            COMMITS_RANGE="$PREVIOUS_TAG..HEAD"
+          else
+            COMMITS_RANGE="HEAD"
+          fi
+
+          # Criar seção da nova versão
+          NEW_SECTION=$(mktemp)
+          echo "" > $NEW_SECTION
+          echo "## [$VERSION] - $(date -u '+%Y-%m-%d')" >> $NEW_SECTION
+          echo "" >> $NEW_SECTION
+
+          # Categorizar commits
+          echo "### ✨ Features" >> $NEW_SECTION
+          git log $COMMITS_RANGE --oneline --grep="^feat:" --grep="^feature:" | sed 's/^/- /' >> $NEW_SECTION || echo "- Nenhuma feature nova" >> $NEW_SECTION
+          echo "" >> $NEW_SECTION
+
+          echo "### 🐛 Bug Fixes" >> $NEW_SECTION
+          git log $COMMITS_RANGE --oneline --grep="^fix:" | sed 's/^/- /' >> $NEW_SECTION || echo "- Nenhum bug fix" >> $NEW_SECTION
+          echo "" >> $NEW_SECTION
+
+          echo "### 📚 Documentation" >> $NEW_SECTION
+          git log $COMMITS_RANGE --oneline --grep="^docs:" | sed 's/^/- /' >> $NEW_SECTION || echo "- Nenhuma alteração na documentação" >> $NEW_SECTION
+          echo "" >> $NEW_SECTION
+
+          echo "### 🔧 Maintenance" >> $NEW_SECTION
+          git log $COMMITS_RANGE --oneline --grep="^chore:" --grep="^refactor:" | sed 's/^/- /' >> $NEW_SECTION || echo "- Nenhuma manutenção" >> $NEW_SECTION
+          echo "" >> $NEW_SECTION
+
+          echo "### 🔒 Security" >> $NEW_SECTION
+          git log $COMMITS_RANGE --oneline --grep="^security" --grep="^sec" | sed 's/^/- /' >> $NEW_SECTION || true
+          echo "" >> $NEW_SECTION
+
+          # Inserir nova seção no topo do CHANGELOG
+          # Criar arquivo temporário com o novo conteúdo
+          TEMP_CHANGELOG=$(mktemp)
+
+          # Ler até a primeira linha "##" (primeira versão existente)
+          awk '/^## \[/{exit} {print}' CHANGELOG.md > $TEMP_CHANGELOG
+
+          # Adicionar nova seção
+          cat $NEW_SECTION >> $TEMP_CHANGELOG
+
+          # Adicionar o resto do changelog existente
+          awk '/^## \[/{p=1} p' CHANGELOG.md >> $TEMP_CHANGELOG
+
+          # Substituir o arquivo original
+          mv $TEMP_CHANGELOG CHANGELOG.md
+
+          # Adicionar ao summary
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📄 Changelog Entry" >> $GITHUB_STEP_SUMMARY
+          cat $NEW_SECTION >> $GITHUB_STEP_SUMMARY
+
+          rm $NEW_SECTION
+
+      - name: Commit changelog
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          if [ -n "$(git status --porcelain CHANGELOG.md)" ]; then
+            git add CHANGELOG.md
+            git commit -m "docs: Update CHANGELOG for ${{ steps.version.outputs.version }} [skip ci]"
+            git push
+            
+            echo "✅ Changelog updated and committed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No changes to CHANGELOG.md" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Create release notes
+        if: github.event_name == 'release'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+
+            // Extrair apenas a seção da versão atual
+            const version = '${{ steps.version.outputs.version }}';
+            const versionSection = changelog.match(
+              new RegExp(`## \\[${version}\\][\\s\\S]*?(?=## \\[|$)`, 'm')
+            );
+
+            if (versionSection) {
+              await github.rest.repos.updateRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: context.payload.release.id,
+                body: versionSection[0]
+              });
+              
+              console.log('✅ Release notes updated');
+            }
+
+      - name: Summary
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Changelog Generation Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The CHANGELOG.md file has been updated with the latest changes." >> $GITHUB_STEP_SUMMARY

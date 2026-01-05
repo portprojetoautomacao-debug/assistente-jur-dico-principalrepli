@@ -1,0 +1,85 @@
+# Agente GitLab - Produção
+# Configuração para ambiente de produção
+
+name: assistente-juridico-prod
+url: https://gitlab.com/
+token: $AGENTE_PRODUCAO_TOKEN
+executor: docker
+environment: production
+
+stages:
+  - build
+  - test
+  - security
+  - deploy-prod
+  - cleanup
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+
+# Build de produção otimizado
+build:prod:
+  stage: build
+  script:
+    - echo "🏗️ Build de produção otimizado"
+    - npm ci --production
+    - npm run build:prod
+    - npm run analyze:bundle
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 month
+  only:
+    - tags
+    - main
+
+# Testes finais antes da produção
+test:prod:
+  stage: test
+  script:
+    - echo "🧪 Testes finais para produção"
+    - npm run test:smoke
+    - npm run test:critical-path
+  allow_failure: false
+  only:
+    - tags
+    - main
+
+# Verificação de segurança final
+security:final:
+  stage: security
+  script:
+    - echo "🔒 Verificação de segurança final"
+    - npm audit --audit-level critical
+    - npm run security:final-check
+  allow_failure: false
+  only:
+    - tags
+
+# Deploy para produção
+deploy:prod:
+  stage: deploy-prod
+  script:
+    - echo "🚀 Deploy para produção"
+    - echo "Deploying to production environment"
+    - npm run deploy:prod
+    - echo "Production deployment completed successfully"
+  environment:
+    name: production
+    url: https://assistente-juridico.com
+  only:
+    - tags
+  when: manual
+
+# Limpeza pós-deploy
+cleanup:prod:
+  stage: cleanup
+  script:
+    - echo "🧹 Limpeza pós-deploy de produção"
+    - npm run cleanup:artifacts
+    - npm run cleanup:cache
+  allow_failure: true
+  only:
+    - tags
+  when: manual

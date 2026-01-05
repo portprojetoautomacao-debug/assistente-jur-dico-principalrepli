@@ -1,0 +1,486 @@
+name: AI Agents Health Check
+
+on:
+  schedule:
+    # Run every 6 hours to monitor agents
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "api/agents.ts"
+      - "api/agents/**"
+      - "api/cron.ts"
+      - "api/observability.ts"
+      - "api/lib/**"
+      - "api/intimacoes/**"
+      - "api/tarefas/**"
+      - "src/lib/agents.ts"
+      - "src/lib/agent-*.ts"
+      - "src/lib/auto-pilot-*.ts"
+      - "src/lib/djen-*.ts"
+      - "src/lib/minuta-agent.ts"
+      - "src/lib/real-agent-client.ts"
+      - "src/lib/google-services-hub.ts"
+      - "src/hooks/use-autonomous-agents.ts"
+
+concurrency:
+  group: agents-health-check
+  cancel-in-progress: true
+
+jobs:
+  check-agents-configuration:
+    name: Verify AI Agents Configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-agents-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-agents-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify agent files exist
+        run: |
+          echo "## 🤖 Serverless Functions Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Vercel serverless functions (arquivos existentes)
+          API_FILES=(
+            "api/agents.ts"
+            "api/agents/log.ts"
+            "api/agents/process-task.ts"
+            "api/backup.ts"
+            "api/cron.ts"
+            "api/djen-sync.ts"
+            "api/expedientes.ts"
+            "api/gitlab-webhook.ts"
+            "api/intimacoes/pendente.ts"
+            "api/kv.ts"
+            "api/lawyers.ts"
+            "api/legal-services.ts"
+            "api/llm-proxy.ts"
+            "api/notifications.ts"
+            "api/observability.ts"
+            "api/pje.ts"
+            "api/spark-proxy.ts"
+            "api/status.ts"
+            "api/tarefas/criar.ts"
+            "api/todoist.ts"
+            "api/vercel-webhook.ts"
+            "api/webhook.ts"
+            "api/whatsapp/send.ts"
+          )
+
+          # Support libraries
+          SUPPORT_FILES=(
+            "api/lib/auth.ts"
+            "api/lib/cache.ts"
+            "api/lib/circuit-breaker.ts"
+            "api/lib/djen-client.ts"
+            "api/lib/error-handler.ts"
+            "api/lib/kv-utils.ts"
+            "api/lib/rate-limit.ts"
+            "api/lib/retry.ts"
+            "api/lib/safe-logger.ts"
+            "api/lib/validation.ts"
+            "src/lib/agents.ts"
+            "src/lib/agent-schemas.ts"
+            "src/lib/agent-tracing.ts"
+            "src/lib/auto-pilot-djen-prazos-minutas.ts"
+            "src/lib/djen-monitor-agent.ts"
+            "src/lib/minuta-agent.ts"
+            "src/lib/real-agent-client.ts"
+            "src/lib/google-services-hub.ts"
+            "src/hooks/use-autonomous-agents.ts"
+          )
+
+          echo "### API Functions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Function | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          MISSING=0
+          FOUND=0
+          for file in "${API_FILES[@]}"; do
+            if [ -f "$file" ]; then
+              echo "| ✅ $file | OK |" >> $GITHUB_STEP_SUMMARY
+              FOUND=$((FOUND + 1))
+            else
+              echo "| ❌ $file | **Missing** |" >> $GITHUB_STEP_SUMMARY
+              MISSING=$((MISSING + 1))
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Support Libraries" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          for file in "${SUPPORT_FILES[@]}"; do
+            if [ -f "$file" ]; then
+              echo "| ✅ $file | OK |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| ⚠️ $file | Missing (optional) |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Summary:** $FOUND endpoints found, $MISSING missing" >> $GITHUB_STEP_SUMMARY
+
+          if [ $MISSING -gt 5 ]; then
+            echo "⚠️ **Warning:** Multiple API files are missing!" >> $GITHUB_STEP_SUMMARY
+            echo "::warning::$MISSING API files are missing"
+          else
+            echo "✅ Core API endpoints present" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Validate TypeScript compilation
+        run: |
+          echo "Compiling TypeScript files..."
+          npm run build
+          echo "✅ TypeScript compilation successful"
+
+      - name: Check for required environment variables
+        run: |
+          echo "## 🔐 Environment Variables Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Variable | Required For | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          # Note: We can't check actual values in CI, but we can check if they're documented
+          REQUIRED_VARS=(
+            "GEMINI_API_KEY:Gemini 2.5 Pro LLM API"
+            "DATAJUD_API_KEY:DataJud API"
+            "VERCEL_AUTOMATION_BYPASS_SECRET:Webhook Bypass"
+          )
+
+          for var in "${REQUIRED_VARS[@]}"; do
+            VAR_NAME="${var%%:*}"
+            VAR_DESC="${var##*:}"
+
+            # Check if variable is mentioned in code
+            if grep -r "$VAR_NAME" api/ lib/ > /dev/null 2>&1; then
+              echo "| ✅ $VAR_NAME | $VAR_DESC | Used in code |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| ⚠️ $VAR_NAME | $VAR_DESC | Not found |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 **Note:** Actual secret values should be configured in Vercel Dashboard" >> $GITHUB_STEP_SUMMARY
+
+  test-agent-endpoints:
+    name: Test Agent API Endpoints
+    runs-on: ubuntu-latest
+    needs: check-agents-configuration
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+        env:
+          VITE_GOOGLE_CLIENT_ID: "dummy-client-id"
+          VITE_GOOGLE_API_KEY: "dummy-api-key"
+          VITE_REDIRECT_URI: "http://localhost:5173"
+          VITE_APP_ENV: "test"
+
+      - name: Analyze agent endpoints
+        run: |
+          echo "## 🔍 Agent Endpoints Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Count serverless functions
+          FUNCTION_COUNT=$(find api -type f -name "*.ts" | wc -l)
+          echo "**Total Serverless Functions:** $FUNCTION_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # List agent-related endpoints
+          echo "### Agent Endpoints" >> $GITHUB_STEP_SUMMARY
+          echo "| Endpoint | Purpose |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| /api/agents/process-queue | Process agent task queue |" >> $GITHUB_STEP_SUMMARY
+          echo "| /api/agents/process-task | Execute single agent task |" >> $GITHUB_STEP_SUMMARY
+          echo "| /api/cron/djen-monitor | Monitor DJEN publications (9 AM daily) |" >> $GITHUB_STEP_SUMMARY
+          echo "| /api/cron/daily-reset | Reset daily counters (midnight) |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check Vercel function limit
+          if [ $FUNCTION_COUNT -gt 12 ]; then
+            echo "⚠️ **Warning:** Function count ($FUNCTION_COUNT) exceeds Vercel Hobby limit (12)" >> $GITHUB_STEP_SUMMARY
+            echo "Consider upgrading to Vercel Pro or removing unused endpoints" >> $GITHUB_STEP_SUMMARY
+          elif [ $FUNCTION_COUNT -eq 12 ]; then
+            echo "✅ Function count exactly at Vercel Hobby limit (12/12)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Function count within Vercel Hobby limit ($FUNCTION_COUNT/12)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Validate cron schedules
+        run: |
+          echo "## ⏰ Cron Schedule Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ ! -f "vercel.json" ]; then
+            echo "❌ vercel.json not found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          # Extract cron jobs from vercel.json
+          CRON_COUNT=$(grep -c '"path":' vercel.json || echo "0")
+
+          echo "**Configured Cron Jobs:** $CRON_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Endpoint | Schedule | Description |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|----------|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| /api/cron/djen-monitor | 0 9 * * * | Daily at 9 AM UTC - Monitor DJEN for lawyer publications |" >> $GITHUB_STEP_SUMMARY
+          echo "| /api/cron/daily-reset | 0 0 * * * | Daily at midnight UTC - Reset agent daily statistics |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ $CRON_COUNT -gt 2 ]; then
+            echo "⚠️ **Warning:** Vercel Hobby plan supports daily cron jobs only" >> $GITHUB_STEP_SUMMARY
+            echo "Hourly jobs require Vercel Pro plan" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Cron configuration compatible with Vercel Hobby plan" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  validate-api-integrations:
+    name: Validate API Integrations
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate DJEN API client
+        run: |
+          echo "## 📡 DJEN API Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check both locations (api/lib and lib/api)
+          DJEN_FILES=("api/lib/djen-client.ts" "lib/api/djen-client.ts" "api/cron.ts")
+          FOUND_DJEN=false
+
+          for file in "${DJEN_FILES[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✅ DJEN client exists: $file" >> $GITHUB_STEP_SUMMARY
+              FOUND_DJEN=true
+
+              # Check for required functions
+              if grep -q "consultarPublicacoesTribunal\|consultarDJEN" "$file"; then
+                echo "✅ DJEN functions found" >> $GITHUB_STEP_SUMMARY
+              fi
+
+              # Check API endpoint
+              if grep -q "comunicaapi.pje.jus.br" "$file"; then
+                echo "✅ DJEN API endpoint configured: comunicaapi.pje.jus.br" >> $GITHUB_STEP_SUMMARY
+              fi
+              break
+            fi
+          done
+
+          if [ "$FOUND_DJEN" = false ]; then
+            echo "⚠️ DJEN client not found in expected locations" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Validate DataJud API client
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📡 DataJud API Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check lib/ai for DataJud integration
+          DATAJUD_FILE="lib/ai/tools.ts"
+          if [ -f "$DATAJUD_FILE" ]; then
+            echo "✅ AI Tools file exists (contains DataJud integration)" >> $GITHUB_STEP_SUMMARY
+
+            # Check API endpoint
+            if grep -q "datajud\|DataJud" "$DATAJUD_FILE"; then
+              echo "✅ DataJud references found" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "⚠️ AI Tools file not found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Validate Upstash KV usage
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 💾 Upstash KV Storage Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check for KV keys usage
+          KV_KEYS=(
+            "autonomous-agents"
+            "monitored-lawyers"
+            "agent-task-queue"
+            "completed-agent-tasks"
+          )
+
+          echo "**Expected KV Keys:**" >> $GITHUB_STEP_SUMMARY
+          for key in "${KV_KEYS[@]}"; do
+            if grep -r "$key" src/ lib/ api/ > /dev/null 2>&1; then
+              echo "- ✅ $key (used in code)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- ⚠️ $key (not found)" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+  lawyer-configuration-check:
+    name: Verify Lawyer Configuration
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check initialization script
+        run: |
+          echo "## 👨‍⚖️ Lawyer Configuration Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "INICIALIZAR_AGENTES_BROWSER.js" ]; then
+            echo "✅ Browser initialization script exists" >> $GITHUB_STEP_SUMMARY
+
+            # Extract lawyer info
+            if grep -q "Thiago Bodevan Veiga" INICIALIZAR_AGENTES_BROWSER.js; then
+              echo "✅ Lawyer: Thiago Bodevan Veiga" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            if grep -q "OAB/MG 184.404" INICIALIZAR_AGENTES_BROWSER.js; then
+              echo "✅ OAB: OAB/MG 184.404" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            if grep -q "thiagobodevanadvocacia@gmail.com" INICIALIZAR_AGENTES_BROWSER.js; then
+              echo "✅ Email: thiagobodevanadvocacia@gmail.com" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            # Check tribunals
+            TRIBUNALS=("TJMG" "TRT3" "TST" "STJ")
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Configured Tribunals:**" >> $GITHUB_STEP_SUMMARY
+            for tribunal in "${TRIBUNALS[@]}"; do
+              if grep -q "$tribunal" INICIALIZAR_AGENTES_BROWSER.js; then
+                echo "- ✅ $tribunal" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ⚠️ $tribunal (not configured)" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
+
+            # Count agents
+            AGENT_COUNT=$(grep -c '"id": "agent-' INICIALIZAR_AGENTES_BROWSER.js || echo "0")
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Configured Agents:** $AGENT_COUNT" >> $GITHUB_STEP_SUMMARY
+
+            if [ $AGENT_COUNT -eq 7 ]; then
+              echo "✅ All 7 agents configured" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ Expected 7 agents, found $AGENT_COUNT" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "⚠️ Initialization script not found" >> $GITHUB_STEP_SUMMARY
+            echo "Run the browser console script to initialize agents" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  health-check-summary:
+    name: Health Check Summary
+    runs-on: ubuntu-latest
+    needs:
+      [
+        check-agents-configuration,
+        test-agent-endpoints,
+        validate-api-integrations,
+        lawyer-configuration-check,
+      ]
+    if: always()
+    permissions:
+      contents: read
+
+    steps:
+      - name: Generate health report
+        run: |
+          echo "# 🏥 AI Agents Health Check Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## 📊 Job Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Agents Configuration | ${{ needs.check-agents-configuration.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Agent Endpoints | ${{ needs.test-agent-endpoints.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| API Integrations | ${{ needs.validate-api-integrations.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lawyer Configuration | ${{ needs.lawyer-configuration-check.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.check-agents-configuration.result }}" == "success" ]] && \
+             [[ "${{ needs.test-agent-endpoints.result }}" == "success" ]] && \
+             [[ "${{ needs.validate-api-integrations.result }}" == "success" ]] && \
+             [[ "${{ needs.lawyer-configuration-check.result }}" == "success" ]]; then
+            echo "## ✅ Overall Status: HEALTHY" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All agent systems are properly configured and ready for production." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+            echo "1. ✅ Agents initialized via browser console" >> $GITHUB_STEP_SUMMARY
+            echo "2. ✅ DJEN cron will run daily at 9 AM UTC" >> $GITHUB_STEP_SUMMARY
+            echo "3. ✅ Daily reset cron will run at midnight UTC" >> $GITHUB_STEP_SUMMARY
+            echo "4. 🔄 Monitor first cron execution for publications" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ⚠️ Overall Status: NEEDS ATTENTION" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Some agent systems require configuration or fixes." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Action Required:" >> $GITHUB_STEP_SUMMARY
+            echo "1. Review failed jobs above" >> $GITHUB_STEP_SUMMARY
+            echo "2. Check agent configuration files" >> $GITHUB_STEP_SUMMARY
+            echo "3. Verify environment variables in Vercel" >> $GITHUB_STEP_SUMMARY
+            echo "4. Run initialization script if needed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi

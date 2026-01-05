@@ -1,0 +1,61 @@
+✅ Hybrid Agents Integration habilitado
+index-DmEfWk8v.js:33 [OpenTelemetry] ⚠️ OTLP desabilitado - usando apenas console tracing
+index-DmEfWk8v.js:33 [OpenTelemetry] Para habilitar OTLP, defina VITE_OTLP_ENDPOINT no .env
+/api/expedientes?limit=8:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-DmEfWk8v.js:33 [DJENWidget] Backend indisponível, tentando browser-direct: Error: HTTP 404
+    at dl (index-DmEfWk8v.js:33:4263)
+    at async index-DmEfWk8v.js:33:6311
+(anonymous) @ index-DmEfWk8v.js:33Understand this warning
+index-DmEfWk8v.js:33 [DJENWidget] Tentando busca direta via navegador...
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+/api/lawyers:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-DmEfWk8v.js:33 [DJEN Browser] Buscando publicações: https://comunicaapi.pje.jus.br/api/v1/comunicacao?meio=D&numeroOab=184404&ufOab=MG&dataDisponibilizacaoInicio=2026-01-03&dataDisponibilizacaoFim=2026-01-03
+index-DmEfWk8v.js:33 [DJEN Browser] Capturadas 0 publicações
+index-DmEfWk8v.js:33 [Monitoring] Sentry desabilitado - VITE_SENTRY_DSN não configurado
+index-DmEfWk8v.js:33 [Monitoring] Sentry inicializado
+index-DmEfWk8v.js:33 [Analytics] GTM/GA4 inicializados
+config-DFQ6ZFLq.js:1 Missing required environment variable: VITE_GOOGLE_CLIENT_ID
+e @ config-DFQ6ZFLq.js:1Understand this error
+config-DFQ6ZFLq.js:1 Missing required environment variable: VITE_GITHUB_OAUTH_CLIENT_ID
+e @ config-DFQ6ZFLq.js:1Understand this error
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+MinutasManager-6grYoanY.js:2 [GoogleDocs] Initializing Google Docs Service... 
+MinutasManager-6grYoanY.js:2 [GoogleDocs] ERROR: Credenciais do Google Docs não configuradas. Configure VITE_GOOGLE_CLIENT_ID e VITE_GOOGLE_API_KEY (ou VITE_GEMINI_API_KEY). 
+Z @ MinutasManager-6grYoanY.js:2Understand this error
+MinutasManager-6grYoanY.js:2 [useGoogleDocs] Failed to check auth status Error: Credenciais do Google Docs não configuradas. Configure VITE_GOOGLE_CLIENT_ID e VITE_GOOGLE_API_KEY (ou VITE_GEMINI_API_KEY).
+    at Iw.initialize (MinutasManager-6grYoanY.js:2:3289)
+    at MinutasManager-6grYoanY.js:2:13001
+    at MinutasManager-6grYoanY.js:2:13128
+    at vn (react-vendor-B3xmZDrx.js:8:92656)
+    at J0 (react-vendor-B3xmZDrx.js:8:107884)
+    at De (react-vendor-B3xmZDrx.js:8:107768)
+    at J0 (react-vendor-B3xmZDrx.js:8:108494)
+    at De (react-vendor-B3xmZDrx.js:8:107768)
+    at J0 (react-vendor-B3xmZDrx.js:8:108351)
+    at De (react-vendor-B3xmZDrx.js:8:107768)
+(anonymous) @ MinutasManager-6grYoanY.js:2Understand this error
+/api/kv:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-DmEfWk8v.js:3 [KV] Circuit breaker ativado - usando localStorage por 60s
+Mt @ index-DmEfWk8v.js:3Understand this warning
+localhost:3001/api/ai/status:1  Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+MinutasManager-6grYoanY.js:1 [useAICommands] Failed to check status: TypeError: Failed to fetch
+    at MinutasManager-6grYoanY.js:1:3025
+    at MinutasManager-6grYoanY.js:891:3876
+    at vn (react-vendor-B3xmZDrx.js:8:92656)
+    at J0 (react-vendor-B3xmZDrx.js:8:107884)
+    at De (react-vendor-B3xmZDrx.js:8:107768)
+    at J0 (react-vendor-B3xmZDrx.js:8:108494)
+    at De (react-vendor-B3xmZDrx.js:8:107768)
+    at J0 (react-vendor-B3xmZDrx.js:8:108351)
+    at De (react-vendor-B3xmZDrx.js:8:107768)
+    at J0 (react-vendor-B3xmZDrx.js:8:108650)
+(anonymous) @ MinutasManager-6grYoanY.js:1Understand this error
+/api/llm-stream:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+HarveySpecterChat-BRsAzG0Z.js:4 [Harvey] Erro: HTTP 404
+onError @ HarveySpecterChat-BRsAzG0Z.js:4Understand this error
+HarveySpecterChat-BRsAzG0Z.js:19 [Harvey] Erro: Error: HTTP 404
+    at use-ai-streaming-DR2GB7xQ.js:2:1102
+    at async sentry-gemini-integration-v2-CMMggrHS.js:1:3003
+    at async use-ai-streaming-DR2GB7xQ.js:2:727
+    at async HarveySpecterChat-BRsAzG0Z.js:19:379
+(anonymous) @ HarveySpecterChat-BRsAzG0Z.js:19Understand this error

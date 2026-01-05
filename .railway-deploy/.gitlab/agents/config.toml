@@ -1,0 +1,26 @@
+# Configuração Central dos Agentes GitLab
+# Este arquivo contém as configurações globais para todos os agentes
+
+[agents]
+# Configurações comuns a todos os agentes
+project_url = "https://gitlab.com/thiagobodevan-a11y/assistente-juridico-p"
+docker_image = "node:22-alpine"
+timeout = "3600"  # 1 hora em segundos
+
+[environments]
+# Configurações específicas por ambiente
+development = { tags = ["docker", "linux", "dev"], unprotected = true }
+qa = { tags = ["docker", "linux", "qa"], unprotected = false }
+production = { tags = ["docker", "linux", "prod"], unprotected = false }
+
+[security]
+# Configurações de segurança
+require_secure_variables = true
+enable_audit_logging = true
+restrict_job_permissions = true
+
+[monitoring]
+# Configurações de monitoramento
+enable_metrics = true
+log_level = "info"
+health_check_interval = "30s"

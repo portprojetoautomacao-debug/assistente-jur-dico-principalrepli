@@ -1,0 +1,375 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "dashboardName": {
+      "type": "string",
+      "defaultValue": "Assistente-Juridico-Agents-Dashboard",
+      "metadata": {
+        "description": "Nome do dashboard do Azure Monitor"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Localização do recurso"
+      }
+    },
+    "appInsightsResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID do Application Insights"
+      }
+    }
+  },
+  "variables": {
+    "dashboardId": "[guid(parameters('dashboardName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Portal/dashboards",
+      "apiVersion": "2020-09-01-preview",
+      "name": "[parameters('dashboardName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "hidden-title": "Dashboard dos Agentes IA - Assistente Jurídico"
+      },
+      "properties": {
+        "lenses": [
+          {
+            "order": 0,
+            "parts": [
+              {
+                "position": {
+                  "x": 0,
+                  "y": 0,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "query",
+                      "value": "customMetrics\n| where name == 'Agent_TasksCompleted'\n| summarize TasksCompleted = sum(value) by tostring(customDimensions.agentId)\n| order by TasksCompleted desc\n| render barchart"
+                    },
+                    {
+                      "name": "resourceId",
+                      "value": "[parameters('appInsightsResourceId')]"
+                    },
+                    {
+                      "name": "timeContext",
+                      "value": {
+                        "durationMs": 86400000
+                      }
+                    }
+                  ],
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "settings": {
+                    "content": {
+                      "PartTitle": "📊 Tarefas Concluídas por Agente (24h)",
+                      "PartSubTitle": "Total de tarefas processadas com sucesso"
+                    }
+                  }
+                }
+              },
+              {
+                "position": {
+                  "x": 6,
+                  "y": 0,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "query",
+                      "value": "customMetrics\n| where name == 'Agent_AverageProcessingTime'\n| summarize AvgTime = avg(value) by tostring(customDimensions.agentId)\n| order by AvgTime desc\n| render barchart"
+                    },
+                    {
+                      "name": "resourceId",
+                      "value": "[parameters('appInsightsResourceId')]"
+                    }
+                  ],
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "settings": {
+                    "content": {
+                      "PartTitle": "⏱️ Tempo Médio de Processamento (ms)",
+                      "PartSubTitle": "Performance dos agentes"
+                    }
+                  }
+                }
+              },
+              {
+                "position": {
+                  "x": 0,
+                  "y": 4,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "query",
+                      "value": "customMetrics\n| where name == 'Agent_ErrorRate'\n| summarize ErrorRate = avg(value) by tostring(customDimensions.agentId)\n| where ErrorRate > 0\n| order by ErrorRate desc\n| render barchart with (kind=unstacked, yaxis=percentage)"
+                    },
+                    {
+                      "name": "resourceId",
+                      "value": "[parameters('appInsightsResourceId')]"
+                    }
+                  ],
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "settings": {
+                    "content": {
+                      "PartTitle": "❌ Taxa de Erro por Agente (%)",
+                      "PartSubTitle": "Agentes com maior taxa de falha"
+                    }
+                  }
+                }
+              },
+              {
+                "position": {
+                  "x": 6,
+                  "y": 4,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "query",
+                      "value": "customEvents\n| where name startswith 'Agent_'\n| summarize Count = count() by name, bin(timestamp, 1h)\n| render timechart"
+                    },
+                    {
+                      "name": "resourceId",
+                      "value": "[parameters('appInsightsResourceId')]"
+                    }
+                  ],
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "settings": {
+                    "content": {
+                      "PartTitle": "📈 Eventos dos Agentes (Últimas 24h)",
+                      "PartSubTitle": "Atividade dos agentes ao longo do tempo"
+                    }
+                  }
+                }
+              },
+              {
+                "position": {
+                  "x": 0,
+                  "y": 8,
+                  "colSpan": 4,
+                  "rowSpan": 3
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "query",
+                      "value": "customEvents\n| where name == 'Agent_TaskExecuted'\n| where tostring(customDimensions.status) == 'COMPLETED'\n| summarize Count = count()\n| extend Type = 'Concluídas'\n| union (\n    customEvents\n    | where name == 'Agent_TaskExecuted'\n    | where tostring(customDimensions.status) == 'FAILED'\n    | summarize Count = count()\n    | extend Type = 'Falhadas'\n)\n| render piechart"
+                    },
+                    {
+                      "name": "resourceId",
+                      "value": "[parameters('appInsightsResourceId')]"
+                    }
+                  ],
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "settings": {
+                    "content": {
+                      "PartTitle": "✅ Status das Tarefas (24h)",
+                      "PartSubTitle": "Distribuição de sucesso vs falha"
+                    }
+                  }
+                }
+              },
+              {
+                "position": {
+                  "x": 4,
+                  "y": 8,
+                  "colSpan": 4,
+                  "rowSpan": 3
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "query",
+                      "value": "customEvents\n| where name == 'User_IntimacaoProcessed'\n| summarize Intimacoes = count() by bin(timestamp, 1h)\n| render timechart"
+                    },
+                    {
+                      "name": "resourceId",
+                      "value": "[parameters('appInsightsResourceId')]"
+                    }
+                  ],
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "settings": {
+                    "content": {
+                      "PartTitle": "📩 Intimações Processadas (24h)",
+                      "PartSubTitle": "Volume de intimações ao longo do tempo"
+                    }
+                  }
+                }
+              },
+              {
+                "position": {
+                  "x": 8,
+                  "y": 8,
+                  "colSpan": 4,
+                  "rowSpan": 3
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "query",
+                      "value": "customEvents\n| where name == 'User_MinutaGenerated'\n| summarize Minutas = count() by bin(timestamp, 1h)\n| render timechart"
+                    },
+                    {
+                      "name": "resourceId",
+                      "value": "[parameters('appInsightsResourceId')]"
+                    }
+                  ],
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "settings": {
+                    "content": {
+                      "PartTitle": "📝 Minutas Geradas (24h)",
+                      "PartSubTitle": "Volume de documentos criados"
+                    }
+                  }
+                }
+              },
+              {
+                "position": {
+                  "x": 0,
+                  "y": 11,
+                  "colSpan": 12,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "query",
+                      "value": "exceptions\n| where customDimensions.component == 'useAutonomousAgents'\n| project timestamp, agentId = tostring(customDimensions.agentId), taskId = tostring(customDimensions.taskId), message = outerMessage, details = innermostMessage\n| order by timestamp desc\n| take 50"
+                    },
+                    {
+                      "name": "resourceId",
+                      "value": "[parameters('appInsightsResourceId')]"
+                    }
+                  ],
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "settings": {
+                    "content": {
+                      "PartTitle": "🐛 Erros Recentes dos Agentes",
+                      "PartSubTitle": "Últimos 50 erros registrados"
+                    }
+                  }
+                }
+              },
+              {
+                "position": {
+                  "x": 0,
+                  "y": 15,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "query",
+                      "value": "dependencies\n| where type == 'HTTP'\n| summarize Count = count(), AvgDuration = avg(duration) by name\n| order by Count desc\n| take 10"
+                    },
+                    {
+                      "name": "resourceId",
+                      "value": "[parameters('appInsightsResourceId')]"
+                    }
+                  ],
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "settings": {
+                    "content": {
+                      "PartTitle": "🌐 Chamadas de API (Top 10)",
+                      "PartSubTitle": "APIs mais chamadas e tempo médio"
+                    }
+                  }
+                }
+              },
+              {
+                "position": {
+                  "x": 6,
+                  "y": 15,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "query",
+                      "value": "dependencies\n| where type == 'Redis'\n| summarize Count = count(), AvgDuration = avg(duration), SuccessRate = avg(todouble(success)) * 100 by name\n| order by Count desc"
+                    },
+                    {
+                      "name": "resourceId",
+                      "value": "[parameters('appInsightsResourceId')]"
+                    }
+                  ],
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "settings": {
+                    "content": {
+                      "PartTitle": "💾 Redis Operations",
+                      "PartSubTitle": "Performance do cache Redis (Upstash)"
+                    }
+                  }
+                }
+              },
+              {
+                "position": {
+                  "x": 0,
+                  "y": 19,
+                  "colSpan": 12,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "query",
+                      "value": "customMetrics\n| where name startswith 'Performance_'\n| summarize P50 = percentile(value, 50), P95 = percentile(value, 95), P99 = percentile(value, 99) by name\n| order by P95 desc"
+                    },
+                    {
+                      "name": "resourceId",
+                      "value": "[parameters('appInsightsResourceId')]"
+                    }
+                  ],
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "settings": {
+                    "content": {
+                      "PartTitle": "⚡ Performance Metrics (P50/P95/P99)",
+                      "PartSubTitle": "Latência das operações críticas"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "metadata": {
+          "model": {
+            "timeRange": {
+              "value": {
+                "relative": {
+                  "duration": 24,
+                  "timeUnit": 1
+                }
+              },
+              "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "dashboardId": {
+      "type": "string",
+      "value": "[variables('dashboardId')]"
+    },
+    "dashboardUrl": {
+      "type": "string",
+      "value": "[concat('https://portal.azure.com/#@/dashboard/arm', resourceId('Microsoft.Portal/dashboards', parameters('dashboardName')))]"
+    }
+  }
+}

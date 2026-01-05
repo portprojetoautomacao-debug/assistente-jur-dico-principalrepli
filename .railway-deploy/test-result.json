@@ -1,0 +1,180 @@
+🚀 Starting E2E tests...
+📧 Using test credentials: adm (mode: simple)
+🌐 Base URL: http://127.0.0.1:5173
+💾 Storage path: /workspaces/assistente-jur-dico-principalrepli/tests/e2e/tests/e2e/storageState.json
+✅ Simple auth mode - using default credentials (adm/adm123)
+🔐 Attempting login...
+⚠️ Failed to create storage state during global setup: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "http://127.0.0.1:5173/login", waiting until "networkidle"[22m
+
+    at globalSetup (/workspaces/assistente-jur-dico-principalrepli/tests/e2e/global-setup.ts:49:16)
+ℹ️ Tests will run without pre-authenticated state.
+{
+  "config": {
+    "configFile": "/workspaces/assistente-jur-dico-principalrepli/playwright.config.ts",
+    "rootDir": "/workspaces/assistente-jur-dico-principalrepli/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "/workspaces/assistente-jur-dico-principalrepli/tests/e2e/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspaces/assistente-jur-dico-principalrepli/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/workspaces/assistente-jur-dico-principalrepli/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/workspaces/assistente-jur-dico-principalrepli/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/workspaces/assistente-jur-dico-principalrepli/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 4,
+    "webServer": {
+      "command": "node scripts/start-dev-with-api.cjs --port 5173 --host 127.0.0.1",
+      "url": "http://127.0.0.1:5173",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "stdout": "pipe",
+      "stderr": "pipe",
+      "env": {
+        "GIT_COMMITTER_NAME": "GitHub",
+        "GITHUB_TOKEN": "ghu_LpWeFGDmAY0VoYcTQjHvie8HDtat2l1WtkII",
+        "GITHUB_CODESPACE_TOKEN": "B3ZZNULOWPZOHAQTXJEJ7STJLJ3ZVANCNFSM4ASLHHIQ",
+        "DATABASE_URL": "postgresql://neondb_owner:npg_6qYj5hXWJzLB@ep-lively-firefly-a85y0w0i-pooler.eastus2.azure.neon.tech/neondb?sslmode=require",
+        "USER": "node",
+        "npm_config_user_agent": "npm/10.9.4 node/v22.21.1 linux x64 workspaces/false",
+        "GIT_EDITOR": "code --wait",
+        "NODE_VERSION": "22.21.1",
+        "FEATURE_SPARK_POST_COMMIT_CREATE_ITERATION": "true",
+        "HOSTNAME": "codespaces-e92729",
+        "YARN_VERSION": "1.22.22",
+        "GIT_ASKPASS": "/vscode/bin/linux-x64/994fd12f8d3a5aa16f17d42c041e5809167e845a/extensions/git/dist/askpass.sh",
+        "npm_node_execpath": "/usr/local/share/nvm/versions/node/v22.21.1/bin/node",
+        "GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN": "app.github.dev",
+        "SHLVL": "2",
+        "BROWSER": "/vscode/bin/linux-x64/994fd12f8d3a5aa16f17d42c041e5809167e845a/bin/helpers/browser.sh",
+        "npm_config_noproxy": "",
+        "HOME": "/home/node",
+        "OLDPWD": "/workspaces/assistente-jur-dico-principalrepli",
+        "TERM_PROGRAM_VERSION": "1.107.1",
+        "NVM_BIN": "/usr/local/share/nvm/versions/node/v22.21.1/bin",
+        "VSCODE_IPC_HOOK_CLI": "/tmp/vscode-ipc-d2472826-3fb7-4066-8546-92c44d12e968.sock",
+        "npm_package_json": "/workspaces/assistente-jur-dico-principalrepli/package.json",
+        "NVM_INC": "/usr/local/share/nvm/versions/node/v22.21.1/include/node",
+        "CODESPACES": "true",
+        "NVM_SYMLINK_CURRENT": "true",
+        "npm_package_engines_node": ">=20.0.0",
+        "VSCODE_GIT_ASKPASS_MAIN": "/vscode/bin/linux-x64/994fd12f8d3a5aa16f17d42c041e5809167e845a/extensions/git/dist/askpass-main.js",
+        "VSCODE_GIT_ASKPASS_NODE": "/vscode/bin/linux-x64/994fd12f8d3a5aa16f17d42c041e5809167e845a/node",
+        "npm_config_userconfig": "/home/node/.npmrc",
+        "npm_config_local_prefix": "/workspaces/assistente-jur-dico-principalrepli",
+        "VSCODE_PYTHON_AUTOACTIVATE_GUARD": "1",
+        "GIT_TOKEN": "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",
+        "COLORTERM": "truecolor",
+        "GITHUB_USER": "portprojetoautomacao-debug",
+        "GITHUB_GRAPHQL_URL": "https://api.github.com/graphql",
+        "COLOR": "0",
+        "NVM_DIR": "/usr/local/share/nvm",
+        "ContainerVersion": "13",
+        "GITHUB_API_URL": "https://api.github.com",
+        "RepositoryName": "assistente-jur-dico-principalrepli",
+        "SDKMAN_CANDIDATES_API": "https://api.sdkman.io/2",
+        "_": "/usr/local/share/nvm/versions/node/v22.21.1/bin/npx",
+        "npm_config_prefix": "/usr/local/share/nvm/versions/node/v22.21.1",
+        "npm_config_npm_version": "10.9.4",
+        "CLOUDENV_ENVIRONMENT_ID": "f12cf37f-94d9-477d-9b7f-7bf8e4007f0b",
+        "PROMPT_DIRTRIM": "4",
+        "TERM": "xterm-256color",
+        "npm_config_cache": "/home/node/.npm",
+        "npm_config_node_gyp": "/usr/local/share/nvm/versions/node/v22.21.1/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js",
+        "PATH": "/workspaces/assistente-jur-dico-principalrepli/node_modules/.bin:/workspaces/assistente-jur-dico-principalrepli/node_modules/.bin:/workspaces/node_modules/.bin:/node_modules/.bin:/usr/local/share/nvm/versions/node/v22.21.1/lib/node_modules/npm/node_modules/@npmcli/run-script/lib/node-gyp-bin:/home/node/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand:/home/node/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli:/vscode/bin/linux-x64/994fd12f8d3a5aa16f17d42c041e5809167e845a/bin/remote-cli:/usr/local/share/nvm/versions/node/v22.21.1/bin:/usr/local/sdkman/bin:/usr/local/sdkman/candidates/java/current/bin:/usr/local/sdkman/candidates/gradle/current/bin:/usr/local/sdkman/candidates/maven/current/bin:/usr/local/sdkman/candidates/ant/current/bin:/usr/local/share/nvm/current/bin:/usr/local/share/npm-global/bin:/usr/local/share/nvm/versions/node/v22.21.1/bin:/usr/local/sdkman/bin:/usr/local/sdkman/candidates/java/current/bin:/usr/local/sdkman/candidates/gradle/current/bin:/usr/local/sdkman/candidates/maven/current/bin:/usr/local/sdkman/candidates/ant/current/bin:/usr/local/share/nvm/current/bin:/usr/local/share/npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/node/.local/bin",
+        "SDKMAN_CANDIDATES_DIR": "/usr/local/sdkman/candidates",
+        "NODE": "/usr/local/share/nvm/versions/node/v22.21.1/bin/node",
+        "npm_package_name": "assistente-juridico-p",
+        "SDKMAN_BROKER_API": "https://broker.sdkman.io",
+        "SHELL_LOGGED_IN": "true",
+        "LANG": "en_US.UTF-8",
+        "LS_COLORS": "rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.7z=01;31:*.ace=01;31:*.alz=01;31:*.apk=01;31:*.arc=01;31:*.arj=01;31:*.bz=01;31:*.bz2=01;31:*.cab=01;31:*.cpio=01;31:*.crate=01;31:*.deb=01;31:*.drpm=01;31:*.dwm=01;31:*.dz=01;31:*.ear=01;31:*.egg=01;31:*.esd=01;31:*.gz=01;31:*.jar=01;31:*.lha=01;31:*.lrz=01;31:*.lz=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.lzo=01;31:*.pyz=01;31:*.rar=01;31:*.rpm=01;31:*.rz=01;31:*.sar=01;31:*.swm=01;31:*.t7z=01;31:*.tar=01;31:*.taz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tgz=01;31:*.tlz=01;31:*.txz=01;31:*.tz=01;31:*.tzo=01;31:*.tzst=01;31:*.udeb=01;31:*.war=01;31:*.whl=01;31:*.wim=01;31:*.xz=01;31:*.z=01;31:*.zip=01;31:*.zoo=01;31:*.zst=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.jxl=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:",
+        "VSCODE_GIT_IPC_HANDLE": "/tmp/vscode-git-ef12b7c9ab.sock",
+        "SDKMAN_DIR": "/usr/local/sdkman",
+        "GITHUB_REPOSITORY": "portprojetoautomacao-debug/assistente-jur-dico-principalrepli",
+        "SDKMAN_PLATFORM": "linuxx64",
+        "TERM_PROGRAM": "vscode",
+        "npm_lifecycle_script": "playwright",
+        "SHELL": "/bin/bash",
+        "npm_package_version": "1.0.1",
+        "npm_lifecycle_event": "npx",
+        "VSCODE_GIT_ASKPASS_EXTRA_ARGS": "",
+        "GIT_COMMITTER_EMAIL": "noreply@github.com",
+        "GIT_PAGER": "cat",
+        "npm_config_globalconfig": "/usr/local/share/nvm/versions/node/v22.21.1/etc/npmrc",
+        "npm_config_init_module": "/home/node/.npm-init.js",
+        "JAVA_HOME": "/usr/local/sdkman/candidates/java/current",
+        "PWD": "/workspaces/assistente-jur-dico-principalrepli",
+        "INTERNAL_VSCS_TARGET_URL": "https://eastus2.online.visualstudio.com",
+        "npm_execpath": "/usr/local/share/nvm/versions/node/v22.21.1/lib/node_modules/npm/bin/npm-cli.js",
+        "GITHUB_SERVER_URL": "https://github.com",
+        "NVM_CD_FLAGS": "",
+        "npm_config_global_prefix": "/usr/local/share/nvm/versions/node/v22.21.1",
+        "npm_command": "exec",
+        "CODESPACE_NAME": "special-giggle-jjvw9wjrg79w3j6rg",
+        "CODESPACE_VSCODE_FOLDER": "/workspaces/assistente-jur-dico-principalrepli",
+        "INIT_CWD": "/workspaces/assistente-jur-dico-principalrepli",
+        "EDITOR": "vi",
+        "DISABLE_API_PROXY": "false",
+        "VITE_API_TARGET": "http://127.0.0.1:5252"
+      }
+    }
+  },
+  "suites": [],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-01-04T05:07:31.207Z",
+    "duration": 3053.79,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -51,7 +51,6 @@ export async function sendEmail(options: EmailOptions) {
       return {
         success: false,
         error: response.error.message,
-        messageId: null,
       };
     }
 
@@ -59,7 +58,6 @@ export async function sendEmail(options: EmailOptions) {
     return {
       success: true,
       messageId: response.data?.id,
-      error: null,
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
@@ -67,7 +65,6 @@ export async function sendEmail(options: EmailOptions) {
     return {
       success: false,
       error: errorMessage,
-      messageId: null,
     };
   }
 }

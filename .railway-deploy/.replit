@@ -1,0 +1,90 @@
+modules = ["go-1.21", "web", "nodejs-20", "bash", "postgresql-16"]
+
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["systemdUkify", "lsof", "file", "tree", "glib", "nss", "nspr", "atk", "cups", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXfixes", "xorg.libXrandr", "xorg.libxcb", "xorg.libX11", "xorg.libXext", "pango", "cairo", "expat", "alsa-lib", "at-spi2-atk", "at-spi2-core", "gtk3", "dbus", "mesa", "libxkbcommon", "libdrm"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Frontend Dev Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend Agents Server"
+
+[[workflows.workflow]]
+name = "Frontend Dev Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow]]
+name = "Backend Agents Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && npm run dev"
+waitForPort = 3001
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[ports]]
+localPort = 3001
+externalPort = 80
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 5001
+
+[[ports]]
+localPort = 5002
+
+[[ports]]
+localPort = 5173
+externalPort = 5173
+exposeLocalhost = true
+
+[[ports]]
+localPort = 5174
+externalPort = 3002
+exposeLocalhost = true
+
+[[ports]]
+localPort = 5252
+externalPort = 6800
+
+[[ports]]
+localPort = 9323
+externalPort = 4200
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["npm", "run", "build:deploy"]
+run = ["npm", "run", "start:production"]
+
+[userenv]
+
+[userenv.shared]
+BACKEND_PORT = "3001"

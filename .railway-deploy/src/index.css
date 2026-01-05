@@ -1,0 +1,551 @@
+@import "./styles/_variables.scss";
+@import "./styles/_keyframe-animations.scss";
+
+/* ========================================
+ * 📌 CSS IMPORTS - DEVEM VIR PRIMEIRO
+ * Tailwind CSS + Radix Colors
+ * ======================================== */
+@import "tailwindcss";
+
+/* Radix Colors - apenas as essenciais para o tema jurídico */
+@import "@radix-ui/colors/slate.css" layer(base);
+@import "@radix-ui/colors/slate-dark.css" layer(base);
+@import "@radix-ui/colors/slate-alpha.css" layer(base);
+@import "@radix-ui/colors/slate-dark-alpha.css" layer(base);
+@import "@radix-ui/colors/blue.css" layer(base);
+@import "@radix-ui/colors/blue-dark.css" layer(base);
+@import "@radix-ui/colors/green.css" layer(base);
+@import "@radix-ui/colors/green-dark.css" layer(base);
+@import "@radix-ui/colors/red.css" layer(base);
+@import "@radix-ui/colors/red-dark.css" layer(base);
+@import "@radix-ui/colors/amber.css" layer(base);
+@import "@radix-ui/colors/amber-dark.css" layer(base);
+
+/* ========================================
+ * 📌 @font-face - APÓS IMPORTS
+ * ✅ OTIMIZAÇÃO LCP: Fonte Inter hospedada localmente para evitar FOIT e 404
+ * Isso elimina dependência do Google Fonts CDN e melhora performance
+ * ======================================== */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/InterVariable.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Theme Base Styles (from theme.css) */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer base {
+  #spark-app {
+    /* Apenas cores essenciais usadas no projeto */
+    --slate-contrast: #fff;
+    --blue-contrast: #fff;
+    --green-contrast: #fff;
+    --red-contrast: #fff;
+    --amber-contrast: #000;
+
+    --size-scale: 1;
+    --size-0: 0px;
+    --size-px: 1px;
+    --size-0-5: calc(0.125rem * var(--size-scale));
+    --size-1: calc(0.25rem * var(--size-scale));
+    --size-1-5: calc(0.375rem * var(--size-scale));
+    --size-2: calc(0.5rem * var(--size-scale));
+    --size-2-5: calc(0.625rem * var(--size-scale));
+    --size-3: calc(0.75rem * var(--size-scale));
+    --size-3-5: calc(0.875rem * var(--size-scale));
+    --size-4: calc(1rem * var(--size-scale));
+    --size-5: calc(1.25rem * var(--size-scale));
+    --size-6: calc(1.5rem * var(--size-scale));
+    --size-7: calc(1.75rem * var(--size-scale));
+    --size-8: calc(2rem * var(--size-scale));
+    --size-9: calc(2.25rem * var(--size-scale));
+    --size-10: calc(2.5rem * var(--size-scale));
+    --size-11: calc(2.75rem * var(--size-scale));
+    --size-12: calc(3rem * var(--size-scale));
+    --size-14: calc(3.5rem * var(--size-scale));
+    --size-16: calc(4rem * var(--size-scale));
+    --size-20: calc(5rem * var(--size-scale));
+    --size-24: calc(6rem * var(--size-scale));
+    --size-28: calc(7rem * var(--size-scale));
+    --size-32: calc(8rem * var(--size-scale));
+    --size-36: calc(9rem * var(--size-scale));
+    --size-40: calc(10rem * var(--size-scale));
+    --size-44: calc(11rem * var(--size-scale));
+    --size-48: calc(12rem * var(--size-scale));
+    --size-52: calc(13rem * var(--size-scale));
+    --size-56: calc(14rem * var(--size-scale));
+    --size-60: calc(15rem * var(--size-scale));
+    --size-64: calc(16rem * var(--size-scale));
+    --size-72: calc(18rem * var(--size-scale));
+    --size-80: calc(20rem * var(--size-scale));
+    --size-96: calc(24rem * var(--size-scale));
+
+    /* Border radii */
+    --radius-factor: 1;
+    --radius-sm: calc(2px * var(--radius-factor) * var(--size-scale));
+    --radius-md: calc(6px * var(--radius-factor) * var(--size-scale));
+    --radius-lg: calc(8px * var(--radius-factor) * var(--size-scale));
+    --radius-xl: calc(12px * var(--radius-factor) * var(--size-scale));
+    --radius-2xl: calc(16px * var(--radius-factor) * var(--size-scale));
+    --radius-full: 9999px;
+
+    /* Neutral colors */
+    --color-neutral-1: var(--slate-1);
+    --color-neutral-2: var(--slate-2);
+    --color-neutral-3: var(--slate-3);
+    --color-neutral-4: var(--slate-4);
+    --color-neutral-5: var(--slate-5);
+    --color-neutral-6: var(--slate-6);
+    --color-neutral-7: var(--slate-7);
+    --color-neutral-8: var(--slate-8);
+    --color-neutral-9: var(--slate-9);
+    --color-neutral-10: var(--slate-10);
+    --color-neutral-11: var(--slate-11);
+    --color-neutral-12: var(--slate-12);
+    --color-neutral-a1: var(--slate-a1);
+    --color-neutral-a2: var(--slate-a2);
+    --color-neutral-a3: var(--slate-a3);
+    --color-neutral-a4: var(--slate-a4);
+    --color-neutral-a5: var(--slate-a5);
+    --color-neutral-a6: var(--slate-a6);
+    --color-neutral-a7: var(--slate-a7);
+    --color-neutral-a8: var(--slate-a8);
+    --color-neutral-a9: var(--slate-a9);
+    --color-neutral-a10: var(--slate-a10);
+    --color-neutral-a11: var(--slate-a11);
+    --color-neutral-a12: var(--slate-a12);
+    --color-neutral-contrast: var(--slate-contrast);
+
+    /* Accent colors - Azul Profissional */
+    --color-accent-1: var(--blue-1);
+    --color-accent-2: var(--blue-2);
+    --color-accent-3: var(--blue-3);
+    --color-accent-4: var(--blue-4);
+    --color-accent-5: var(--blue-5);
+    --color-accent-6: var(--blue-6);
+    --color-accent-7: var(--blue-7);
+    --color-accent-8: var(--blue-8);
+    --color-accent-9: var(--blue-9);
+    --color-accent-10: var(--blue-10);
+    --color-accent-11: var(--blue-11);
+    --color-accent-12: var(--blue-12);
+    --color-accent-contrast: var(--blue-contrast);
+
+    /* Secondary accent colors - Azul Claro */
+    --color-accent-secondary-1: var(--blue-1);
+    --color-accent-secondary-2: var(--blue-2);
+    --color-accent-secondary-3: var(--blue-3);
+    --color-accent-secondary-4: var(--blue-4);
+    --color-accent-secondary-5: var(--blue-5);
+    --color-accent-secondary-6: var(--blue-6);
+    --color-accent-secondary-7: var(--blue-7);
+    --color-accent-secondary-8: var(--blue-8);
+    --color-accent-secondary-9: var(--blue-9);
+    --color-accent-secondary-10: var(--blue-10);
+    --color-accent-secondary-11: var(--blue-11);
+    --color-accent-secondary-12: var(--blue-12);
+    --color-accent-secondary-contrast: var(--blue-contrast);
+
+    /* Foreground colors */
+    --color-fg: var(--color-neutral-12);
+    --color-fg-secondary: var(--color-neutral-a11);
+
+    /* Background colors */
+    --color-bg: #ffffff;
+    --color-bg-inset: var(--color-neutral-2);
+    --color-bg-overlay: #ffffff;
+
+    /* Focus ring */
+    --color-focus-ring: var(--color-accent-9);
+
+    /* Fonts */
+    --font-sans-serif:
+      ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol", "Noto Color Emoji";
+    --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-monospace:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+      monospace;
+    --font-family: var(--font-sans-serif);
+  }
+
+  #spark-app.dark-theme {
+    /* Fundo escuro com toque de azul */
+    --color-bg: #0a0e1a;
+    --color-bg-inset: #050810;
+    --color-bg-overlay: #0f1420;
+  }
+}
+
+/* App Specific Styles (from index.css) */
+
+/* Indicadores de foco visíveis (WCAG 2.4.7) */
+*:focus-visible {
+  outline: 3px solid #3b82f6 !important;
+  outline-offset: 2px !important;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip link acessível */
+.skip-link:focus {
+  left: 10px !important;
+  top: 10px !important;
+  z-index: 9999 !important;
+}
+
+/* Touch targets mínimos 44x44px (WCAG 2.5.5) */
+button,
+a[href],
+input,
+select,
+textarea,
+[role="button"],
+[role="link"] {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+}
+
+/* Prevenir zoom em inputs iOS */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="search"],
+textarea {
+  font-size: 16px !important;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+}
+
+/* Fix for Sonner toast compatibility */
+[data-sonner-toast][data-swiped="true"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+:root {
+  /* Tema Azul e Branco Profissional */
+  --background: oklch(0.99 0.002 240);
+  --foreground: oklch(0.2 0.015 240);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.015 240);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.015 240);
+
+  /* Azul primário vibrante */
+  --primary: oklch(0.55 0.2 250);
+  --primary-foreground: oklch(0.99 0 0);
+
+  /* Azul secundário claro */
+  --secondary: oklch(0.94 0.015 240);
+  --secondary-foreground: oklch(0.25 0.02 240);
+
+  --muted: oklch(0.96 0.008 240);
+  --muted-foreground: oklch(0.5 0.01 240);
+
+  /* Azul accent */
+  --accent: oklch(0.92 0.02 245);
+  --accent-foreground: oklch(0.25 0.02 240);
+
+  /* Darker red for better contrast (AA compliance) */
+  --destructive: oklch(0.5 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.9 0.008 240);
+  --input: oklch(0.9 0.008 240);
+  --ring: oklch(0.55 0.2 250);
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  /* Tema Dark com Azul Escuro */
+  --background: oklch(0.12 0.015 240);
+  --foreground: oklch(0.95 0.005 240);
+
+  --card: oklch(0.15 0.015 240);
+  --card-foreground: oklch(0.95 0.005 240);
+
+  --popover: oklch(0.15 0.015 240);
+  --popover-foreground: oklch(0.95 0.005 240);
+
+  /* Azul brilhante para dark mode */
+  --primary: oklch(0.6 0.22 250);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --secondary: oklch(0.2 0.02 240);
+  --secondary-foreground: oklch(0.9 0.01 240);
+
+  --muted: oklch(0.18 0.015 240);
+  --muted-foreground: oklch(0.65 0.01 240);
+
+  --accent: oklch(0.22 0.025 245);
+  --accent-foreground: oklch(0.9 0.01 240);
+
+  --destructive: oklch(0.6 0.24 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.25 0.02 240);
+  --input: oklch(0.25 0.02 240);
+  --ring: oklch(0.6 0.22 250);
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 1.5);
+  --radius-xl: calc(var(--radius) * 2);
+  --radius-2xl: calc(var(--radius) * 3);
+  --radius-full: 9999px;
+}
+
+/* ========================================
+   ACESSIBILIDADE - Suporte ao Modo de Alto Contraste
+   ======================================== */
+
+/* Suporte ao modo de alto contraste (forced-colors) */
+@media (forced-colors: active) {
+  /* Garantir que elementos interativos mantenham suas cores no modo de alto contraste */
+  button,
+  a[href],
+  input,
+  select,
+  textarea,
+  [role="button"],
+  [role="link"],
+  [role="tab"],
+  [role="menuitem"],
+  [tabindex]:not([tabindex="-1"]) {
+    forced-color-adjust: none;
+  }
+
+  /* Links devem manter indicação visual mesmo no modo de alto contraste */
+  a[href]:not([class]) {
+    text-decoration: underline;
+    forced-color-adjust: none;
+  }
+
+  /* Elementos focados devem ter outline visível */
+  *:focus-visible {
+    outline: 2px solid ButtonText !important;
+    outline-offset: 2px !important;
+    forced-color-adjust: none;
+  }
+
+  /* Cards e containers devem ter bordas visíveis */
+  [class*="card"],
+  [class*="container"],
+  [role="region"],
+  [role="main"],
+  [role="complementary"] {
+    border: 1px solid WindowText;
+    forced-color-adjust: none;
+  }
+
+  /* Ícones devem manter contraste adequado */
+  svg,
+  [class*="icon"],
+  [class*="phosphor"] {
+    forced-color-adjust: none;
+  }
+
+  /* Elementos de navegação */
+  nav a,
+  [role="navigation"] a {
+    forced-color-adjust: none;
+  }
+
+  /* Elementos de formulário */
+  input,
+  select,
+  textarea {
+    border: 1px solid ButtonText;
+    forced-color-adjust: none;
+  }
+
+  /* Botões de ação */
+  button:not([disabled]),
+  [role="button"]:not([aria-disabled="true"]) {
+    forced-color-adjust: none;
+  }
+}
+
+/* ========================================
+   TIPTAP EDITOR - Estilos Profissionais
+   ======================================== */
+
+/* Container do editor - garante visibilidade */
+.tiptap-editor-container {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+}
+
+/* Área de edição do Tiptap */
+.ProseMirror {
+  outline: none !important;
+  min-height: 200px;
+  padding: 1rem;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: hsl(var(--foreground));
+  background: transparent;
+  caret-color: hsl(var(--primary));
+}
+
+/* Garante que o editor tenha cor de texto visível */
+.ProseMirror * {
+  color: inherit;
+}
+
+/* Foco visual na área de edição */
+.ProseMirror:focus {
+  outline: none;
+}
+
+/* Placeholder do editor */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
+  opacity: 0.6;
+}
+
+/* Estilos tipográficos para o conteúdo do editor */
+.prose {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-bullets: var(--muted-foreground);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--primary);
+  --tw-prose-captions: var(--muted-foreground);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-pre-code: var(--foreground);
+  --tw-prose-pre-bg: var(--muted);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+}
+
+/* Títulos no editor */
+.ProseMirror h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+.ProseMirror h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+.ProseMirror p {
+  margin-bottom: 0.75rem;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.ProseMirror blockquote {
+  border-left: 3px solid var(--primary);
+  padding-left: 1rem;
+  margin-left: 0;
+  font-style: italic;
+  color: var(--muted-foreground);
+}
+
+.ProseMirror code {
+  background: var(--muted);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.ProseMirror pre {
+  background: var(--muted);
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+}
+
+.ProseMirror a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.375rem;
+}

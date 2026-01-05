@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "Assistente Jurídico"
+    },
+    {
+      "path": "chrome-extension-pje",
+      "name": "Chrome Extension PJe"
+    }
+  ],
+  "settings": {
+    "sonarlint.disableTelemetry": true,
+    "sonarlint.automaticAnalysis": true,
+    "vitest.workspaceConfig": {
+      "Assistente Jurídico": {
+        "configPath": "vitest.config.node.ts"
+      },
+      "Chrome Extension PJe": {
+        "configPath": "vitest.config.ts"
+      }
+    }
+  }
+}

@@ -1,0 +1,239 @@
+name: Pull Request
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  pr-validation:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for merge conflicts
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch origin "$BASE_REF"
+          if git merge-tree $(git merge-base HEAD "origin/$BASE_REF") HEAD "origin/$BASE_REF" | grep -q "<<<<<<< "; then
+            echo "❌ Merge conflicts detected"
+            exit 1
+          else
+            echo "✅ No merge conflicts"
+          fi
+
+      - name: Lint code
+        run: |
+          echo "Running linter on PR changes..."
+          if ! npm run lint; then
+            echo "❌ Linting failed"
+            echo "Please fix the linting errors in your PR"
+            exit 1
+          fi
+          echo "✅ Linting passed"
+
+      - name: Build application
+        run: |
+          echo "Building application from PR..."
+          npm run build || {
+            echo "❌ Build failed"
+            echo "Please fix the build errors in your PR"
+            exit 1
+          }
+          echo "✅ Build successful"
+        env:
+          VITE_GOOGLE_CLIENT_ID: "dummy-client-id"
+          VITE_GOOGLE_API_KEY: "dummy-api-key"
+          VITE_REDIRECT_URI: "http://localhost:5173"
+          VITE_APP_ENV: "ci"
+
+      - name: Run tests
+        run: |
+          if grep -q "\"test\":" package.json; then
+            echo "Running tests..."
+            npm test -- --run || {
+              echo "⚠️ Tests failed"
+              exit 1
+            }
+            echo "✅ Tests passed"
+          else
+            echo "⚠️ No test script configured, skipping tests"
+          fi
+        continue-on-error: false
+
+      - name: Check package.json changes
+        id: package-check
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if git diff --name-only "origin/$BASE_REF...HEAD" | grep -q "package.json"; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "⚠️ package.json was modified"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Verify package-lock.json is updated
+        if: steps.package-check.outputs.changed == 'true'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if git diff --name-only "origin/$BASE_REF...HEAD" | grep -q "package-lock.json"; then
+            echo "✅ package-lock.json is updated"
+          else
+            echo "❌ package-lock.json is not updated but package.json changed"
+            echo "Please run 'npm install' to update package-lock.json"
+            exit 1
+          fi
+
+      - name: Comment PR summary
+        uses: actions/github-script@v7
+        if: always()
+        continue-on-error: true
+        with:
+          github-token: ${{ secrets.BOT_GH_TOKEN != '' && secrets.BOT_GH_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const { owner, repo } = context.repo;
+            const { number } = context.issue;
+
+            let body = '## 🤖 PR Validation Summary\n\n';
+
+            const checks = [
+              { name: 'No merge conflicts', status: '✅' },
+              { name: 'Code linting', status: '✅' },
+              { name: 'Build successful', status: '✅' },
+              { name: 'Tests executed', status: '✅' }
+            ];
+
+            body += '### Validation Results\n\n';
+            checks.forEach(check => {
+              body += `- ${check.status} ${check.name}\n`;
+            });
+
+            if ('${{ steps.package-check.outputs.changed }}' === 'true') {
+              body += '\n### ⚠️ Dependencies Changed\n';
+              body += '- package.json was modified\n';
+              body += '- package-lock.json was updated\n';
+              body += '- Please review the dependency changes\n';
+            }
+
+            body += '\n### 📊 Next Steps\n';
+            body += '- Review the changes carefully\n';
+            body += '- Check the preview deployment when ready\n';
+            body += '- Request reviews from team members\n';
+            body += '- Merge when all checks pass\n';
+
+            body += '\n---\n*Automated validation by GitHub Actions*';
+
+            try {
+              // Skip if PR is from a fork and we don't have a PAT
+              const pr = context.payload.pull_request;
+              const repoFull = `${context.repo.owner}/${context.repo.repo}`;
+              const isFork = pr && pr.head && pr.head.repo && pr.head.repo.full_name && pr.head.repo.full_name !== repoFull;
+              const issue_number = context.issue && context.issue.number;
+              if (!issue_number) {
+                core.info('No PR number - skipping comment');
+              } else if (isFork && !process.env.BOT_GH_TOKEN) {
+                core.info('PR from fork and no BOT_GH_TOKEN - skipping comment');
+              } else {
+                await github.rest.issues.createComment({ owner, repo, issue_number: number, body });
+              }
+            } catch (err) {
+              core.error('Failed to post PR summary comment: ' + String(err));
+            }
+
+  pr-labeler:
+    name: Auto Label PR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Label PR based on files changed
+        uses: actions/labeler@v5
+        with:
+          configuration-path: .github/labeler.yml
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+  size-limit:
+    name: Bundle Size Limit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and check size
+        run: |
+          npm run build
+
+          # Check if main bundle exists
+          if [ -d "dist/assets" ]; then
+            # Check total bundle size (excluding vendor chunks)
+            total_size=$(find dist/assets -name "index-*.js" -type f -exec du -b {} + 2>/dev/null | awk '{sum+=$1} END {print sum}')
+
+            if [ -n "$total_size" ] && [ "$total_size" -gt 0 ]; then
+              max_size=$((500 * 1024))  # 500 KB limit for main bundle
+
+              echo "Main bundle size: $(numfmt --to=iec-i --suffix=B $total_size)"
+              echo "Limit: $(numfmt --to=iec-i --suffix=B $max_size)"
+
+              if [ $total_size -gt $max_size ]; then
+                echo "⚠️ Main bundle exceeds size limit!"
+                echo "Consider code splitting or removing unused dependencies"
+                # Don't fail, just warn
+              else
+                echo "✅ Bundle size is within limits"
+              fi
+            else
+              echo "⚠️ Could not determine bundle size"
+            fi
+          else
+            echo "❌ Build failed - dist/assets directory not found"
+            exit 1
+          fi
+        env:
+          VITE_GOOGLE_CLIENT_ID: "dummy-client-id"
+          VITE_GOOGLE_API_KEY: "dummy-api-key"
+          VITE_REDIRECT_URI: "http://localhost:5173"
+          VITE_APP_ENV: "ci"

@@ -1,0 +1,195 @@
+# .sereneignore - Configuração de exclusões para Serena MCP
+# Similar ao .gitignore, mas específico para análise semântica
+
+# ========================================
+# DEPENDÊNCIAS (Alta prioridade - economiza muito tempo)
+# ========================================
+node_modules/
+.pnpm-store/
+.yarn/
+.npm/
+
+# ========================================
+# BUILD OUTPUTS
+# ========================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.turbo/
+
+# ========================================
+# EXTENSÃO CHROME PJe (Build)
+# ========================================
+chrome-extension-pje/dist/
+chrome-extension-pje/node_modules/
+
+# ========================================
+# CACHE E TEMPORÁRIOS
+# ========================================
+.vscode/.react/
+.vscode/extensions/
+*.cache
+tmp/
+temp/
+.tmp/
+
+# ========================================
+# GIT
+# ========================================
+.git/
+.github/workflows/  # Opcional - workflows podem ser úteis
+.gitignore
+
+# ========================================
+# LOGS
+# ========================================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ========================================
+# TESTES (Opcional - descomente para focar em código de produção)
+# ========================================
+# **/*.test.ts
+# **/*.test.tsx
+# **/*.spec.ts
+# **/*.spec.tsx
+# **/__tests__/
+# **/__mocks__/
+# vitest.config.ts
+# playwright.config.ts
+
+# ========================================
+# DOCUMENTAÇÃO (Opcional - se já conhece o projeto)
+# ========================================
+# docs/
+# *.md
+# README.md
+
+# ========================================
+# ASSETS ESTÁTICOS (Geralmente não são código)
+# ========================================
+public/images/
+public/fonts/
+assets/images/
+assets/videos/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.webp
+
+# ========================================
+# CONFIGURAÇÕES DE AMBIENTE (Segurança)
+# ========================================
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# ========================================
+# BACKUPS E DUMPS (Segurança + Performance)
+# ========================================
+backups/
+*.backup
+*.dump
+*.sql
+*.db
+
+# ========================================
+# EDITOR E IDE (Não são código do projeto)
+# ========================================
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ========================================
+# ANÁLISE DE CÓDIGO (Relatórios gerados)
+# ========================================
+coverage/
+.nyc_output/
+.coverage/
+htmlcov/
+sonar-project.properties
+
+# ========================================
+# PACOTES E RELEASES
+# ========================================
+*.tgz
+*.tar.gz
+*.zip
+*.rar
+
+# ========================================
+# SISTEMA OPERACIONAL
+# ========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================================
+# LOCK FILES (Geralmente não precisam de análise semântica)
+# ========================================
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ========================================
+# ESPECÍFICO DO PROJETO JURÍDICO
+# ========================================
+
+# Scripts de migração já executados (opcional)
+# scripts/migrations/
+
+# Arquivos de exemplo (opcional - se não precisar analisar)
+# *.example.ts
+# *.example.tsx
+
+# Stubs (se quiser focar em implementações reais)
+# **/stub.ts
+# **/*-stub.ts
+
+# ========================================
+# OTIMIZAÇÕES ADICIONAIS
+# ========================================
+
+# Source maps (não são código TypeScript)
+*.map
+
+# Type definitions de bibliotecas externas
+*.d.ts.map
+node_modules.d.ts
+
+# Build intermediários
+.tsbuildinfo
+*.tsbuildinfo
+
+# ========================================
+# AJUSTE FINO (Descomente se necessário)
+# ========================================
+
+# Se quiser focar APENAS em src/ e api/
+# chrome-extension-pje/
+# scripts/
+# docs/
+
+# Se quiser ignorar testes completamente
+# *.test.*
+# *.spec.*
+
+# Se quiser ignorar configurações
+# *.config.ts
+# *.config.js

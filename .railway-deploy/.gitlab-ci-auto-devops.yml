@@ -1,0 +1,273 @@
+# GitLab Auto DevOps - Versão Compatível
+# Integrável com .gitlab-ci.yml existente
+# Ativa recursos avançados de deployment quando necessário
+
+# Este arquivo pode ser incluído opcionalmente no .gitlab-ci.yml
+# para adicionar recursos de Auto DevOps sem conflitos
+
+# ═══════════════════════════════════════════════════════
+# CONFIGURAÇÃO AUTO DEVOPS COMPATÍVEL
+# ═══════════════════════════════════════════════════════
+
+# Só incluir Auto DevOps se explicitamente habilitado
+include:
+  - template: Auto-DevOps.gitlab-ci.yml
+  - local: '.gitlab-ci.yml'  # Manter configuração base
+
+variables:
+  # ═══════════════════════════════════════════════════════
+  # CONFIGURAÇÃO AUTO DEVOPS (SOMENTE QUANDO HABILITADO)
+  # ═══════════════════════════════════════════════════════
+
+  # Plataforma de deploy (obrigatório para Auto DevOps)
+  AUTO_DEVOPS_PLATFORM_TARGET: "KUBERNETES"
+
+  # Domínio base (configurar no GitLab > Settings > CI/CD > Variables)
+  # Para Minikube: Use o IP do minikube com nip.io
+  # Exemplo: 192.168.49.2.nip.io
+  # Para GKE: Use seu domínio real
+  # Exemplo: assistente-juridico.com
+  KUBE_INGRESS_BASE_DOMAIN: "$KUBE_INGRESS_BASE_DOMAIN"
+
+  # ═══════════════════════════════════════════════════════
+  # ESTRATÉGIA DE DEPLOYMENT
+  # ═══════════════════════════════════════════════════════
+
+  # Habilitar staging (ambiente de teste antes da produção)
+  STAGING_ENABLED: "1"
+
+  # Modo de rollout incremental
+  # Opções: "manual" ou "timed"
+  INCREMENTAL_ROLLOUT_MODE: "manual"
+
+  # ═══════════════════════════════════════════════════════
+  # SERVIÇOS (DESABILITAR OS NÃO USADOS)
+  # ═══════════════════════════════════════════════════════
+
+  # PostgreSQL (desabilitado - usando Upstash Redis)
+  POSTGRES_ENABLED: "false"
+
+  # Redis (desabilitado - usando Upstash Redis)
+  REDIS_ENABLED: "false"
+
+  # ═══════════════════════════════════════════════════════
+  # CONTAINER REGISTRY
+  # ═══════════════════════════════════════════════════════
+
+  # GitLab Container Registry (automático)
+  CI_REGISTRY: "registry.gitlab.com"
+  CI_REGISTRY_IMAGE: "registry.gitlab.com/$CI_PROJECT_PATH"
+
+  # ═══════════════════════════════════════════════════════
+  # BUILD (Compatível com configuração existente)
+  # ═══════════════════════════════════════════════════════
+
+  # Node.js version (compatível com .gitlab-ci.yml)
+  NODE_ENV: "production"
+
+  # Docker buildkit (build mais rápido)
+  DOCKER_BUILDKIT: "1"
+
+  # ═══════════════════════════════════════════════════════
+  # SECURITY & TESTING (Complementar ao existente)
+  # ═══════════════════════════════════════════════════════
+
+  # SAST (já habilitado no .gitlab-ci.yml)
+  SAST_DISABLED: "false"
+
+  # Dependency Scanning (complementar ao npm audit)
+  DEPENDENCY_SCANNING_DISABLED: "false"
+
+  # Container Scanning
+  CONTAINER_SCANNING_DISABLED: "false"
+
+  # DAST (Dynamic Application Security Testing)
+  DAST_DISABLED: "true"  # Desabilitado por padrão (requer app rodando)
+
+  # License Scanning
+  LICENSE_MANAGEMENT_DISABLED: "false"
+
+  # ═══════════════════════════════════════════════════════
+  # PERFORMANCE & MONITORING
+  # ═══════════════════════════════════════════════════════
+
+  # Performance testing
+  PERFORMANCE_DISABLED: "true"
+
+  # Browser Performance
+  BROWSER_PERFORMANCE_DISABLED: "true"
+
+  # ═══════════════════════════════════════════════════════
+  # REVIEW APPS
+  # ═══════════════════════════════════════════════════════
+
+  # Habilitar Review Apps (ambientes temporários por MR)
+  REVIEW_DISABLED: "false"
+
+  # Tempo de vida das Review Apps (7 dias)
+  REVIEW_APP_TTL: "168h"
+
+# ═══════════════════════════════════════════════════════
+# STAGES ADICIONAIS (Complementam os stages existentes)
+# ═══════════════════════════════════════════════════════
+
+stages:
+  - security      # Do .gitlab-ci.yml
+  - test         # Do .gitlab-ci.yml
+  - build        # Do .gitlab-ci.yml
+  - deploy       # Novo - Auto DevOps
+  - review       # Novo - Review Apps
+  - dast         # Novo - Dynamic Application Security Testing
+  - staging      # Novo - Ambiente de staging
+  - canary       # Novo - Canary deployments
+  - production   # Novo - Produção
+  - incremental rollout 10%   # Novo - Rollout incremental
+  - incremental rollout 25%   # Novo - Rollout incremental
+  - incremental rollout 50%   # Novo - Rollout incremental
+  - incremental rollout 100%  # Novo - Rollout incremental
+  - performance  # Novo - Performance testing
+  - cleanup      # Novo - Limpeza
+
+# ═══════════════════════════════════════════════════════
+# OVERRIDE DE JOBS PARA COMPATIBILIDADE
+# ═══════════════════════════════════════════════════════
+
+# Sobrescrever job de build para usar nossa configuração
+build:
+  extends: .auto-devops-build
+  image: node:22
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+  script:
+    - echo "🏗️ Build customizado para React/TypeScript..."
+    - npm run build
+    - |
+      # Preparar para containerização
+      if [ -d "dist" ]; then
+        echo "✅ Build concluído - pronto para deploy"
+      else
+        echo "❌ Build falhou - diretório dist não encontrado"
+        exit 1
+      fi
+
+# Sobrescrever job de test para usar nossa configuração
+test:
+  extends: .auto-devops-test
+  image: node:22
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+  script:
+    - echo "🧪 Executando testes customizados..."
+    - npm run test:run
+    - npm run test:api
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+      junit: coverage/junit-report.xml
+    paths:
+      - coverage/
+    expire_in: 1 week
+
+# ═══════════════════════════════════════════════════════
+# JOBS ADICIONAIS PARA DEPLOYMENT AVANÇADO
+# ═══════════════════════════════════════════════════════
+
+# Deploy para staging (antes da produção)
+staging:
+  extends: .auto-devops-deploy-staging
+  environment:
+    name: staging
+    url: https://staging-assistente-juridico-p.vercel.app
+  before_script:
+    - echo "🎭 Preparando deploy para staging..."
+  script:
+    - echo "🚀 Deploying to staging environment..."
+    - |
+      # Deploy para Vercel staging
+      npx vercel --yes --prod=false
+      echo "✅ Staging deploy concluído"
+  dependencies:
+    - build
+  only:
+    - develop
+    - main
+
+# Deploy para produção com aprovação manual
+production:
+  extends: .auto-devops-deploy-production
+  environment:
+    name: production
+    url: https://assistente-juridico-p.vercel.app
+  before_script:
+    - echo "🎯 Preparando deploy para produção..."
+  script:
+    - echo "🚀 Deploying to production environment..."
+    - |
+      # Deploy para Vercel produção
+      npx vercel --prod --yes
+      echo "✅ Production deploy concluído!"
+  dependencies:
+    - build
+    - staging
+  only:
+    - main
+  when: manual
+
+# ═══════════════════════════════════════════════════════
+# KUBERNETES CUSTOMIZATION (Se usar K8s)
+# ═══════════════════════════════════════════════════════
+
+# Se você precisa customizar os manifestos K8s gerados automaticamente,
+# crie um arquivo: .gitlab/auto-deploy-values.yaml
+#
+# Exemplo de customizações:
+# - Limites de recursos para Node.js
+# - Variáveis de ambiente
+# - Health checks específicos
+# - Ingress annotations
+
+# ═══════════════════════════════════════════════════════
+# MONITORAMENTO E NOTIFICAÇÕES
+# ═══════════════════════════════════════════════════════
+
+# Notificar sucesso/falha do pipeline
+.pipeline-success:
+  script:
+    - echo "🎉 Pipeline Auto DevOps succeeded!"
+    - echo "📊 Aplicação disponível em: https://assistente-juridico-p.vercel.app"
+  when: on_success
+
+.pipeline-failure:
+  script:
+    - echo "❌ Pipeline Auto DevOps failed!"
+    - echo "🔍 Verifique os logs para detalhes"
+  when: on_failure
+
+# Aplicar notificações aos jobs relevantes
+build:
+  after_script:
+    - !reference [.pipeline-success, script]
+    - !reference [.pipeline-failure, script]
+
+production:
+  after_script:
+    - !reference [.pipeline-success, script]
+    - !reference [.pipeline-failure, script]
+
+# ═══════════════════════════════════════════════════════
+# INSTRUÇÕES DE USO
+# ═══════════════════════════════════════════════════════
+
+# Para usar este arquivo:
+# 1. Renomeie para .gitlab-ci-auto-devops.yml
+# 2. No .gitlab-ci.yml, adicione:
+#    include:
+#      - local: '.gitlab-ci-auto-devops.yml'
+# 3. Configure as variáveis necessárias no GitLab CI/CD Settings
+# 4. Teste o pipeline em uma branch de desenvolvimento primeiro
+
+# Este arquivo é projetado para ser usado OPCIONALMENTE,
+# mantendo a configuração básica funcionando perfeitamente.

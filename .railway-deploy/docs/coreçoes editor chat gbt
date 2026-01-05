@@ -1,0 +1,536 @@
+Sim — do jeito que está, os agentes conseguem redigir no editor, porque você já tem dois caminhos de escrita funcionando:
+
+Streaming (onAIStream) → vai inserindo conteúdo no modelo do CKEditor (editor.model.insertContent(...)).
+
+Geração “de uma vez” (onAIGenerate) → você faz editor.setData(...) ou insertContent(...).
+
+O que pode “quebrar” não é o CKEditor em si — é (a) o tipo de chunk que você está inserindo e (b) menus flutuantes (slash menu) sendo cortados por overflow: hidden no modal.
+
+Abaixo vai tudo limpo e pronto pra colar: dialog.tsx, professional-editor.scss e um patch pequeno para o Slash Menu não ser cortado.
+
+1) dialog.tsx (limpo, sem duplicação, pronto)
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { X } from "lucide-react";
+import { ComponentProps } from "react";
+import { cn } from "@/lib/utils";
+
+function Dialog(props: Readonly<ComponentProps<typeof DialogPrimitive.Root>>) {
+  return <DialogPrimitive.Root data-slot="dialog" {...props} />;
+}
+
+function DialogTrigger(props: ComponentProps<typeof DialogPrimitive.Trigger>) {
+  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
+}
+
+function DialogPortal(props: Readonly<ComponentProps<typeof DialogPrimitive.Portal>>) {
+  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
+}
+
+function DialogClose(props: ComponentProps<typeof DialogPrimitive.Close>) {
+  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
+}
+
+function DialogOverlay({ className, ...props }: ComponentProps<typeof DialogPrimitive.Overlay>) {
+  return (
+    <DialogPrimitive.Overlay
+      data-slot="dialog-overlay"
+      className={cn(
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+/**
+ * Nota: overflow-hidden é OK.
+ * O CKEditor resolve dropdowns/balloons via body + z-index (no SCSS).
+ */
+function DialogContent({ className, children, ...props }: ComponentProps<typeof DialogPrimitive.Content>) {
+  return (
+    <DialogPortal data-slot="dialog-portal">
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        data-slot="dialog-content"
+        aria-describedby={undefined}
+        className={cn(
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg overflow-hidden",
+          className
+        )}
+        {...props}
+      >
+        {children}
+        <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+          <X />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  );
+}
+
+function DialogHeader({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="dialog-header"
+      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
+      {...props}
+    />
+  );
+}
+
+function DialogFooter({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="dialog-footer"
+      className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
+      {...props}
+    />
+  );
+}
+
+function DialogTitle({ className, ...props }: ComponentProps<typeof DialogPrimitive.Title>) {
+  return (
+    <DialogPrimitive.Title
+      data-slot="dialog-title"
+      className={cn("text-lg leading-none font-semibold", className)}
+      {...props}
+    />
+  );
+}
+
+function DialogDescription({ className, ...props }: ComponentProps<typeof DialogPrimitive.Description>) {
+  return (
+    <DialogPrimitive.Description
+      data-slot="dialog-description"
+      className={cn("text-muted-foreground text-sm", className)}
+      {...props}
+    />
+  );
+}
+
+export {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
+};
+
+2) professional-editor.scss (limpo, sem “lixo TSX”, com fix de modal + z-index)
+/**
+ * Professional Editor - Estilo adaptativo para modal
+ * Corrige problemas de toolbar flutuante do CKEditor 5
+ */
+
+/* Container Principal */
+.professional-editor-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 400px;
+  background: hsl(var(--background));
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+  position: relative;
+  overflow: hidden; /* ok: CKEditor resolve dropdown/balloon via body */
+}
+
+/* AI Toolbar */
+.ai-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.3);
+  min-height: 48px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+/* Editor Container */
+.professional-editor-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ============================================
+   CKEditor 5 Overrides - FORÇANDO LAYOUT
+   ============================================ */
+
+.professional-editor-page .ck-reset_all,
+.professional-editor-page .ck.ck-reset {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.professional-editor-page .ck.ck-editor {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 300px !important;
+  background: white !important;
+  border: none !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.professional-editor-page .ck.ck-editor__top {
+  position: relative !important;
+  z-index: 5 !important;
+  flex-shrink: 0 !important;
+  background: hsl(var(--muted) / 0.3) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  width: 100% !important;
+}
+
+/* Desabilitar sticky */
+.professional-editor-page .ck.ck-sticky-panel {
+  position: relative !important;
+  width: 100% !important;
+}
+
+.professional-editor-page .ck.ck-sticky-panel__placeholder {
+  display: none !important;
+}
+
+.professional-editor-page .ck.ck-sticky-panel__content,
+.professional-editor-page .ck.ck-sticky-panel__content_sticky {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Toolbar */
+.professional-editor-page .ck.ck-toolbar {
+  background: hsl(var(--muted) / 0.5) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.375rem 0.5rem !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+}
+
+.professional-editor-page .ck.ck-toolbar__items {
+  gap: 0.125rem !important;
+  flex-wrap: wrap !important;
+}
+
+/* Botões */
+.professional-editor-page .ck.ck-button,
+.professional-editor-page .ck.ck-button.ck-off {
+  border-radius: var(--radius) !important;
+  padding: 0.25rem !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.professional-editor-page .ck.ck-button:hover {
+  background: hsl(var(--muted)) !important;
+}
+
+.professional-editor-page .ck.ck-button.ck-on {
+  background: hsl(var(--primary) / 0.15) !important;
+  color: hsl(var(--primary)) !important;
+}
+
+.professional-editor-page .ck.ck-toolbar__separator {
+  background: hsl(var(--border)) !important;
+  margin: 0 0.25rem !important;
+}
+
+/* Dropdown panel */
+.professional-editor-page .ck.ck-dropdown__panel {
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+  z-index: 99999 !important;
+}
+
+/* ============================================
+   Color Picker / Panels (renderizados no body)
+   ============================================ */
+.ck.ck-color-ui-dropdown,
+.ck.ck-color-picker,
+.ck.ck-color-grid,
+.ck.ck-color-table-dropdown,
+.ck.ck-dropdown__panel.ck-color-ui-dropdown__panel,
+.ck.ck-dropdown__panel[class*="color"] {
+  z-index: 100000 !important;
+  background: white !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.15) !important;
+}
+
+.ck.ck-color-grid {
+  padding: 0.5rem !important;
+}
+
+.ck.ck-color-grid__tile {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 4px !important;
+  border: 1px solid transparent !important;
+}
+
+.ck.ck-color-grid__tile:hover {
+  border-color: hsl(var(--primary)) !important;
+  transform: scale(1.1);
+}
+
+.ck.ck-input-color input {
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+}
+
+/* Área principal */
+.professional-editor-page .ck.ck-editor__main {
+  flex: 1 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 200px !important;
+}
+
+/* Área editável */
+.professional-editor-page .ck.ck-editor__editable,
+.professional-editor-page .ck-editor__editable.ck-focused,
+.professional-editor-page .ck.ck-editor__editable_inline {
+  flex: 1 !important;
+  padding: 1rem 1.5rem !important;
+  min-height: 200px !important;
+  overflow-y: auto !important;
+  font-family: "Times New Roman", Times, Georgia, serif !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  color: #1a1a1a !important;
+  background: white !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.professional-editor-page .ck.ck-editor__editable:focus,
+.professional-editor-page .ck.ck-editor__editable.ck-focused {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Placeholder */
+.professional-editor-page .ck.ck-placeholder::before,
+.professional-editor-page .ck-placeholder::before {
+  color: hsl(var(--muted-foreground)) !important;
+  font-style: italic !important;
+}
+
+/* Tipografia */
+.professional-editor-page .ck-content h1 {
+  font-size: 1.75rem;
+  font-weight: bold;
+  margin: 1rem 0 0.75rem 0;
+  line-height: 1.2;
+}
+
+.professional-editor-page .ck-content h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0.875rem 0 0.5rem 0;
+  line-height: 1.3;
+}
+
+.professional-editor-page .ck-content h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0.75rem 0 0.5rem 0;
+  line-height: 1.3;
+}
+
+.professional-editor-page .ck-content h4 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0.625rem 0 0.375rem 0;
+  line-height: 1.3;
+}
+
+.professional-editor-page .ck-content p {
+  margin: 0 0 0.75rem 0;
+  text-align: justify;
+}
+
+.professional-editor-page .ck-content ul,
+.professional-editor-page .ck-content ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.professional-editor-page .ck-content li {
+  margin: 0.25rem 0;
+}
+
+.professional-editor-page .ck-content blockquote {
+  border-left: 3px solid hsl(var(--primary));
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Tabelas */
+.professional-editor-page .ck-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.professional-editor-page .ck-content th,
+.professional-editor-page .ck-content td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.professional-editor-page .ck-content th {
+  background: hsl(var(--muted) / 0.5);
+  font-weight: 600;
+}
+
+/* Footer */
+.professional-editor-footer {
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.3);
+  flex-shrink: 0;
+}
+
+/* Balloon toolbar (seleção) */
+.ck.ck-balloon-panel {
+  z-index: 99999 !important;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .professional-editor-page .ck-editor__editable {
+    padding: 0.75rem 1rem !important;
+    font-size: 13px !important;
+  }
+
+  .ai-toolbar {
+    padding: 0.375rem 0.5rem;
+  }
+
+  .professional-editor-page .ck.ck-toolbar {
+    padding: 0.25rem !important;
+  }
+}
+
+3) FIX CRÍTICO: seu Slash Menu está sendo cortado (overflow). Faça ele fixed + portal
+
+No seu ProfessionalEditor.tsx, você renderiza assim:
+
+<div className="absolute ... " style={{ top, left }}>
+
+
+Isso vai ser cortado por overflow: hidden do wrapper/modal.
+
+Substitua por createPortal + position: fixed:
+
+import { createPortal } from "react-dom";
+
+
+E troque o bloco do menu por:
+
+{showSlashMenu && filteredSlashCommands.length > 0 &&
+  createPortal(
+    <div
+      className="fixed z-[100000] bg-background border rounded-lg shadow-lg p-2 w-64"
+      style={{ top: slashMenuPosition.top, left: slashMenuPosition.left }}
+    >
+      <ScrollArea className="max-h-48">
+        {filteredSlashCommands.map((cmd) => (
+          <Button
+            key={cmd.command}
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start text-left"
+            onClick={() => handleSlashCommand(cmd.command)}
+          >
+            <span className="mr-2">{cmd.icon}</span>
+            <span className="font-medium">{cmd.label}</span>
+          </Button>
+        ))}
+      </ScrollArea>
+    </div>,
+    document.body
+  )
+}
+
+
+✅ Resultado: não corta no modal, e o z-index fica “acima de tudo”.
+
+4) Um detalhe MUITO importante: streaming inserindo HTML “quebrado”
+
+Hoje você faz:
+
+const viewFragment = editor.data.processor.toView(chunk);
+const modelFragment = editor.data.toModel(viewFragment);
+editor.model.insertContent(modelFragment);
+
+
+Isso funciona se o chunk vier como HTML válido. Mas streaming normalmente vem em texto puro, e pode vir “meio tag”, “meio parágrafo”, etc.
+
+O jeito mais robusto para redigir “ao vivo” é inserir texto puro no model:
+
+editor.model.change((writer) => {
+  const insertPos = editor.model.document.selection.getLastPosition();
+  if (!insertPos) return;
+  writer.insertText(chunk, insertPos);
+});
+
+
+Se você quer manter formatação, então faça streaming como texto puro e no final (onComplete) você pode “reprocessar” se precisar. Na prática jurídica, texto puro em streaming costuma ser o mais estável.
+
+5) package.json do backend — você disse que NÃO usa Anthropic
+
+Então tira sem dó (menos dependência = menos superfície de bug).
+
+Remova:
+
+@anthropic-ai/sdk
+
+E se você não estiver usando (mesmo) ainda, também pode remover @google/adk por enquanto (ele é outro stack). Mantém só Gemini:
+
+@google/generative-ai
+
+Além disso: seu backend está ok para “proteger chaves Spark”, mas como você já tem /api/llm-stream no exemplo, a peça que falta é só implementar esse endpoint retornando SSE/stream com Gemini (posso te mandar o arquivo src/routes/llm-stream.ts + server.ts plugado).
+
+Observação rápida sobre os arquivos que você mandou
+
+Você mencionou (corretamente) que o .scss estava contaminado com TSX. Alguns arquivos anteriores que você tinha enviado/mostrado aqui expiraram do cache do ambiente, então eu não consigo “reabrir” os uploads antigos agora — mas com o que você colou na conversa dá pra corrigir 100% e já te entreguei os dois arquivos limpos.
+
+Se você aplicar (1) portal/fixed do slash menu + (2) streaming por insertText, seus agentes vão conseguir redigir no editor de forma bem mais confiável, mesmo dentro do modal com overflow controlado.

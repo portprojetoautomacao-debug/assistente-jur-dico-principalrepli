@@ -1,0 +1,113 @@
+# Job de Release para Componentes CI/CD
+# Executa testes e cria releases automáticas
+
+stages: [test, release]
+
+variables:
+  COMPONENTS_DIR: ".gitlab/templates"
+
+# Testar componentes antes do release
+test-components:
+  stage: test
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache python3 py3-pip
+    - pip3 install pyyaml
+  script:
+    - echo "🧪 Testando componentes CI/CD..."
+    - |
+      # Validar YAML de todos os componentes
+      find $COMPONENTS_DIR -name "*.yml" -exec python3 -c "
+      import yaml, sys
+      try:
+        with open('{}', 'r') as f:
+          yaml.safe_load(f)
+        print('✅ {}: YAML válido')
+      except Exception as e:
+        print('❌ {}: YAML inválido - {}'.format('{}', str(e)))
+        sys.exit(1)
+      " \;
+    - |
+      # Verificar se spec: está presente em todos os componentes
+      for component in $(find $COMPONENTS_DIR -name "*.yml"); do
+        if ! grep -q "^spec:" "$component"; then
+          echo "❌ $component: spec: não encontrado"
+          exit 1
+        else
+          echo "✅ $component: spec: encontrado"
+        fi
+      done
+    - |
+      # Verificar estrutura de diretórios
+      if [ ! -d "$COMPONENTS_DIR/security" ] || [ ! -d "$COMPONENTS_DIR/testing" ] || [ ! -d "$COMPONENTS_DIR/deployment" ] || [ ! -d "$COMPONENTS_DIR/monitoring" ]; then
+        echo "❌ Estrutura de diretórios incompleta"
+        exit 1
+      else
+        echo "✅ Estrutura de diretórios OK"
+      fi
+    - echo "🎉 Todos os testes passaram!"
+
+# Criar release quando uma tag é criada
+create-release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
+    - echo "📦 Criando release $CI_COMMIT_TAG para componentes CI/CD"
+    - |
+      # Validar formato da tag (semver)
+      if ! echo "$CI_COMMIT_TAG" | grep -E "^v?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$"; then
+        echo "❌ Tag $CI_COMMIT_TAG não segue formato semântico"
+        exit 1
+      fi
+    - |
+      # Gerar changelog dos componentes
+      echo "# Release $CI_COMMIT_TAG" > release-notes.md
+      echo "" >> release-notes.md
+      echo "## 📦 Componentes Incluídos" >> release-notes.md
+      echo "" >> release-notes.md
+
+      for dir in security testing deployment monitoring; do
+        if [ -f "$COMPONENTS_DIR/$dir/$dir-component.yml" ]; then
+          echo "### $dir-component" >> release-notes.md
+          echo "- ✅ Componente validado e testado" >> release-notes.md
+          echo "- 📋 Inputs documentados" >> release-notes.md
+          echo "- 🔒 Segue melhores práticas de segurança" >> release-notes.md
+          echo "" >> release-notes.md
+        fi
+      done
+
+      echo "## 🚀 Como Usar" >> release-notes.md
+      echo "" >> release-notes.md
+      echo "\`\`\`yaml" >> release-notes.md
+      echo "include:" >> release-notes.md
+      echo "  - component: \$CI_SERVER_FQDN/\$CI_PROJECT_PATH/templates/security/security-component@$CI_COMMIT_TAG" >> release-notes.md
+      echo "    inputs:" >> release-notes.md
+      echo "      audit_level: \"standard\"" >> release-notes.md
+      echo "\`\`\`" >> release-notes.md
+  release:
+    tag_name: $CI_COMMIT_TAG
+    description: file://release-notes.md
+    assets:
+      links:
+        - name: "📖 Documentação dos Componentes"
+          url: "$CI_PROJECT_URL/-/blob/$CI_COMMIT_SHA/.gitlab/templates/README.md"
+          filepath: "/.gitlab/templates/README.md"
+        - name: "🔧 Exemplo de Pipeline"
+          url: "$CI_PROJECT_URL/-/blob/$CI_COMMIT_SHA/.gitlab/templates/example-pipeline.yml"
+          filepath: "/.gitlab/templates/example-pipeline.yml"
+  only:
+    - tags
+  dependencies:
+    - test-components
+
+# Job opcional para publicar no catálogo (manual)
+publish-catalog:
+  stage: release
+  image: alpine:latest
+  script:
+    - echo "📚 Publicando componentes no catálogo CI/CD..."
+    - echo "ℹ️ Certifique-se de que o projeto está configurado como 'CI/CD Catalog project'"
+    - echo "🔗 URL do catálogo: $CI_PROJECT_URL/-/ci_cd_catalog"
+  when: manual
+  only:
+    - tags

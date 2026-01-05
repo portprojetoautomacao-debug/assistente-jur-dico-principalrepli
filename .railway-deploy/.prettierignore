@@ -1,0 +1,54 @@
+# Build outputs
+dist
+dist-ssr
+coverage
+coverage-api
+.vercel
+.vscode-test
+
+# Dependencies
+node_modules
+.pnpm-store
+
+# Generated files
+*.log
+*.lock
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Cache
+.eslintcache
+.vite
+.cache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Temp
+tmp
+temp
+
+# Vercel
+.vercel
+
+# Playwright
+test-results
+playwright-report
+
+# Specific files
+CHANGELOG.md
+LICENSE
+*.md
+!README.md
+
+# Config files that should not be formatted
+*.config.js
+*.config.cjs
+*.config.mjs

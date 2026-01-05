@@ -1,0 +1,803 @@
+-- Setup script para banco de teste PostgreSQL local
+-- Execute manualmente: sudo -u postgres psql < setup-test-db.sql
+
+-- Criar banco de teste
+CREATE DATABASE assistente_juridico_test;
+
+-- Conectar ao banco (executar separadamente após criar)
+\c assistente_juridico_test
+
+-- Criar schema de minutas
+CREATE TABLE IF NOT EXISTS minutas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    titulo VARCHAR(200) NOT NULL,
+    process_id VARCHAR(100),
+    tipo VARCHAR(50) NOT NULL,
+    conteudo TEXT NOT NULL DEFAULT '',
+    status VARCHAR(50) NOT NULL DEFAULT 'rascunho',
+    autor VARCHAR(100) NOT NULL,
+    google_docs_id VARCHAR(255),
+    google_docs_url TEXT,
+    ultima_sincronizacao TIMESTAMP WITH TIME ZONE,
+    criado_por_agente BOOLEAN DEFAULT false,
+    agente_id VARCHAR(100),
+    template_id VARCHAR(100),
+    expediente_id VARCHAR(100),
+    variaveis JSONB DEFAULT '{}',
+    criado_em TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    atualizado_em TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS djen_lawyers (
+    id SERIAL PRIMARY KEY,
+    numero_oab VARCHAR(20) NOT NULL,
+    uf_oab VARCHAR(2) NOT NULL,
+    nome VARCHAR(200) NOT NULL,
+    enabled BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    UNIQUE(numero_oab, uf_oab)
+);
+
+CREATE TABLE IF NOT EXISTS djen_publications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    processo_numero VARCHAR(100),
+    data_publicacao DATE NOT NULL,
+    tipo_publicacao VARCHAR(100),
+    conteudo TEXT NOT NULL,
+    tribunal VARCHAR(50),
+    caderno VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS djen_scheduler_logs (
+    id SERIAL PRIMARY KEY,
+    execution_time TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    status VARCHAR(50) NOT NULL,
+    publications_found INTEGER DEFAULT 0,
+    error_message TEXT,
+    duration_ms INTEGER
+);
+
+-- Inserir advogado padrão
+INSERT INTO djen_lawyers (numero_oab, uf_oab, nome, enabled)
+VALUES ('184404', 'MG', 'Thiago Bodevan Veiga', true)
+ON CONFLICT (numero_oab, uf_oab) DO NOTHING;
+
+-- Inserir minuta de exemplo
+INSERT INTO minutas (titulo, tipo, conteudo, status, autor)
+VALUES ('Petição de Teste', 'peticao', 'Conteúdo de exemplo', 'rascunho', 'Thiago Bodevan Veiga');
+
+-- Mostrar tabelas criadas
+\dt
+
+-- Mostrar dados
+SELECT 'Minutas:' as tabela, count(*) as registros FROM minutas
+UNION ALL
+SELECT 'Advogados:', count(*) FROM djen_lawyers
+UNION ALL
+SELECT 'Publicações:', count(*) FROM djen_publications
+UNION ALL
+SELECT 'Logs:', count(*) FROM djen_scheduler_logs;
+
+
+arquivo 2
+
+/**
+ * Extrator de expedientes (intimações, citações, etc)
+ */
+
+import { Expediente, ProcessoPJe } from '../../shared/types';
+
+export class ExpedienteExtractor {
+  /**
+   * Detecta e extrai expedientes relevantes dos processos
+   */
+  public extractExpedientes(processos: ProcessoPJe[]): Expediente[] {
+    const expedientes: Expediente[] = [];
+
+    processos.forEach(processo => {
+      const movimento = processo.ultimoMovimento.descricao.toLowerCase();
+      const type = this.detectExpedienteType(movimento);
+
+      if (type && this.isRelevantExpediente(movimento)) {
+        expedientes.push({
+          id: crypto.randomUUID(),
+          processNumber: processo.numeroFormatado,
+          description: processo.ultimoMovimento.descricao,
+          type,
+          createdAt: new Date(processo.ultimoMovimento.timestamp).toISOString(),
+          source: 'pje-extension',
+          metadata: {
+            vara: processo.vara,
+            comarca: processo.comarca,
+            timestamp: processo.ultimoMovimento.timestamp
+          }
+        });
+      }
+    });
+
+    console.log(`[ExpedienteExtractor] ${expedientes.length} expedientes relevantes`);
+    return expedientes;
+  }
+
+  private detectExpedienteType(movimento: string): Expediente['type'] | null {
+    const lower = movimento.toLowerCase();
+
+    // Intimação
+    if (lower.includes('intimação') || lower.includes('intimacao') || lower.includes('publicad')) {
+      return 'intimacao';
+    }
+
+    // Citação
+    if (lower.includes('citação') || lower.includes('citacao')) {
+      return 'citacao';
+    }
+
+    // Despacho
+    if (lower.includes('despacho')) {
+      return 'despacho';
+    }
+
+    // Decisão
+    if (lower.includes('decisão') || lower.includes('decisao')) {
+      return 'decisao';
+    }
+
+    // Sentença
+    if (lower.includes('sentença') || lower.includes('sentenca')) {
+      return 'sentenca';
+    }
+
+    return 'outro';
+  }
+
+  private isRelevantExpediente(movimento: string): boolean {
+    const lower = movimento.toLowerCase();
+
+    // Lista de movimentos irrelevantes (não geram tarefas)
+    const ignorar = [
+      'juntada de petição',
+      'juntada de peticao',
+      'conclusos',
+      'vista ao mp',
+      'vista à defensoria',
+      'carga dos autos',
+      'transferencia de autos',
+      'remessa dos autos',
+      'retorno dos autos',
+      'baixa definitiva',
+      'arquivado definitivamente'
+    ];
+
+    return !ignorar.some(termo => lower.includes(termo));
+  }
+}
+/**
+ * Extrator de expedientes (intimações, citações, etc)
+ */
+
+import { Expediente, ProcessoPJe } from '../../shared/types';
+
+export class ExpedienteExtractor {
+  /**
+   * Detecta e extrai expedientes relevantes dos processos
+   */
+  public extractExpedientes(processos: ProcessoPJe[]): Expediente[] {
+    const expedientes: Expediente[] = [];
+
+    processos.forEach(processo => {
+      const movimento = processo.ultimoMovimento.descricao.toLowerCase();
+      const type = this.detectExpedienteType(movimento);
+
+      if (type && this.isRelevantExpediente(movimento)) {
+        expedientes.push({
+          id: crypto.randomUUID(),
+          processNumber: processo.numeroFormatado,
+          description: processo.ultimoMovimento.descricao,
+          type,
+          createdAt: new Date(processo.ultimoMovimento.timestamp).toISOString(),
+          source: 'pje-extension',
+          metadata: {
+            vara: processo.vara,
+            comarca: processo.comarca,
+            timestamp: processo.ultimoMovimento.timestamp
+          }
+        });
+      }
+    });
+
+
+
+
+
+
+@anthropic-ai/sdk
+0.71.2
+@bufbuild/protobuf
+2.10.2
+@ckeditor/ckeditor5-react
+11.0.1
+@ckeditor/ckeditor5-theme-lark
+47.3.0
+@dnd-kit/core
+6.3.1
+@dnd-kit/sortable
+10.0.0
+@dnd-kit/utilities
+3.2.2
+@doist/todoist-api-typescript
+6.2.1
+@floating-ui/react
+0.27.16
+@google/adk
+0.2.1
+@hookform/resolvers
+5.2.2
+tailwind-merge
+3.4.0
+tailwindcss
+4.1.18
+tesseract.js
+7.0.0
+three
+0.182.0
+typescript
+5.9.3
+typescript-eslint
+8.51.0
+uuid
+13.0.0
+vite
+7.3.0
+vite-plugin-pwa
+1.2.0
+vitest
+4.0.16
+zod
+4.3.5
+@tiptap/react
+3.14.0
+@tiptap/starter-kit
+3.14.0
+@types/lodash.throttle
+4.1.9
+@types/node
+25.0.3
+@types/pg
+8.16.0
+@types/react
+19.2.7
+@types/react-dom
+@types/tesseract.js
+@types/three
+@typescript-eslint/eslint-plugin
+@typescript-eslint/parser
+@upstash/redis
+@vercel/node
+@vercel/speed-insights
+@vitejs/plugin-react
+@vitest/coverage-v8
+@tiptap/extension-table-header
+3.14.0
+@tiptap/extension-table-row
+3.14.0
+@tiptap/extension-task-item
+3.14.0
+@tiptap/extension-task-list
+3.14.0
+@tiptap/extension-text-align
+3.14.0
+@tiptap/extension-text-style
+3.14.0
+@tiptap/extension-typography
+3.14.0
+@tiptap/extension-underline
+3.14.0
+@tiptap/pm
+3.14.0
+@tiptap/react
+3.14.0
+@tiptap/starter-kit
+3.14.0
+@types/lodash.throttle
+4.1.9
+@types/node
+25.0.3
+@types/pg
+8.16.0
+@types/react
+19.2.7
+@types/react-dom
+
+
+System Modules
+Modules combine support for programming languages, formatters, and packagers. These provide the foundation for your App.
+Bash
+Bash Language Server
+go run
+go fmt
+gopls
+Node.js
+20.19.3
+Node.js packager (npm, yarn, pnpm, bun)
+Prettier
+3.5.3
+TypeScript Language Server
+4.3.3
+TypeScript Language Server
+4.3.3
+CSS Language Server
+HTML Language Server
+System Dependencies
+Add additional support to your environment with Nix packages.
+nss
+3.101.2
+pango
+1.56.3
+systemdUkify
+257.6
+tree
+2.2.1
+xorg.libX11
+1.8.12
+xorg.libxcb
+1.17.0
+xorg.libXcomposite
+0.4.6
+xorg.libXdamage
+1.1.6
+xorg.libXext
+1.3.6
+xorg.libXfixes
+6.0.1
+xorg.libXrandr
+1.5.4
+
+modules = ["go-1.21", "web", "nodejs-20", "bash", "postgresql-16"]
+
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["systemdUkify", "lsof", "file", "tree", "glib", "nss", "nspr", "atk", "cups", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXfixes", "xorg.libXrandr", "xorg.libxcb", "xorg.libX11", "xorg.libXext", "pango", "cairo", "expat", "alsa-lib", "at-spi2-atk", "at-spi2-core", "gtk3", "dbus", "mesa", "libxkbcommon", "libdrm"]
+
+[workflows]
+runButton = "Backend Agents Server"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Frontend Dev Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend Agents Server"
+
+[[workflows.workflow]]
+name = "Frontend Dev Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow]]
+name = "Backend Agents Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && npm run dev"
+waitForPort = 3001
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[ports]]
+localPort = 3001
+externalPort = 80
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 5001
+
+[[ports]]
+localPort = 5002
+
+[[ports]]
+localPort = 5173
+externalPort = 5173
+exposeLocalhost = true
+
+[[ports]]
+localPort = 5174
+externalPort = 3002
+exposeLocalhost = true
+
+[[ports]]
+localPort = 5252
+externalPort = 6800
+
+[[ports]]
+localPort = 9323
+externalPort = 4200
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["npm", "run", "build:deploy"]
+run = ["npm", "run", "start:production"]
+
+[userenv]
+
+[userenv.shared]
+BACKEND_PORT = "3001"
+# Dependency Management
+
+> Replit supports a variety of languages and dependency management systems through the Dependencies tool. This section will cover the different types of dependencies and how to manage them in your Replit App.
+
+## Imported Packages
+
+Packages imported directly from your code are managed in the `Imports` tab. This tab allows you to view and manage the packages grouped by language. Links are also provided to the appropriate packager file, such as `package.json` for Node.js.
+
+<Frame>
+  <img src="https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab.png?fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=fae3c4e2810384b01675b21f36405623" alt="Imports tab for a project using Node.js and Python" data-og-width="1282" width="1282" data-og-height="1362" height="1362" data-path="images/programming-ide/dependencies/import-tab.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab.png?w=280&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=bde6862f5c8692492aa014176f5a9db7 280w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab.png?w=560&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=89d7db9323b64108b974b649b329df28 560w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab.png?w=840&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=ab3f3864b8ad6a2b6c0b96563ecbb4da 840w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab.png?w=1100&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=65d786305406ef8d1a22cfd31ce5771a 1100w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab.png?w=1650&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=e0910508ef133ab1c7d53fc11fc5d7c5 1650w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab.png?w=2500&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=86db5e4fd80b1e8afb410ba254e9e039 2500w" />
+</Frame>
+
+### Search and add packages
+
+Clicking on `Add new package` will allow you to search for and install new packages. The language dropdown provides quick access between packagers.
+
+<Frame>
+  <img src="https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab-search.png?fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=d813599058d6315ce941d07a0ca1ebaa" alt="Node.js package search for 'React'" data-og-width="1230" width="1230" data-og-height="1142" height="1142" data-path="images/programming-ide/dependencies/import-tab-search.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab-search.png?w=280&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=db9440184fd8dde4a314560a43b8069d 280w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab-search.png?w=560&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=f0e70604d5e404d785ab6efb026ff58b 560w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab-search.png?w=840&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=c6bff6aadb4edadb948c073d890717ed 840w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab-search.png?w=1100&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=cb269563e2fdb6d481301e0c6790080d 1100w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab-search.png?w=1650&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=2916b61c7d2f9e271cdb1ce61a265462 1650w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/import-tab-search.png?w=2500&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=5b2c552b3ab330feb215f0530418804e 2500w" />
+</Frame>
+
+You can view installation progress and relevant errors in the `Console` tab.
+
+<Frame>
+  <img src="https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/console-output.png?fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=67e7f971b43f54468a26137b6b24eb62" alt="Example console output for an uninstalled package" data-og-width="994" width="994" data-og-height="730" height="730" data-path="images/programming-ide/dependencies/console-output.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/console-output.png?w=280&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=7689342a70bd167749e5118e4d8f2cfd 280w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/console-output.png?w=560&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=98fe308ee0a194e68ff0517bf4356a54 560w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/console-output.png?w=840&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=ddf8739405727d13cfa9bd74c60fd9b9 840w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/console-output.png?w=1100&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=c1451f8cc820527d8a8e80fdb310e1df 1100w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/console-output.png?w=1650&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=74561ca68096c9e7a7ad2351c35ac4a1 1650w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/console-output.png?w=2500&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=57f02065c0a91760a921d9b32cb90a66 2500w" />
+</Frame>
+
+### The Universal Package Manager
+
+Replit will install most packages using [the universal package manager](https://blog.replit.com/packager). To see which languages and package managers are supported, please check out [UPM: Supported Languages](https://github.com/replit/upm/#supported-languages).
+
+If you prefer using the CLI, you can still use language-specific package managers such as `poetry` or `npm`. Any changes to the packager files will be reflected in the `Dependencies` tool, but require the respective CLI command or using the **Run** button to properly update.
+
+### Import guessing
+
+As your code evolves, we analyze your project for missing dependencies and automatically guess what needs to be installed to get your code to run. For example, if you add `import flask` to `main.py`, the next time you select **Run**, you'll see a section in the **Console** indicating that the latest version of **Flask** is being installed:
+
+<Frame>
+  <img src="https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/pip-install.png?fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=bf47186dcf917482ba15b7dcaa5437d5" alt="upm output showing packages being installed" data-og-width="936" width="936" data-og-height="268" height="268" data-path="images/programming-ide/pip-install.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/pip-install.png?w=280&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=b08c3a09f9a08f212b61ae1cb446ee24 280w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/pip-install.png?w=560&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=ebeefa02d6f38456fece213eafa53f33 560w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/pip-install.png?w=840&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=a00677edef4c8fd0df47875f5c28f70c 840w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/pip-install.png?w=1100&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=41c80872f39a9d37205b76a8084ebd72 1100w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/pip-install.png?w=1650&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=0fe18611349cc9e3e4c3d93516320733 1650w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/pip-install.png?w=2500&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=ed982930f41d9fe1a1335d12bc1bae9b 2500w" />
+</Frame>
+
+### Guessing failures
+
+This section helps you with the command to run a particular version of your package. If there's a particular version that you need, or we guessed the wrong package entirely, you can run `upm` in the shell to resolve the conflict:
+
+```bash  theme={null}
+upm add 'flask==2.3.3'
+```
+
+To install additional packages in your Workspace, open a new tab by selecting the **+** sign and searching for **Packages**. Select the packages of your choice and select **Install**. Additional options for package guessing can be configured in the [.replit](/replit-app/configuration#replit-file) file.
+
+### Python package managers
+
+When you create a Python Replit App, your package manager will be **poetry** by default. This means that you will not be able to use `pip install` to manage dependencies manually. Instead of running `pip install <package>`, you can instead run `poetry add <package>` or `upm add <package>`, which will do the same thing.
+
+`pip` is one of the earliest, and consequently most popular, package managers for Python. You can use `pip` as your Replit App's package manager instead of `poetry`.
+Follow the steps below:
+
+1. In the Tools pane, select the **Shell** tab to add the common `requirements.txt` file using the following command:
+
+```bash  theme={null}
+touch requirements.txt
+```
+
+2. Delete the `poetry.lock` file.
+
+3. Move your dependencies from `[tool.poetry.dependencies]` to `requirements.txt`. Note that the `flask = "^3.0.2"` in `pyproject.toml`'s `[tool.poetry.dependencies]` section would become `flask>=3.0.2,<4` in `requirements.txt`.
+
+4. Finally, delete the other `[tool.poetry...]` sections from `pyproject.toml`.
+
+After the above changes, the packaging infrastructure will use `pip` for all future operations.
+
+Now, as you add code to your `main.py` file, any time you select **Run**, [upm](https://github.com/replit/upm/) will determine whether there are any missing packages for your imports, find the latest versions of packages that provide those imports, and install them automatically.
+
+## Advanced Configuration
+
+Replit supports all programming languages through integration with [Nix](https://nixos.org/). Nix is a tool for managing software packages and system configurations. The **System (Advanced)** tab provides quick access to Nix support for your Replit App.
+
+<Frame>
+  <img src="https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/system-tab.png?fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=4e2506dddefc213c45a185912aa1ba3c" alt="System (Advanced) tab for a project using Node.js and Python" data-og-width="1222" width="1222" data-og-height="1624" height="1624" data-path="images/programming-ide/dependencies/system-tab.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/system-tab.png?w=280&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=f645c527ee75f4a201589bc74fb4f1b6 280w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/system-tab.png?w=560&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=430edfbe5d2d6007f453750ac6ed25c2 560w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/system-tab.png?w=840&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=a6e9d26671834a7bd8dafb6b9692c050 840w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/system-tab.png?w=1100&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=fb0ed3c7abc756bfdf9e97d353c815a3 1100w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/system-tab.png?w=1650&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=3b7f5da6b80c157621b4c6e56bca8af3 1650w, https://mintcdn.com/replit/AZ1L8RlIroSxuJDa/images/programming-ide/dependencies/system-tab.png?w=2500&fit=max&auto=format&n=AZ1L8RlIroSxuJDa&q=85&s=0bb6042804f4940a83a0c805b2298e0b 2500w" />
+</Frame>
+
+### System Modules
+
+Modules combine support for programming languages, formatters, and packagers. These provide the foundation for your Replit App. If you create a Replit App from a template or GitHub repository, we will automatically install the modules that are required for the languages used.
+
+If you want to start with a blank Replit App, you will need to install a module under **System Modules** before you can use the **Imports** tab. You can also add more modules to support additional languages.
+
+You can further customize modules and other Nix settings using the [.replit](replit-app/configuration#replit-file) file.
+
+### System Dependencies
+
+If you need more specific support for a language or other system-level dependencies, you can add [Nix packages](https://search.nixos.org/packages) under **System Dependencies**. These can also be managed in your [replit.nix](/replit-app/configuration#replit-nix-file) file.
+
+
+---
+
+> To find navigation and other pages in this documentation, fetch the llms.txt file at: https://docs.replit.com/llms.txt
+
+dependencias que talvez podem ser instaladas : rPackages.hydrostats
+liferea@1.16-RC2
+GTK-based news feed aggregator
+glasstty-ttf
+TrueType VT220 font
+rPackages.org_Rn_eg_db
+rPackages.SimSurvey
+typstPackages.cheda-seu-thesis_0_3_3@0.3.3
+东南大学本科毕设与研究生学位论文模板。UNOFFICIAL Southeast University Thesis Template
+rPackages.VFS
+rPackages.waspr
+rPackages.ShinyItemAnalysis
+haskellPackages.warp-static@2.0.1.1
+Static file server based on Warp and wai-app-static (deprecated)
+rPackages.stylo
+rPackages.measures
+gatling@0.16
+High performance web server
+xscreensaver@6.10.1
+Set of screensavers
+rrsync@3.4.1
+Helper to run rsync-only environments from ssh-logins
+perl540Packages.DateTimeFormatDateParse@0.05
+Parses Date::Parse compatible formats
+rPackages.tablerDash
+cosmic-comp@1.0.0-alpha.7
+Compositor for the COSMIC Desktop Environment
+python312Packages.cleanlab@2.7.1
+Standard data-centric AI package for data quality and machine learning with messy, real-world data and labels
+rPackages.sensitivity2x2xk
+gomuks@0.3.1
+A terminal based Matrix client written in Go
+python312Packages.linuxpy@0.21.0
+Human friendly interface to Linux subsystems using Python
+rPackages.compicc
+emacsPackages.laguna-theme@20220804.227
+moosefs@4.57.6
+Open Source, Petabyte, Fault-Tolerant, Highly Performing, Scalable Network Distributed File System
+rPackages.WLasso
+emacsPackages.avy-zap@20190801.329
+libsForQt5.shelf@3.1.0
+Document and EBook collection manager
+
+
+modulos a serem analisados: 
+Modules
+.NET
+.NET packager
+OmniSharp
+.NET
+.NET packager
+OmniSharp
+.NET
+.NET packager
+OmniSharp
+.NET
+.NET packager
+OmniSharp
+package.json watch script
+Angular Language Server
+TypeScript Language Server
+4.3.3
+package.json watch script
+Angular Language Server
+TypeScript Language Server
+4.3.3
+.replit LSP
+Bash
+Bash Language Server
+package.json
+Bun packager
+TypeScript Language Server
+4.3.3
+package.json
+bun
+TypeScript Language Server
+Clang: Project
+ccls
+Clang++: Project
+ccls
+Clojure
+Clojure LSP
+Clojure
+Clojure LSP
+dart
+Dart pub
+dart
+dart
+dart pub
+dart
+deno
+deno
+deno
+deno
+mix run
+Elixir Language Server (ElixirLS)
+mix run
+Elixir Language Server (ElixirLS)
+go run
+go fmt
+gopls
+go run
+go fmt
+gopls
+go run
+go fmt
+gopls
+GHC app
+Haskell Language Server
+GHC app
+Haskell Language Server
+GHC app
+Haskell Language Server
+GHC app
+Haskell Language Server
+GraalVM 22.3
+22.3.1
+Maven
+Java Language Server
+0.2.38
+Lua script
+lua-language-server
+Nix Language Server (nil)
+Node.js
+24.4.0
+Node.js packager (npm, yarn, pnpm, bun)
+Prettier
+3.5.3
+TypeScript Language Server
+4.3.3
+Node.js
+23.11.1
+Node.js packager (npm, yarn, pnpm, bun)
+Prettier
+3.5.3
+TypeScript Language Server
+4.3.3
+Node.js
+22.17.0
+Node.js packager (npm, yarn, pnpm, bun)
+Prettier
+3.5.3
+TypeScript Language Server
+4.3.3
+Node.js
+20.19.3
+Node.js packager (npm, yarn, pnpm, bun)
+Prettier
+3.5.3
+TypeScript Language Server
+4.3.3
+Node.js
+19.1.0
+Prybar for Node.js
+UPM for Node.js
+TypeScript Language Server
+Node.js
+18.20.8
+Node.js packager (npm, yarn, pnpm, bun)
+Prettier
+3.5.3
+TypeScript Language Server
+4.3.3
+Node.js
+16.18.1
+Prybar for Node.js
+UPM for Node.js
+TypeScript Language Server
+Node.js
+14.21.1
+Prybar for Node.js
+UPM for Node.js
+TypeScript Language Server
+php run
+PHP Composer
+phpactor
+php run
+PHP Composer
+phpactor
+php run
+PHP
+phpactor
+Python 3.9
+3.9.21
+Python packager
+pyright-extended
+2.0.13
+Python 3.8
+3.8.18
+Python packager
+pyright-extended
+2.0.12
+Python 3.13
+3.13.5
+Python packager
+Python 3.12
+3.12.11
+Python packager
+pyright-extended
+2.0.13
+Python 3.12
+3.12.11
+Python packager
+Python 3.11
+3.11.13
+Python packager
+pyright-extended
+2.0.13
+Python 3.11
+3.11.13
+Python packager
+Python 3.10
+3.10.18
+Python packager
+pyright-extended
+2.0.13
+ReplBox QBASIC
+R
+R packager
+R
+R
+bundle exec ruby
+Rubygems
+Solargraph: A Ruby Language Server
+bundle exec ruby
+Rubygems
+Solargraph: A Ruby Language Server
+package.json dev script
+Svelte Language Server
+Swift
+SourceKit
+Swift
+SourceKit
+TypeScript Language Server
+4.3.3
+package.json dev script
+Vue Language Server
+CSS Language Server
+HTML Language Server
+TypeScript Language Server
+4.3.3
+pyright
+1.1.402
+pyright-extended
+ruff
+0.12.3
+zig build run
+zig fmt
+zls
+Prybar for Node.js
+Node.js packager (npm, yarn, pnpm, bun)
+Prettier
+3.5.3
+TypeScript Language Server
+4.3.3
+Prybar for Python 3.10
+Python packager
+pyright-extended
+2.0.13
+

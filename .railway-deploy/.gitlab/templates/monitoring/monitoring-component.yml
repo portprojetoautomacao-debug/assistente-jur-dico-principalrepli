@@ -1,0 +1,222 @@
+spec:
+  inputs:
+    stage:
+      default: monitor
+      description: "Stage onde o monitoramento será executado"
+    monitoring_type:
+      default: "basic"
+      description: "Tipo de monitoramento: basic, advanced, full"
+      options: ["basic", "advanced", "full"]
+    alert_on_failure:
+      default: true
+      description: "Enviar alertas em caso de falhas"
+    performance_baseline:
+      default: 3000
+      description: "Baseline de performance em ms (para Lighthouse)"
+    accessibility_threshold:
+      default: 90
+      description: "Threshold mínimo de acessibilidade (%)"
+
+# Componente de Monitoramento para Aplicações Web
+# Métricas de performance, acessibilidade e disponibilidade
+
+performance-monitoring:
+  stage: $[[ inputs.stage ]]
+  image: node:22
+  script:
+    - echo "📊 Executando monitoramento de performance..."
+    - |
+      # Instalar lighthouse se necessário
+      if ! command -v lighthouse &> /dev/null; then
+        npm install -g lighthouse
+      fi
+    - |
+      # Executar Lighthouse
+      lighthouse $CI_ENVIRONMENT_URL \
+        --output=json \
+        --output-path=performance-report.json \
+        --chrome-flags="--headless --no-sandbox --disable-gpu" \
+        --only-categories=performance,accessibility,best-practices,seo \
+        || echo "Lighthouse falhou, mas continuando..."
+    - |
+      # Analisar resultados
+      if [ -f performance-report.json ]; then
+        PERFORMANCE_SCORE=$(jq '.categories.performance.score * 100' performance-report.json)
+        ACCESSIBILITY_SCORE=$(jq '.categories.accessibility.score * 100' performance-report.json)
+        SEO_SCORE=$(jq '.categories.seo.score * 100' performance-report.json)
+
+        echo "📈 Scores obtidos:"
+        echo "  Performance: ${PERFORMANCE_SCORE}%"
+        echo "  Acessibilidade: ${ACCESSIBILITY_SCORE}%"
+        echo "  SEO: ${SEO_SCORE}%"
+
+        # Verificar thresholds
+        if (( $(echo "$PERFORMANCE_SCORE < 80" | bc -l) )); then
+          echo "⚠️ Performance abaixo do ideal: ${PERFORMANCE_SCORE}% (meta: 80%)"
+          if [ "$[[ inputs.alert_on_failure ]]" = "true" ]; then
+            echo "🚨 ALERTA: Performance degradada!"
+          fi
+        fi
+
+        if (( $(echo "$ACCESSIBILITY_SCORE < $[[ inputs.accessibility_threshold ]]" | bc -l) )); then
+          echo "⚠️ Acessibilidade abaixo do threshold: ${ACCESSIBILITY_SCORE}% (mínimo: $[[ inputs.accessibility_threshold ]]%)"
+          if [ "$[[ inputs.alert_on_failure ]]" = "true" ]; then
+            echo "🚨 ALERTA: Problemas de acessibilidade!"
+          fi
+        fi
+      fi
+    - |
+      # Coletar métricas de tempo de resposta
+      echo "⏱️ Coletando métricas de resposta..."
+      for i in {1..5}; do
+        RESPONSE_TIME=$(curl -o /dev/null -s -w "%{time_total}" $CI_ENVIRONMENT_URL)
+        echo "Resposta $i: ${RESPONSE_TIME}s" >> response-times.log
+      done
+
+      AVG_RESPONSE=$(awk '{sum+=$2} END {print sum/NR}' response-times.log)
+      echo "Tempo médio de resposta: ${AVG_RESPONSE}s"
+  artifacts:
+    paths:
+      - performance-report.json
+      - response-times.log
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+  environment:
+    name: monitoring
+  allow_failure: true
+
+uptime-monitoring:
+  stage: $[[ inputs.stage ]]
+  image: curlimages/curl:latest
+  script:
+    - echo "🔍 Executando monitoramento de uptime..."
+    - |
+      # Teste de disponibilidade
+      MAX_RETRIES=3
+      RETRY_COUNT=0
+
+      while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+        if curl -f -s --max-time 30 --retry 2 --retry-delay 5 $CI_ENVIRONMENT_URL > /dev/null; then
+          echo "✅ Aplicação está online"
+          UPTIME_STATUS="online"
+          break
+        else
+          RETRY_COUNT=$((RETRY_COUNT + 1))
+          echo "❌ Tentativa $RETRY_COUNT falhou, tentando novamente..."
+          sleep 10
+        fi
+      done
+
+      if [ "$UPTIME_STATUS" != "online" ]; then
+        echo "🚨 Aplicação está OFFLINE após $MAX_RETRIES tentativas!"
+        if [ "$[[ inputs.alert_on_failure ]]" = "true" ]; then
+          echo "🚨 ALERTA: Aplicação indisponível!"
+          # Aqui seria integrado com sistema de alertas
+        fi
+        exit 1
+      fi
+    - |
+      # Verificar certificados SSL se HTTPS
+      if [[ $CI_ENVIRONMENT_URL == https://* ]]; then
+        echo "🔒 Verificando certificado SSL..."
+        CERT_INFO=$(curl -vI $CI_ENVIRONMENT_URL 2>&1 | grep "expire date")
+        if [ -n "$CERT_INFO" ]; then
+          echo "📜 Informações do certificado: $CERT_INFO"
+        fi
+      fi
+  only:
+    - main
+    - develop
+  environment:
+    name: monitoring
+  allow_failure: true
+
+error-monitoring:
+  stage: $[[ inputs.stage ]]
+  image: node:22
+  script:
+    - echo "🚨 Verificando logs de erro..."
+    - |
+      # Verificar se há arquivos de log de erro
+      if [ -d "logs" ]; then
+        ERROR_COUNT=$(find logs -name "*.log" -exec grep -l "ERROR\|FATAL\|CRITICAL" {} \; | wc -l)
+        if [ "$ERROR_COUNT" -gt "0" ]; then
+          echo "⚠️ $ERROR_COUNT arquivo(s) de log contém erros"
+          find logs -name "*.log" -exec grep -H "ERROR\|FATAL\|CRITICAL" {} \;
+        else
+          echo "✅ Nenhum erro encontrado nos logs"
+        fi
+      else
+        echo "ℹ️ Diretório de logs não encontrado"
+      fi
+    - |
+      # Verificar health checks da aplicação
+      if [ -n "$CI_ENVIRONMENT_URL" ]; then
+        HEALTH_STATUS=$(curl -s $CI_ENVIRONMENT_URL/health 2>/dev/null || echo "unhealthy")
+        if [ "$HEALTH_STATUS" != "healthy" ]; then
+          echo "🚨 Health check falhou: $HEALTH_STATUS"
+          if [ "$[[ inputs.alert_on_failure ]]" = "true" ]; then
+            echo "🚨 ALERTA: Health check falhou!"
+          fi
+        else
+          echo "✅ Health check passou"
+        fi
+      fi
+  dependencies:
+    - performance-monitoring
+    - uptime-monitoring
+  only:
+    - main
+    - develop
+  environment:
+    name: monitoring
+  allow_failure: true
+
+metrics-collection:
+  stage: $[[ inputs.stage ]]
+  image: node:22
+  script:
+    - echo "📊 Coletando métricas avançadas..."
+    - |
+      # Coletar métricas do Lighthouse detalhadas
+      if [ -f performance-report.json ]; then
+        echo "📈 Métricas de Performance Detalhadas:"
+        jq '.audits | to_entries[] | select(.key | contains("speed-index") or contains("first-contentful-paint") or contains("largest-contentful-paint")) | "\(.key): \(.value.displayValue)"' performance-report.json
+
+        echo "📱 Métricas de Core Web Vitals:"
+        jq '.audits | to_entries[] | select(.key | contains("cumulative-layout-shift") or contains("total-blocking-time") or contains("max-potential-fid")) | "\(.key): \(.value.displayValue)"' performance-report.json
+      fi
+    - |
+      # Gerar relatório consolidado
+      cat > monitoring-report.json << EOF
+      {
+        "timestamp": "$(date -Iseconds)",
+        "environment": "$CI_ENVIRONMENT_NAME",
+        "url": "$CI_ENVIRONMENT_URL",
+        "pipeline": "$CI_PIPELINE_ID",
+        "commit": "$CI_COMMIT_SHA",
+        "metrics": {
+          "performance_score": $(jq '.categories.performance.score * 100' performance-report.json 2>/dev/null || echo "null"),
+          "accessibility_score": $(jq '.categories.accessibility.score * 100' performance-report.json 2>/dev/null || echo "null"),
+          "uptime_status": "$UPTIME_STATUS",
+          "response_time_avg": $(cat response-times.log 2>/dev/null | awk '{sum+=$2} END {print sum/NR}' || echo "null")
+        }
+      }
+      EOF
+      echo "✅ Relatório de monitoramento gerado"
+  artifacts:
+    paths:
+      - monitoring-report.json
+    expire_in: 1 month
+  dependencies:
+    - performance-monitoring
+    - uptime-monitoring
+    - error-monitoring
+  only:
+    - main
+    - develop
+  environment:
+    name: monitoring
+  when: always

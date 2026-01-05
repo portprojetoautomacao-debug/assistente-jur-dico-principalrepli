@@ -1,0 +1,63 @@
+{
+  "date": "2025-12-03",
+  "branch": "fix/deps-audit-2025-12-03",
+  "summary": {
+    "total_packages": 1311,
+    "vulnerabilities_before": 2,
+    "vulnerabilities_after": 0
+  },
+  "vulnerabilities": [
+    {
+      "package": "node-forge",
+      "version": "1.3.1",
+      "severity": "high",
+      "transitive_via": "sonarqube-scanner@4.3.2",
+      "action_taken": "overrides -> node-forge >= 1.3.2; removed sonarqube-scanner from devDependencies"
+    }
+  ],
+  "updates": {
+    "safe_upgrades": [
+      "@sentry/node@10.28.0",
+      "@sentry/react@10.28.0",
+      "@tiptap/*@3.12.0",
+      "@vercel/node@5.5.14",
+      "@vercel/speed-insights@1.3.1",
+      "@vitejs/plugin-react-swc@4.2.2",
+      "@vitest/*@4.0.15",
+      "date-fns@4.1.0",
+      "framer-motion@12.23.25",
+      "lucide-react@0.555.0",
+      "marked@17.0.1",
+      "react@19.2.1",
+      "react-dom@19.2.1",
+      "react-resizable-panels@3.0.6",
+      "recharts@3.5.1",
+      "uuid@13.0.0",
+      "vite@7.2.6",
+      "typescript@5.9.3",
+      "zod@4.1.13",
+      "@hookform/resolvers@5.2.2"
+    ],
+    "removed": [
+      "sonarqube-scanner@4.3.2"
+    ]
+  },
+  "code_changes": [
+    "coerce import.meta.env values to String() to avoid boolean types",
+    "adjust Recharts label rendering to use payload values",
+    "update zod error handling (issues instead of errors)",
+    "update AdvancedNLPDashboard tests to match new error messages",
+    "update sonar-run.mjs to skip if 'sonarqube-scanner' not installed",
+    "add GitHub workflow .github/workflows/sonarcloud.yml"
+  ],
+  "commands_ran": [
+    "npm install",
+    "npm audit --json",
+    "npm outdated --json",
+    "npm run build",
+    "npm run test:run",
+    "git commit -m 'chore(deps): security & dependency bump...'",
+    "git push origin fix/deps-audit-2025-12-03"
+  ],
+  "notes": "All unit tests pass. Integration/E2E tests require external env vars; verify in CI. SonarCloud scan replaced local scanner with SonarCloud GitHub Action. 'node-forge' vulnerability mitigated by overrides and removal of local sonarqube-scanner. Major upgrades (Zod, date-fns, uuid) were applied and code modified for type changes where needed; further runtime testing recommended."
+}

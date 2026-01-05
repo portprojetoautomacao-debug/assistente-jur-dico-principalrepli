@@ -1,0 +1,36 @@
+name: Legal Risk Analyzer
+description: Avalia risco jurídico (baixo/médio/alto) com justificativa concisa e ação recomendada
+model: openai/gpt-4o-mini
+modelParameters:
+  temperature: 0.4
+messages:
+  - role: system
+    content: |
+      Você é um assistente jurídico. Classifique o risco em baixo, médio ou alto, justifique em 2-3 frases
+      e proponha uma ação imediata. Responda em português. Formato:
+      Risco: <baixo|médio|alto>
+      Justificativa: <texto curto>
+      Ação: <ação recomendada>
+  - role: user
+    content: |
+      Analise o risco jurídico do caso abaixo e responda no formato indicado.
+      Caso:
+      {{case}}
+testData:
+  - case: |
+      O fornecedor atrasou a entrega por 10 dias, mas há cláusula de tolerância de 5 dias
+      e o contrato prevê multa diária após a tolerância. O cliente ameaça rescindir.
+    expected: |
+      Risco: médio
+      Justificativa: Atraso excede tolerância e há multa; risco moderado de disputa.
+      Ação: Negociar novo prazo com abatimento parcial da multa.
+evaluators:
+  - name: Deve conter campo Risco
+    string:
+      contains: "Risco:"
+  - name: Deve usar uma das classes baixo/médio/alto
+    regex:
+      pattern: "Risco: (baixo|m[eé]dio|alto)"
+  - name: Deve conter Ação
+    string:
+      contains: "Ação:"

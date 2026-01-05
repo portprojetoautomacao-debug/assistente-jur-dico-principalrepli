@@ -80,7 +80,7 @@ function ensureDefaultLawyersPersisted(): MonitoredLawyer[] {
   localStorage.setItem("monitored-lawyers", JSON.stringify(DEFAULT_LAWYERS));
   console.log(
     "[DJEN Proxy] Usando advogados padrão:",
-    DEFAULT_LAWYERS.map((l) => l.name).join(", ")
+    DEFAULT_LAWYERS.map((l) => l.name).join(', ')
   );
   return DEFAULT_LAWYERS;
 }

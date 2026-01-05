@@ -1,0 +1,1555 @@
+{
+  "metadata": {
+    "timestamp": "2025-12-14T00:39:51.531Z",
+    "totalQueries": 30,
+    "successfulResponses": 30,
+    "failedResponses": 0,
+    "executionTimeMs": 38
+  },
+  "responses": [
+    {
+      "queryId": "intimacao_001",
+      "metric": "Precisão de Análise de Intimações",
+      "input": {
+        "texto": "Intimação para apresentar contestação no prazo de 15 (quinze) dias úteis, sob pena de revelia. Processo nº 0001234-56.2024.8.01.0001. Petição inicial anexa.",
+        "processoCNJ": "0001234-56.2024.8.01.0001",
+        "dataIntimacao": "2024-12-13"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "tipo": "Contestação",
+          "prazo": "15 dias úteis",
+          "dataLimite": "2025-01-07",
+          "urgencia": "normal",
+          "requerManifestacao": true
+        },
+        "executionTime": 2,
+        "timestamp": "2025-12-14T00:39:51.499Z",
+        "agentId": "justine",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"texto\":\"Intimação para apresentar contestação no prazo de 15 (quinze) dias úteis, sob pena de revelia. Processo nº 0001234-56.2024.8.01.0001. Petição inicial anexa.\",\"processoCNJ\":\"0001234-56.2024.8.01.0001\",\"dataIntimacao\":\"2024-12-13\"}",
+            "timestamp": "2025-12-14T00:39:51.497Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"tipo\":\"Contestação\",\"prazo\":\"15 dias úteis\",\"dataLimite\":\"2025-01-07\",\"urgencia\":\"normal\",\"requerManifestacao\":true}",
+            "timestamp": "2025-12-14T00:39:51.499Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "tipo": "Contestação",
+        "prazo": "15 dias úteis",
+        "dataLimite": "2025-01-06",
+        "urgencia": "normal",
+        "requerManifestacao": true
+      }
+    },
+    {
+      "queryId": "intimacao_002",
+      "metric": "Precisão de Análise de Intimações",
+      "input": {
+        "texto": "URGENTE: Intimação para apresentar impugnação ao cumprimento de sentença em 48 horas. Processo: 0007890-12.2024.8.01.0002. Penhora de bens realizada.",
+        "processoCNJ": "0007890-12.2024.8.01.0002",
+        "dataIntimacao": "2024-12-13"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "tipo": "Impugnação ao Cumprimento de Sentença",
+          "prazo": "48 horas",
+          "dataLimite": "2024-12-15",
+          "urgencia": "crítica",
+          "requerManifestacao": true
+        },
+        "executionTime": 1,
+        "timestamp": "2025-12-14T00:39:51.501Z",
+        "agentId": "justine",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"texto\":\"URGENTE: Intimação para apresentar impugnação ao cumprimento de sentença em 48 horas. Processo: 0007890-12.2024.8.01.0002. Penhora de bens realizada.\",\"processoCNJ\":\"0007890-12.2024.8.01.0002\",\"dataIntimacao\":\"2024-12-13\"}",
+            "timestamp": "2025-12-14T00:39:51.500Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"tipo\":\"Impugnação ao Cumprimento de Sentença\",\"prazo\":\"48 horas\",\"dataLimite\":\"2024-12-15\",\"urgencia\":\"crítica\",\"requerManifestacao\":true}",
+            "timestamp": "2025-12-14T00:39:51.501Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "tipo": "Impugnação ao Cumprimento de Sentença",
+        "prazo": "48 horas",
+        "dataLimite": "2024-12-15",
+        "urgencia": "crítica",
+        "requerManifestacao": true
+      }
+    },
+    {
+      "queryId": "intimacao_003",
+      "metric": "Precisão de Análise de Intimações",
+      "input": {
+        "texto": "Ciência da sentença proferida nos autos. Processo nº 0002345-67.2024.8.01.0003. Prazo para recurso: 15 dias úteis.",
+        "processoCNJ": "0002345-67.2024.8.01.0003",
+        "dataIntimacao": "2024-12-13"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "tipo": "Sentença",
+          "prazo": "15 dias úteis",
+          "dataLimite": "2025-01-07",
+          "urgencia": "baixa",
+          "requerManifestacao": false
+        },
+        "executionTime": 1,
+        "timestamp": "2025-12-14T00:39:51.503Z",
+        "agentId": "justine",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"texto\":\"Ciência da sentença proferida nos autos. Processo nº 0002345-67.2024.8.01.0003. Prazo para recurso: 15 dias úteis.\",\"processoCNJ\":\"0002345-67.2024.8.01.0003\",\"dataIntimacao\":\"2024-12-13\"}",
+            "timestamp": "2025-12-14T00:39:51.502Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"tipo\":\"Sentença\",\"prazo\":\"15 dias úteis\",\"dataLimite\":\"2025-01-07\",\"urgencia\":\"baixa\",\"requerManifestacao\":false}",
+            "timestamp": "2025-12-14T00:39:51.503Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "tipo": "Sentença",
+        "prazo": "15 dias úteis",
+        "dataLimite": "2025-01-06",
+        "urgencia": "normal",
+        "requerManifestacao": false
+      }
+    },
+    {
+      "queryId": "intimacao_004",
+      "metric": "Precisão de Análise de Intimações",
+      "input": {
+        "texto": "Intimação para manifestação sobre laudo pericial em 10 dias. Processo: 0003456-78.2024.8.01.0004. Laudo disponível nos autos.",
+        "processoCNJ": "0003456-78.2024.8.01.0004",
+        "dataIntimacao": "2024-12-13"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "tipo": "Análise de Expediente",
+          "prazo": "10 dias",
+          "dataLimite": "2024-12-24",
+          "urgencia": "normal",
+          "requerManifestacao": true
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.504Z",
+        "agentId": "justine",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"texto\":\"Intimação para manifestação sobre laudo pericial em 10 dias. Processo: 0003456-78.2024.8.01.0004. Laudo disponível nos autos.\",\"processoCNJ\":\"0003456-78.2024.8.01.0004\",\"dataIntimacao\":\"2024-12-13\"}",
+            "timestamp": "2025-12-14T00:39:51.504Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"tipo\":\"Análise de Expediente\",\"prazo\":\"10 dias\",\"dataLimite\":\"2024-12-24\",\"urgencia\":\"normal\",\"requerManifestacao\":true}",
+            "timestamp": "2025-12-14T00:39:51.504Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "tipo": "Manifestação sobre Laudo Pericial",
+        "prazo": "10 dias",
+        "dataLimite": "2024-12-23",
+        "urgencia": "normal",
+        "requerManifestacao": true
+      }
+    },
+    {
+      "queryId": "intimacao_005",
+      "metric": "Precisão de Análise de Intimações",
+      "input": {
+        "texto": "Intimação para apresentar réplica em 15 dias úteis. Processo nº 0004567-89.2024.8.01.0005. Contestação juntada aos autos.",
+        "processoCNJ": "0004567-89.2024.8.01.0005",
+        "dataIntimacao": "2024-12-13"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "tipo": "Réplica",
+          "prazo": "15 dias úteis",
+          "dataLimite": "2025-01-07",
+          "urgencia": "normal",
+          "requerManifestacao": true
+        },
+        "executionTime": 1,
+        "timestamp": "2025-12-14T00:39:51.506Z",
+        "agentId": "justine",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"texto\":\"Intimação para apresentar réplica em 15 dias úteis. Processo nº 0004567-89.2024.8.01.0005. Contestação juntada aos autos.\",\"processoCNJ\":\"0004567-89.2024.8.01.0005\",\"dataIntimacao\":\"2024-12-13\"}",
+            "timestamp": "2025-12-14T00:39:51.505Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"tipo\":\"Réplica\",\"prazo\":\"15 dias úteis\",\"dataLimite\":\"2025-01-07\",\"urgencia\":\"normal\",\"requerManifestacao\":true}",
+            "timestamp": "2025-12-14T00:39:51.506Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "tipo": "Réplica",
+        "prazo": "15 dias úteis",
+        "dataLimite": "2025-01-06",
+        "urgencia": "normal",
+        "requerManifestacao": true
+      }
+    },
+    {
+      "queryId": "intimacao_006",
+      "metric": "Precisão de Análise de Intimações",
+      "input": {
+        "texto": "Despacho determinando emenda da inicial em 5 dias úteis, sob pena de indeferimento. Processo: 0005678-90.2024.8.01.0006.",
+        "processoCNJ": "0005678-90.2024.8.01.0006",
+        "dataIntimacao": "2024-12-13"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "tipo": "Emenda da Inicial",
+          "prazo": "5 dias úteis",
+          "dataLimite": "2024-12-20",
+          "urgencia": "alta",
+          "requerManifestacao": true
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.508Z",
+        "agentId": "justine",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"texto\":\"Despacho determinando emenda da inicial em 5 dias úteis, sob pena de indeferimento. Processo: 0005678-90.2024.8.01.0006.\",\"processoCNJ\":\"0005678-90.2024.8.01.0006\",\"dataIntimacao\":\"2024-12-13\"}",
+            "timestamp": "2025-12-14T00:39:51.508Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"tipo\":\"Emenda da Inicial\",\"prazo\":\"5 dias úteis\",\"dataLimite\":\"2024-12-20\",\"urgencia\":\"alta\",\"requerManifestacao\":true}",
+            "timestamp": "2025-12-14T00:39:51.508Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "tipo": "Emenda da Inicial",
+        "prazo": "5 dias úteis",
+        "dataLimite": "2024-12-20",
+        "urgencia": "alta",
+        "requerManifestacao": true
+      }
+    },
+    {
+      "queryId": "intimacao_007",
+      "metric": "Precisão de Análise de Intimações",
+      "input": {
+        "texto": "Intimação para apresentar contrarrazões de recurso em 15 dias úteis. Processo nº 0006789-01.2024.8.01.0007. Apelação interposta pela parte contrária.",
+        "processoCNJ": "0006789-01.2024.8.01.0007",
+        "dataIntimacao": "2024-12-13"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "tipo": "Contrarrazões de Recurso",
+          "prazo": "15 dias úteis",
+          "dataLimite": "2025-01-07",
+          "urgencia": "normal",
+          "requerManifestacao": true
+        },
+        "executionTime": 1,
+        "timestamp": "2025-12-14T00:39:51.510Z",
+        "agentId": "justine",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"texto\":\"Intimação para apresentar contrarrazões de recurso em 15 dias úteis. Processo nº 0006789-01.2024.8.01.0007. Apelação interposta pela parte contrária.\",\"processoCNJ\":\"0006789-01.2024.8.01.0007\",\"dataIntimacao\":\"2024-12-13\"}",
+            "timestamp": "2025-12-14T00:39:51.509Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"tipo\":\"Contrarrazões de Recurso\",\"prazo\":\"15 dias úteis\",\"dataLimite\":\"2025-01-07\",\"urgencia\":\"normal\",\"requerManifestacao\":true}",
+            "timestamp": "2025-12-14T00:39:51.510Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "tipo": "Contrarrazões de Recurso",
+        "prazo": "15 dias úteis",
+        "dataLimite": "2025-01-06",
+        "urgencia": "normal",
+        "requerManifestacao": true
+      }
+    },
+    {
+      "queryId": "intimacao_008",
+      "metric": "Precisão de Análise de Intimações",
+      "input": {
+        "texto": "Intimação para ciência de decisão interlocutória. Processo: 0007890-12.2024.8.01.0008. Agravo retido cabível.",
+        "processoCNJ": "0007890-12.2024.8.01.0008",
+        "dataIntimacao": "2024-12-13"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "tipo": "Decisão Interlocutória",
+          "prazo": "Sem prazo obrigatório",
+          "dataLimite": null,
+          "urgencia": "baixa",
+          "requerManifestacao": false
+        },
+        "executionTime": 1,
+        "timestamp": "2025-12-14T00:39:51.511Z",
+        "agentId": "justine",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"texto\":\"Intimação para ciência de decisão interlocutória. Processo: 0007890-12.2024.8.01.0008. Agravo retido cabível.\",\"processoCNJ\":\"0007890-12.2024.8.01.0008\",\"dataIntimacao\":\"2024-12-13\"}",
+            "timestamp": "2025-12-14T00:39:51.510Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"tipo\":\"Decisão Interlocutória\",\"prazo\":\"Sem prazo obrigatório\",\"dataLimite\":null,\"urgencia\":\"baixa\",\"requerManifestacao\":false}",
+            "timestamp": "2025-12-14T00:39:51.511Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "tipo": "Decisão Interlocutória",
+        "prazo": "Sem prazo obrigatório",
+        "dataLimite": null,
+        "urgencia": "baixa",
+        "requerManifestacao": false
+      }
+    },
+    {
+      "queryId": "intimacao_009",
+      "metric": "Precisão de Análise de Intimações",
+      "input": {
+        "texto": "Intimação para apresentar alegações finais em 10 dias. Processo nº 0008901-23.2024.8.01.0009. Fase de instrução encerrada.",
+        "processoCNJ": "0008901-23.2024.8.01.0009",
+        "dataIntimacao": "2024-12-13"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "tipo": "Alegações Finais",
+          "prazo": "10 dias",
+          "dataLimite": "2024-12-24",
+          "urgencia": "normal",
+          "requerManifestacao": true
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.512Z",
+        "agentId": "justine",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"texto\":\"Intimação para apresentar alegações finais em 10 dias. Processo nº 0008901-23.2024.8.01.0009. Fase de instrução encerrada.\",\"processoCNJ\":\"0008901-23.2024.8.01.0009\",\"dataIntimacao\":\"2024-12-13\"}",
+            "timestamp": "2025-12-14T00:39:51.512Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"tipo\":\"Alegações Finais\",\"prazo\":\"10 dias\",\"dataLimite\":\"2024-12-24\",\"urgencia\":\"normal\",\"requerManifestacao\":true}",
+            "timestamp": "2025-12-14T00:39:51.512Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "tipo": "Alegações Finais",
+        "prazo": "10 dias",
+        "dataLimite": "2024-12-23",
+        "urgencia": "normal",
+        "requerManifestacao": true
+      }
+    },
+    {
+      "queryId": "intimacao_010",
+      "metric": "Precisão de Análise de Intimações",
+      "input": {
+        "texto": "URGENTE: Intimação para apresentar defesa prévia em 24 horas. Processo criminal: 0009012-34.2024.8.01.0010. Prisão em flagrante.",
+        "processoCNJ": "0009012-34.2024.8.01.0010",
+        "dataIntimacao": "2024-12-13"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "tipo": "Defesa Prévia",
+          "prazo": "24 horas",
+          "dataLimite": "2024-12-14",
+          "urgencia": "crítica",
+          "requerManifestacao": true
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.513Z",
+        "agentId": "justine",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"texto\":\"URGENTE: Intimação para apresentar defesa prévia em 24 horas. Processo criminal: 0009012-34.2024.8.01.0010. Prisão em flagrante.\",\"processoCNJ\":\"0009012-34.2024.8.01.0010\",\"dataIntimacao\":\"2024-12-13\"}",
+            "timestamp": "2025-12-14T00:39:51.513Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"tipo\":\"Defesa Prévia\",\"prazo\":\"24 horas\",\"dataLimite\":\"2024-12-14\",\"urgencia\":\"crítica\",\"requerManifestacao\":true}",
+            "timestamp": "2025-12-14T00:39:51.513Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "tipo": "Defesa Prévia",
+        "prazo": "24 horas",
+        "dataLimite": "2024-12-14",
+        "urgencia": "crítica",
+        "requerManifestacao": true
+      }
+    },
+    {
+      "queryId": "peticao_001",
+      "metric": "Qualidade de Redação de Petições",
+      "input": {
+        "tipo": "Contestação",
+        "processoCNJ": "0001234-56.2024.8.01.0001",
+        "contexto": {
+          "partes": {
+            "autor": "João Silva",
+            "reu": "Maria Santos (defendido)"
+          },
+          "pedido": "Cobrança de honorários advocatícios no valor de R$ 50.000,00",
+          "fundamentacao": "Alegação de prestação de serviços jurídicos não comprovada"
+        },
+        "estrategia": "Contestar por falta de provas da prestação de serviços e impugnar os valores cobrados"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "estrutura": [
+            "excelência",
+            "cabeçalho completo",
+            "qualificação das partes",
+            "síntese dos fatos",
+            "fundamentação jurídica sólida",
+            "pedidos claros"
+          ],
+          "fundamentacaoJuridica": true,
+          "citacaoLegislacao": true,
+          "jurisprudencia": true,
+          "petitosClaros": true,
+          "linguagemFormal": true,
+          "conteudoCompleto": "EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\n\nCONTESTAÇÃO\n\nProcesso nº 0001234-56.2024.8.01.0001\n\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\n\nFundamentação jurídica baseada em:\n- {\"partes\":{\"autor\":\"João Silva\",\"reu\":\"Maria Santos (defendido)\"},\"pedido\":\"Cobrança de honorários advocatícios no valor de R$ 50.000,00\",\"fundamentacao\":\"Alegação de prestação de serviços jurídicos não comprovada\"}\n\nNestes termos, pede deferimento.\n\nLocal, Data\n\nAdvogado(a) OAB/XX XXXXX"
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.514Z",
+        "agentId": "redacao-peticoes",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"tipo\":\"Contestação\",\"processoCNJ\":\"0001234-56.2024.8.01.0001\",\"contexto\":{\"partes\":{\"autor\":\"João Silva\",\"reu\":\"Maria Santos (defendido)\"},\"pedido\":\"Cobrança de honorários advocatícios no valor de R$ 50.000,00\",\"fundamentacao\":\"Alegação de prestação de serviços jurídicos não comprovada\"},\"estrategia\":\"Contestar por falta de provas da prestação de serviços e impugnar os valores cobrados\"}",
+            "timestamp": "2025-12-14T00:39:51.514Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"estrutura\":[\"excelência\",\"cabeçalho completo\",\"qualificação das partes\",\"síntese dos fatos\",\"fundamentação jurídica sólida\",\"pedidos claros\"],\"fundamentacaoJuridica\":true,\"citacaoLegislacao\":true,\"jurisprudencia\":true,\"petitosClaros\":true,\"linguagemFormal\":true,\"conteudoCompleto\":\"EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\\n\\nCONTESTAÇÃO\\n\\nProcesso nº 0001234-56.2024.8.01.0001\\n\\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\\n\\nFundamentação jurídica baseada em:\\n- {\\\"partes\\\":{\\\"autor\\\":\\\"João Silva\\\",\\\"reu\\\":\\\"Maria Santos (defendido)\\\"},\\\"pedido\\\":\\\"Cobrança de honorários advocatícios no valor de R$ 50.000,00\\\",\\\"fundamentacao\\\":\\\"Alegação de prestação de serviços jurídicos não comprovada\\\"}\\n\\nNestes termos, pede deferimento.\\n\\nLocal, Data\\n\\nAdvogado(a) OAB/XX XXXXX\"}",
+            "timestamp": "2025-12-14T00:39:51.514Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "estrutura": [
+          "excelência",
+          "cabeçalho completo",
+          "qualificação das partes",
+          "síntese dos fatos",
+          "fundamentação jurídica sólida",
+          "pedidos claros"
+        ],
+        "fundamentacaoJuridica": true,
+        "citacaoLegislacao": true,
+        "jurisprudencia": true,
+        "petitosClaros": true,
+        "linguagemFormal": true
+      }
+    },
+    {
+      "queryId": "peticao_002",
+      "metric": "Qualidade de Redação de Petições",
+      "input": {
+        "tipo": "Recurso de Apelação",
+        "processoCNJ": "0002345-67.2024.8.01.0003",
+        "contexto": {
+          "sentenca": "Procedente - condenação em danos morais de R$ 100.000,00",
+          "fundamentoSentenca": "Responsabilidade civil objetiva do empregador",
+          "pontosRecorrer": [
+            "Valor excessivo dos danos morais",
+            "Ausência de nexo causal comprovado"
+          ]
+        },
+        "estrategia": "Reduzir valor dos danos morais e questionar provas do nexo causal"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "estrutura": [
+            "excelência",
+            "cabeçalho completo",
+            "qualificação das partes",
+            "síntese dos fatos",
+            "fundamentação jurídica sólida",
+            "pedidos claros"
+          ],
+          "fundamentacaoJuridica": true,
+          "citacaoLegislacao": true,
+          "jurisprudencia": true,
+          "petitosClaros": true,
+          "linguagemFormal": true,
+          "conteudoCompleto": "EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\n\nRECURSO DE APELAÇÃO\n\nProcesso nº 0002345-67.2024.8.01.0003\n\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\n\nFundamentação jurídica baseada em:\n- {\"sentenca\":\"Procedente - condenação em danos morais de R$ 100.000,00\",\"fundamentoSentenca\":\"Responsabilidade civil objetiva do empregador\",\"pontosRecorrer\":[\"Valor excessivo dos danos morais\",\"Ausência de nexo causal comprovado\"]}\n\nNestes termos, pede deferimento.\n\nLocal, Data\n\nAdvogado(a) OAB/XX XXXXX"
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.515Z",
+        "agentId": "redacao-peticoes",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"tipo\":\"Recurso de Apelação\",\"processoCNJ\":\"0002345-67.2024.8.01.0003\",\"contexto\":{\"sentenca\":\"Procedente - condenação em danos morais de R$ 100.000,00\",\"fundamentoSentenca\":\"Responsabilidade civil objetiva do empregador\",\"pontosRecorrer\":[\"Valor excessivo dos danos morais\",\"Ausência de nexo causal comprovado\"]},\"estrategia\":\"Reduzir valor dos danos morais e questionar provas do nexo causal\"}",
+            "timestamp": "2025-12-14T00:39:51.515Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"estrutura\":[\"excelência\",\"cabeçalho completo\",\"qualificação das partes\",\"síntese dos fatos\",\"fundamentação jurídica sólida\",\"pedidos claros\"],\"fundamentacaoJuridica\":true,\"citacaoLegislacao\":true,\"jurisprudencia\":true,\"petitosClaros\":true,\"linguagemFormal\":true,\"conteudoCompleto\":\"EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\\n\\nRECURSO DE APELAÇÃO\\n\\nProcesso nº 0002345-67.2024.8.01.0003\\n\\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\\n\\nFundamentação jurídica baseada em:\\n- {\\\"sentenca\\\":\\\"Procedente - condenação em danos morais de R$ 100.000,00\\\",\\\"fundamentoSentenca\\\":\\\"Responsabilidade civil objetiva do empregador\\\",\\\"pontosRecorrer\\\":[\\\"Valor excessivo dos danos morais\\\",\\\"Ausência de nexo causal comprovado\\\"]}\\n\\nNestes termos, pede deferimento.\\n\\nLocal, Data\\n\\nAdvogado(a) OAB/XX XXXXX\"}",
+            "timestamp": "2025-12-14T00:39:51.515Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "estrutura": [
+          "excelência",
+          "razões recursais bem fundamentadas",
+          "análise crítica da sentença",
+          "citação de precedentes"
+        ],
+        "fundamentacaoJuridica": true,
+        "citacaoLegislacao": true,
+        "jurisprudencia": true,
+        "petitosClaros": true,
+        "linguagemFormal": true
+      }
+    },
+    {
+      "queryId": "peticao_003",
+      "metric": "Qualidade de Redação de Petições",
+      "input": {
+        "tipo": "Embargos de Declaração",
+        "processoCNJ": "0003456-78.2024.8.01.0004",
+        "contexto": {
+          "decisao": "Sentença de improcedência do pedido inicial",
+          "omissoes": [
+            "Não analisou prova testemunhal",
+            "Não se manifestou sobre documento essencial"
+          ],
+          "contradicoes": [
+            "Reconheceu fato mas não aplicou consequência jurídica"
+          ]
+        },
+        "estrategia": "Apontar omissões e contradições para nova análise"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "estrutura": [
+            "excelência",
+            "cabeçalho completo",
+            "qualificação das partes",
+            "síntese dos fatos",
+            "fundamentação jurídica sólida",
+            "pedidos claros"
+          ],
+          "fundamentacaoJuridica": true,
+          "citacaoLegislacao": true,
+          "jurisprudencia": false,
+          "petitosClaros": true,
+          "linguagemFormal": true,
+          "conteudoCompleto": "EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\n\nEMBARGOS DE DECLARAÇÃO\n\nProcesso nº 0003456-78.2024.8.01.0004\n\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\n\nFundamentação jurídica baseada em:\n- {\"decisao\":\"Sentença de improcedência do pedido inicial\",\"omissoes\":[\"Não analisou prova testemunhal\",\"Não se manifestou sobre documento essencial\"],\"contradicoes\":[\"Reconheceu fato mas não aplicou consequência jurídica\"]}\n\nNestes termos, pede deferimento.\n\nLocal, Data\n\nAdvogado(a) OAB/XX XXXXX"
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.516Z",
+        "agentId": "redacao-peticoes",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"tipo\":\"Embargos de Declaração\",\"processoCNJ\":\"0003456-78.2024.8.01.0004\",\"contexto\":{\"decisao\":\"Sentença de improcedência do pedido inicial\",\"omissoes\":[\"Não analisou prova testemunhal\",\"Não se manifestou sobre documento essencial\"],\"contradicoes\":[\"Reconheceu fato mas não aplicou consequência jurídica\"]},\"estrategia\":\"Apontar omissões e contradições para nova análise\"}",
+            "timestamp": "2025-12-14T00:39:51.516Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"estrutura\":[\"excelência\",\"cabeçalho completo\",\"qualificação das partes\",\"síntese dos fatos\",\"fundamentação jurídica sólida\",\"pedidos claros\"],\"fundamentacaoJuridica\":true,\"citacaoLegislacao\":true,\"jurisprudencia\":false,\"petitosClaros\":true,\"linguagemFormal\":true,\"conteudoCompleto\":\"EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\\n\\nEMBARGOS DE DECLARAÇÃO\\n\\nProcesso nº 0003456-78.2024.8.01.0004\\n\\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\\n\\nFundamentação jurídica baseada em:\\n- {\\\"decisao\\\":\\\"Sentença de improcedência do pedido inicial\\\",\\\"omissoes\\\":[\\\"Não analisou prova testemunhal\\\",\\\"Não se manifestou sobre documento essencial\\\"],\\\"contradicoes\\\":[\\\"Reconheceu fato mas não aplicou consequência jurídica\\\"]}\\n\\nNestes termos, pede deferimento.\\n\\nLocal, Data\\n\\nAdvogado(a) OAB/XX XXXXX\"}",
+            "timestamp": "2025-12-14T00:39:51.516Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "estrutura": [
+          "excelência",
+          "identificação clara das omissões",
+          "identificação de contradições",
+          "pedido de complementação"
+        ],
+        "fundamentacaoJuridica": true,
+        "citacaoLegislacao": true,
+        "jurisprudencia": false,
+        "petitosClaros": true,
+        "linguagemFormal": true
+      }
+    },
+    {
+      "queryId": "peticao_004",
+      "metric": "Qualidade de Redação de Petições",
+      "input": {
+        "tipo": "Impugnação ao Cumprimento de Sentença",
+        "processoCNJ": "0007890-12.2024.8.01.0002",
+        "contexto": {
+          "valorExequendo": "R$ 250.000,00",
+          "fundamentoImpugnacao": "Excesso de execução - cálculos incorretos, juros aplicados em duplicidade",
+          "valorCorreto": "R$ 180.000,00"
+        },
+        "estrategia": "Demonstrar erro nos cálculos e requerer redução do valor exequendo"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "estrutura": [
+            "excelência",
+            "cabeçalho completo",
+            "qualificação das partes",
+            "síntese dos fatos",
+            "fundamentação jurídica sólida",
+            "pedidos claros"
+          ],
+          "fundamentacaoJuridica": true,
+          "citacaoLegislacao": true,
+          "jurisprudencia": true,
+          "petitosClaros": true,
+          "linguagemFormal": true,
+          "conteudoCompleto": "EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\n\nIMPUGNAÇÃO AO CUMPRIMENTO DE SENTENÇA\n\nProcesso nº 0007890-12.2024.8.01.0002\n\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\n\nFundamentação jurídica baseada em:\n- {\"valorExequendo\":\"R$ 250.000,00\",\"fundamentoImpugnacao\":\"Excesso de execução - cálculos incorretos, juros aplicados em duplicidade\",\"valorCorreto\":\"R$ 180.000,00\"}\n\nNestes termos, pede deferimento.\n\nLocal, Data\n\nAdvogado(a) OAB/XX XXXXX"
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.516Z",
+        "agentId": "redacao-peticoes",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"tipo\":\"Impugnação ao Cumprimento de Sentença\",\"processoCNJ\":\"0007890-12.2024.8.01.0002\",\"contexto\":{\"valorExequendo\":\"R$ 250.000,00\",\"fundamentoImpugnacao\":\"Excesso de execução - cálculos incorretos, juros aplicados em duplicidade\",\"valorCorreto\":\"R$ 180.000,00\"},\"estrategia\":\"Demonstrar erro nos cálculos e requerer redução do valor exequendo\"}",
+            "timestamp": "2025-12-14T00:39:51.516Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"estrutura\":[\"excelência\",\"cabeçalho completo\",\"qualificação das partes\",\"síntese dos fatos\",\"fundamentação jurídica sólida\",\"pedidos claros\"],\"fundamentacaoJuridica\":true,\"citacaoLegislacao\":true,\"jurisprudencia\":true,\"petitosClaros\":true,\"linguagemFormal\":true,\"conteudoCompleto\":\"EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\\n\\nIMPUGNAÇÃO AO CUMPRIMENTO DE SENTENÇA\\n\\nProcesso nº 0007890-12.2024.8.01.0002\\n\\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\\n\\nFundamentação jurídica baseada em:\\n- {\\\"valorExequendo\\\":\\\"R$ 250.000,00\\\",\\\"fundamentoImpugnacao\\\":\\\"Excesso de execução - cálculos incorretos, juros aplicados em duplicidade\\\",\\\"valorCorreto\\\":\\\"R$ 180.000,00\\\"}\\n\\nNestes termos, pede deferimento.\\n\\nLocal, Data\\n\\nAdvogado(a) OAB/XX XXXXX\"}",
+            "timestamp": "2025-12-14T00:39:51.516Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "estrutura": [
+          "excelência",
+          "análise detalhada dos cálculos",
+          "demonstração de erros",
+          "apresentação de cálculos corretos"
+        ],
+        "fundamentacaoJuridica": true,
+        "citacaoLegislacao": true,
+        "jurisprudencia": true,
+        "petitosClaros": true,
+        "linguagemFormal": true
+      }
+    },
+    {
+      "queryId": "peticao_005",
+      "metric": "Qualidade de Redação de Petições",
+      "input": {
+        "tipo": "Petição Inicial - Ação Trabalhista",
+        "processoCNJ": null,
+        "contexto": {
+          "reclamante": "Carlos Souza",
+          "reclamada": "Empresa XYZ Ltda",
+          "pedidos": [
+            "Horas extras não pagas",
+            "Adicional noturno",
+            "FGTS",
+            "Danos morais por assédio moral"
+          ],
+          "periodoTrabalho": "01/2020 a 12/2023",
+          "valorCausa": "R$ 85.000,00"
+        },
+        "estrategia": "Fundamentar pedidos com base em provas documentais e testemunhais"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "estrutura": [
+            "excelência",
+            "cabeçalho completo",
+            "qualificação das partes",
+            "síntese dos fatos",
+            "fundamentação jurídica sólida",
+            "pedidos claros"
+          ],
+          "fundamentacaoJuridica": true,
+          "citacaoLegislacao": true,
+          "jurisprudencia": true,
+          "petitosClaros": true,
+          "linguagemFormal": true,
+          "conteudoCompleto": "EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\n\nPETIÇÃO INICIAL - AÇÃO TRABALHISTA\n\nProcesso nº XXX\n\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\n\nFundamentação jurídica baseada em:\n- {\"reclamante\":\"Carlos Souza\",\"reclamada\":\"Empresa XYZ Ltda\",\"pedidos\":[\"Horas extras não pagas\",\"Adicional noturno\",\"FGTS\",\"Danos morais por assédio moral\"],\"periodoTrabalho\":\"01/2020 a 12/2023\",\"valorCausa\":\"R$ 85.000,00\"}\n\nNestes termos, pede deferimento.\n\nLocal, Data\n\nAdvogado(a) OAB/XX XXXXX"
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.517Z",
+        "agentId": "redacao-peticoes",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"tipo\":\"Petição Inicial - Ação Trabalhista\",\"processoCNJ\":null,\"contexto\":{\"reclamante\":\"Carlos Souza\",\"reclamada\":\"Empresa XYZ Ltda\",\"pedidos\":[\"Horas extras não pagas\",\"Adicional noturno\",\"FGTS\",\"Danos morais por assédio moral\"],\"periodoTrabalho\":\"01/2020 a 12/2023\",\"valorCausa\":\"R$ 85.000,00\"},\"estrategia\":\"Fundamentar pedidos com base em provas documentais e testemunhais\"}",
+            "timestamp": "2025-12-14T00:39:51.517Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"estrutura\":[\"excelência\",\"cabeçalho completo\",\"qualificação das partes\",\"síntese dos fatos\",\"fundamentação jurídica sólida\",\"pedidos claros\"],\"fundamentacaoJuridica\":true,\"citacaoLegislacao\":true,\"jurisprudencia\":true,\"petitosClaros\":true,\"linguagemFormal\":true,\"conteudoCompleto\":\"EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\\n\\nPETIÇÃO INICIAL - AÇÃO TRABALHISTA\\n\\nProcesso nº XXX\\n\\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\\n\\nFundamentação jurídica baseada em:\\n- {\\\"reclamante\\\":\\\"Carlos Souza\\\",\\\"reclamada\\\":\\\"Empresa XYZ Ltda\\\",\\\"pedidos\\\":[\\\"Horas extras não pagas\\\",\\\"Adicional noturno\\\",\\\"FGTS\\\",\\\"Danos morais por assédio moral\\\"],\\\"periodoTrabalho\\\":\\\"01/2020 a 12/2023\\\",\\\"valorCausa\\\":\\\"R$ 85.000,00\\\"}\\n\\nNestes termos, pede deferimento.\\n\\nLocal, Data\\n\\nAdvogado(a) OAB/XX XXXXX\"}",
+            "timestamp": "2025-12-14T00:39:51.517Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "estrutura": [
+          "excelência",
+          "qualificação completa das partes",
+          "descrição detalhada dos fatos",
+          "fundamentação de cada pedido",
+          "provas anexadas"
+        ],
+        "fundamentacaoJuridica": true,
+        "citacaoLegislacao": true,
+        "jurisprudencia": true,
+        "petitosClaros": true,
+        "linguagemFormal": true
+      }
+    },
+    {
+      "queryId": "peticao_006",
+      "metric": "Qualidade de Redação de Petições",
+      "input": {
+        "tipo": "Réplica",
+        "processoCNJ": "0004567-89.2024.8.01.0005",
+        "contexto": {
+          "contestacao": "Réu alegou prescrição e impugnou documentos apresentados pelo autor",
+          "documentosImpugnados": [
+            "Contrato de prestação de serviços",
+            "Recibos de pagamento"
+          ],
+          "prescricao": "Réu alega que ação foi proposta após prazo de 3 anos"
+        },
+        "estrategia": "Refutar alegação de prescrição e defender autenticidade dos documentos"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "estrutura": [
+            "excelência",
+            "cabeçalho completo",
+            "qualificação das partes",
+            "síntese dos fatos",
+            "fundamentação jurídica sólida",
+            "pedidos claros"
+          ],
+          "fundamentacaoJuridica": true,
+          "citacaoLegislacao": true,
+          "jurisprudencia": true,
+          "petitosClaros": true,
+          "linguagemFormal": true,
+          "conteudoCompleto": "EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\n\nRÉPLICA\n\nProcesso nº 0004567-89.2024.8.01.0005\n\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\n\nFundamentação jurídica baseada em:\n- {\"contestacao\":\"Réu alegou prescrição e impugnou documentos apresentados pelo autor\",\"documentosImpugnados\":[\"Contrato de prestação de serviços\",\"Recibos de pagamento\"],\"prescricao\":\"Réu alega que ação foi proposta após prazo de 3 anos\"}\n\nNestes termos, pede deferimento.\n\nLocal, Data\n\nAdvogado(a) OAB/XX XXXXX"
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.518Z",
+        "agentId": "redacao-peticoes",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"tipo\":\"Réplica\",\"processoCNJ\":\"0004567-89.2024.8.01.0005\",\"contexto\":{\"contestacao\":\"Réu alegou prescrição e impugnou documentos apresentados pelo autor\",\"documentosImpugnados\":[\"Contrato de prestação de serviços\",\"Recibos de pagamento\"],\"prescricao\":\"Réu alega que ação foi proposta após prazo de 3 anos\"},\"estrategia\":\"Refutar alegação de prescrição e defender autenticidade dos documentos\"}",
+            "timestamp": "2025-12-14T00:39:51.518Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"estrutura\":[\"excelência\",\"cabeçalho completo\",\"qualificação das partes\",\"síntese dos fatos\",\"fundamentação jurídica sólida\",\"pedidos claros\"],\"fundamentacaoJuridica\":true,\"citacaoLegislacao\":true,\"jurisprudencia\":true,\"petitosClaros\":true,\"linguagemFormal\":true,\"conteudoCompleto\":\"EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\\n\\nRÉPLICA\\n\\nProcesso nº 0004567-89.2024.8.01.0005\\n\\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\\n\\nFundamentação jurídica baseada em:\\n- {\\\"contestacao\\\":\\\"Réu alegou prescrição e impugnou documentos apresentados pelo autor\\\",\\\"documentosImpugnados\\\":[\\\"Contrato de prestação de serviços\\\",\\\"Recibos de pagamento\\\"],\\\"prescricao\\\":\\\"Réu alega que ação foi proposta após prazo de 3 anos\\\"}\\n\\nNestes termos, pede deferimento.\\n\\nLocal, Data\\n\\nAdvogado(a) OAB/XX XXXXX\"}",
+            "timestamp": "2025-12-14T00:39:51.518Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "estrutura": [
+          "excelência",
+          "refutação ponto a ponto da contestação",
+          "defesa dos documentos",
+          "análise jurídica da prescrição"
+        ],
+        "fundamentacaoJuridica": true,
+        "citacaoLegislacao": true,
+        "jurisprudencia": true,
+        "petitosClaros": true,
+        "linguagemFormal": true
+      }
+    },
+    {
+      "queryId": "peticao_007",
+      "metric": "Qualidade de Redação de Petições",
+      "input": {
+        "tipo": "Agravo de Instrumento",
+        "processoCNJ": "0010111-22.2024.8.01.0011",
+        "contexto": {
+          "decisaoAgravada": "Decisão que indeferiu tutela de urgência para suspensão de descontos em folha de pagamento",
+          "fundamentoAgravo": "Presença dos requisitos de probabilidade do direito e perigo de dano",
+          "urgencia": "Descontos estão causando prejuízo financeiro imediato ao agravante"
+        },
+        "estrategia": "Demonstrar urgência e probabilidade do direito com pedido de efeito suspensivo"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "estrutura": [
+            "excelência",
+            "cabeçalho completo",
+            "qualificação das partes",
+            "síntese dos fatos",
+            "fundamentação jurídica sólida",
+            "pedidos claros"
+          ],
+          "fundamentacaoJuridica": true,
+          "citacaoLegislacao": true,
+          "jurisprudencia": true,
+          "petitosClaros": true,
+          "linguagemFormal": true,
+          "conteudoCompleto": "EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\n\nAGRAVO DE INSTRUMENTO\n\nProcesso nº 0010111-22.2024.8.01.0011\n\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\n\nFundamentação jurídica baseada em:\n- {\"decisaoAgravada\":\"Decisão que indeferiu tutela de urgência para suspensão de descontos em folha de pagamento\",\"fundamentoAgravo\":\"Presença dos requisitos de probabilidade do direito e perigo de dano\",\"urgencia\":\"Descontos estão causando prejuízo financeiro imediato ao agravante\"}\n\nNestes termos, pede deferimento.\n\nLocal, Data\n\nAdvogado(a) OAB/XX XXXXX"
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.518Z",
+        "agentId": "redacao-peticoes",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"tipo\":\"Agravo de Instrumento\",\"processoCNJ\":\"0010111-22.2024.8.01.0011\",\"contexto\":{\"decisaoAgravada\":\"Decisão que indeferiu tutela de urgência para suspensão de descontos em folha de pagamento\",\"fundamentoAgravo\":\"Presença dos requisitos de probabilidade do direito e perigo de dano\",\"urgencia\":\"Descontos estão causando prejuízo financeiro imediato ao agravante\"},\"estrategia\":\"Demonstrar urgência e probabilidade do direito com pedido de efeito suspensivo\"}",
+            "timestamp": "2025-12-14T00:39:51.518Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"estrutura\":[\"excelência\",\"cabeçalho completo\",\"qualificação das partes\",\"síntese dos fatos\",\"fundamentação jurídica sólida\",\"pedidos claros\"],\"fundamentacaoJuridica\":true,\"citacaoLegislacao\":true,\"jurisprudencia\":true,\"petitosClaros\":true,\"linguagemFormal\":true,\"conteudoCompleto\":\"EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\\n\\nAGRAVO DE INSTRUMENTO\\n\\nProcesso nº 0010111-22.2024.8.01.0011\\n\\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\\n\\nFundamentação jurídica baseada em:\\n- {\\\"decisaoAgravada\\\":\\\"Decisão que indeferiu tutela de urgência para suspensão de descontos em folha de pagamento\\\",\\\"fundamentoAgravo\\\":\\\"Presença dos requisitos de probabilidade do direito e perigo de dano\\\",\\\"urgencia\\\":\\\"Descontos estão causando prejuízo financeiro imediato ao agravante\\\"}\\n\\nNestes termos, pede deferimento.\\n\\nLocal, Data\\n\\nAdvogado(a) OAB/XX XXXXX\"}",
+            "timestamp": "2025-12-14T00:39:51.518Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "estrutura": [
+          "excelência",
+          "análise da decisão agravada",
+          "demonstração de urgência",
+          "fundamentação dos requisitos legais",
+          "pedido de liminar"
+        ],
+        "fundamentacaoJuridica": true,
+        "citacaoLegislacao": true,
+        "jurisprudencia": true,
+        "petitosClaros": true,
+        "linguagemFormal": true
+      }
+    },
+    {
+      "queryId": "peticao_008",
+      "metric": "Qualidade de Redação de Petições",
+      "input": {
+        "tipo": "Habeas Corpus",
+        "processoCNJ": null,
+        "contexto": {
+          "paciente": "Pedro Oliveira",
+          "autoridade": "Juiz de Direito da 2ª Vara Criminal",
+          "constrangimento": "Prisão preventiva decretada sem fundamentação adequada",
+          "medidas": [
+            "Substituição por medidas cautelares",
+            "Liberdade provisória"
+          ]
+        },
+        "estrategia": "Demonstrar ilegalidade da prisão e propor medidas cautelares alternativas"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "estrutura": [
+            "excelência",
+            "cabeçalho completo",
+            "qualificação das partes",
+            "síntese dos fatos",
+            "fundamentação jurídica sólida",
+            "pedidos claros"
+          ],
+          "fundamentacaoJuridica": true,
+          "citacaoLegislacao": true,
+          "jurisprudencia": true,
+          "petitosClaros": true,
+          "linguagemFormal": true,
+          "conteudoCompleto": "EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\n\nHABEAS CORPUS\n\nProcesso nº XXX\n\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\n\nFundamentação jurídica baseada em:\n- {\"paciente\":\"Pedro Oliveira\",\"autoridade\":\"Juiz de Direito da 2ª Vara Criminal\",\"constrangimento\":\"Prisão preventiva decretada sem fundamentação adequada\",\"medidas\":[\"Substituição por medidas cautelares\",\"Liberdade provisória\"]}\n\nNestes termos, pede deferimento.\n\nLocal, Data\n\nAdvogado(a) OAB/XX XXXXX"
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.520Z",
+        "agentId": "redacao-peticoes",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"tipo\":\"Habeas Corpus\",\"processoCNJ\":null,\"contexto\":{\"paciente\":\"Pedro Oliveira\",\"autoridade\":\"Juiz de Direito da 2ª Vara Criminal\",\"constrangimento\":\"Prisão preventiva decretada sem fundamentação adequada\",\"medidas\":[\"Substituição por medidas cautelares\",\"Liberdade provisória\"]},\"estrategia\":\"Demonstrar ilegalidade da prisão e propor medidas cautelares alternativas\"}",
+            "timestamp": "2025-12-14T00:39:51.520Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"estrutura\":[\"excelência\",\"cabeçalho completo\",\"qualificação das partes\",\"síntese dos fatos\",\"fundamentação jurídica sólida\",\"pedidos claros\"],\"fundamentacaoJuridica\":true,\"citacaoLegislacao\":true,\"jurisprudencia\":true,\"petitosClaros\":true,\"linguagemFormal\":true,\"conteudoCompleto\":\"EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\\n\\nHABEAS CORPUS\\n\\nProcesso nº XXX\\n\\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\\n\\nFundamentação jurídica baseada em:\\n- {\\\"paciente\\\":\\\"Pedro Oliveira\\\",\\\"autoridade\\\":\\\"Juiz de Direito da 2ª Vara Criminal\\\",\\\"constrangimento\\\":\\\"Prisão preventiva decretada sem fundamentação adequada\\\",\\\"medidas\\\":[\\\"Substituição por medidas cautelares\\\",\\\"Liberdade provisória\\\"]}\\n\\nNestes termos, pede deferimento.\\n\\nLocal, Data\\n\\nAdvogado(a) OAB/XX XXXXX\"}",
+            "timestamp": "2025-12-14T00:39:51.520Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "estrutura": [
+          "excelência",
+          "qualificação do paciente e autoridade",
+          "descrição do constrangimento ilegal",
+          "fundamentação da ilegalidade",
+          "pedido subsidiário"
+        ],
+        "fundamentacaoJuridica": true,
+        "citacaoLegislacao": true,
+        "jurisprudencia": true,
+        "petitosClaros": true,
+        "linguagemFormal": true
+      }
+    },
+    {
+      "queryId": "peticao_009",
+      "metric": "Qualidade de Redação de Petições",
+      "input": {
+        "tipo": "Contrarrazões de Recurso",
+        "processoCNJ": "0006789-01.2024.8.01.0007",
+        "contexto": {
+          "recurso": "Apelação interposta pela parte contrária",
+          "fundamentoRecurso": "Alegação de cerceamento de defesa e erro na valoração das provas",
+          "sentencaFavoravel": "Sentença foi procedente em favor do ora apelado"
+        },
+        "estrategia": "Defender manutenção da sentença e refutar alegações do recurso"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "estrutura": [
+            "excelência",
+            "cabeçalho completo",
+            "qualificação das partes",
+            "síntese dos fatos",
+            "fundamentação jurídica sólida",
+            "pedidos claros"
+          ],
+          "fundamentacaoJuridica": true,
+          "citacaoLegislacao": true,
+          "jurisprudencia": true,
+          "petitosClaros": true,
+          "linguagemFormal": true,
+          "conteudoCompleto": "EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\n\nCONTRARRAZÕES DE RECURSO\n\nProcesso nº 0006789-01.2024.8.01.0007\n\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\n\nFundamentação jurídica baseada em:\n- {\"recurso\":\"Apelação interposta pela parte contrária\",\"fundamentoRecurso\":\"Alegação de cerceamento de defesa e erro na valoração das provas\",\"sentencaFavoravel\":\"Sentença foi procedente em favor do ora apelado\"}\n\nNestes termos, pede deferimento.\n\nLocal, Data\n\nAdvogado(a) OAB/XX XXXXX"
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.520Z",
+        "agentId": "redacao-peticoes",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"tipo\":\"Contrarrazões de Recurso\",\"processoCNJ\":\"0006789-01.2024.8.01.0007\",\"contexto\":{\"recurso\":\"Apelação interposta pela parte contrária\",\"fundamentoRecurso\":\"Alegação de cerceamento de defesa e erro na valoração das provas\",\"sentencaFavoravel\":\"Sentença foi procedente em favor do ora apelado\"},\"estrategia\":\"Defender manutenção da sentença e refutar alegações do recurso\"}",
+            "timestamp": "2025-12-14T00:39:51.520Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"estrutura\":[\"excelência\",\"cabeçalho completo\",\"qualificação das partes\",\"síntese dos fatos\",\"fundamentação jurídica sólida\",\"pedidos claros\"],\"fundamentacaoJuridica\":true,\"citacaoLegislacao\":true,\"jurisprudencia\":true,\"petitosClaros\":true,\"linguagemFormal\":true,\"conteudoCompleto\":\"EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\\n\\nCONTRARRAZÕES DE RECURSO\\n\\nProcesso nº 0006789-01.2024.8.01.0007\\n\\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\\n\\nFundamentação jurídica baseada em:\\n- {\\\"recurso\\\":\\\"Apelação interposta pela parte contrária\\\",\\\"fundamentoRecurso\\\":\\\"Alegação de cerceamento de defesa e erro na valoração das provas\\\",\\\"sentencaFavoravel\\\":\\\"Sentença foi procedente em favor do ora apelado\\\"}\\n\\nNestes termos, pede deferimento.\\n\\nLocal, Data\\n\\nAdvogado(a) OAB/XX XXXXX\"}",
+            "timestamp": "2025-12-14T00:39:51.520Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "estrutura": [
+          "excelência",
+          "análise do recurso adverso",
+          "defesa da sentença",
+          "refutação dos argumentos",
+          "pedido de não provimento"
+        ],
+        "fundamentacaoJuridica": true,
+        "citacaoLegislacao": true,
+        "jurisprudencia": true,
+        "petitosClaros": true,
+        "linguagemFormal": true
+      }
+    },
+    {
+      "queryId": "peticao_010",
+      "metric": "Qualidade de Redação de Petições",
+      "input": {
+        "tipo": "Ação de Execução",
+        "processoCNJ": null,
+        "contexto": {
+          "exequente": "Banco ABC S/A",
+          "executado": "José Pereira",
+          "titulo": "Cédula de Crédito Bancário",
+          "valorExecucao": "R$ 450.000,00",
+          "garantias": "Hipoteca de imóvel"
+        },
+        "estrategia": "Executar título extrajudicial com penhora de bens e bloqueio de valores"
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "estrutura": [
+            "excelência",
+            "cabeçalho completo",
+            "qualificação das partes",
+            "síntese dos fatos",
+            "fundamentação jurídica sólida",
+            "pedidos claros"
+          ],
+          "fundamentacaoJuridica": true,
+          "citacaoLegislacao": true,
+          "jurisprudencia": true,
+          "petitosClaros": true,
+          "linguagemFormal": true,
+          "conteudoCompleto": "EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\n\nAÇÃO DE EXECUÇÃO\n\nProcesso nº XXX\n\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\n\nFundamentação jurídica baseada em:\n- {\"exequente\":\"Banco ABC S/A\",\"executado\":\"José Pereira\",\"titulo\":\"Cédula de Crédito Bancário\",\"valorExecucao\":\"R$ 450.000,00\",\"garantias\":\"Hipoteca de imóvel\"}\n\nNestes termos, pede deferimento.\n\nLocal, Data\n\nAdvogado(a) OAB/XX XXXXX"
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.521Z",
+        "agentId": "redacao-peticoes",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"tipo\":\"Ação de Execução\",\"processoCNJ\":null,\"contexto\":{\"exequente\":\"Banco ABC S/A\",\"executado\":\"José Pereira\",\"titulo\":\"Cédula de Crédito Bancário\",\"valorExecucao\":\"R$ 450.000,00\",\"garantias\":\"Hipoteca de imóvel\"},\"estrategia\":\"Executar título extrajudicial com penhora de bens e bloqueio de valores\"}",
+            "timestamp": "2025-12-14T00:39:51.521Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"estrutura\":[\"excelência\",\"cabeçalho completo\",\"qualificação das partes\",\"síntese dos fatos\",\"fundamentação jurídica sólida\",\"pedidos claros\"],\"fundamentacaoJuridica\":true,\"citacaoLegislacao\":true,\"jurisprudencia\":true,\"petitosClaros\":true,\"linguagemFormal\":true,\"conteudoCompleto\":\"EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DA VARA...\\n\\nAÇÃO DE EXECUÇÃO\\n\\nProcesso nº XXX\\n\\n[Conteúdo completo da petição seria gerado aqui pelo agente real]\\n\\nFundamentação jurídica baseada em:\\n- {\\\"exequente\\\":\\\"Banco ABC S/A\\\",\\\"executado\\\":\\\"José Pereira\\\",\\\"titulo\\\":\\\"Cédula de Crédito Bancário\\\",\\\"valorExecucao\\\":\\\"R$ 450.000,00\\\",\\\"garantias\\\":\\\"Hipoteca de imóvel\\\"}\\n\\nNestes termos, pede deferimento.\\n\\nLocal, Data\\n\\nAdvogado(a) OAB/XX XXXXX\"}",
+            "timestamp": "2025-12-14T00:39:51.521Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "estrutura": [
+          "excelência",
+          "qualificação das partes",
+          "descrição do título executivo",
+          "cálculo atualizado do débito",
+          "indicação de bens para penhora"
+        ],
+        "fundamentacaoJuridica": true,
+        "citacaoLegislacao": true,
+        "jurisprudencia": false,
+        "petitosClaros": true,
+        "linguagemFormal": true
+      }
+    },
+    {
+      "queryId": "prazo_001",
+      "metric": "Precisão de Cálculo de Prazos",
+      "input": {
+        "dataIntimacao": "2024-12-13",
+        "tipoPrazo": "Contestação - 15 dias úteis",
+        "feriados": [
+          "2024-12-25",
+          "2025-01-01"
+        ],
+        "diasUteis": true
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "dataLimite": "2025-01-07",
+          "diasCorridos": 25,
+          "diasUteis": 15,
+          "feriadosNoIntervalo": [
+            "2024-12-25",
+            "2025-01-01"
+          ],
+          "alertas": [
+            "Prazo engloba feriados de Natal e Ano Novo"
+          ]
+        },
+        "executionTime": 1,
+        "timestamp": "2025-12-14T00:39:51.523Z",
+        "agentId": "gestao-prazos",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"dataIntimacao\":\"2024-12-13\",\"tipoPrazo\":\"Contestação - 15 dias úteis\",\"feriados\":[\"2024-12-25\",\"2025-01-01\"],\"diasUteis\":true}",
+            "timestamp": "2025-12-14T00:39:51.522Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"dataLimite\":\"2025-01-07\",\"diasCorridos\":25,\"diasUteis\":15,\"feriadosNoIntervalo\":[\"2024-12-25\",\"2025-01-01\"],\"alertas\":[\"Prazo engloba feriados de Natal e Ano Novo\"]}",
+            "timestamp": "2025-12-14T00:39:51.523Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "dataLimite": "2025-01-06",
+        "diasCorridos": 24,
+        "diasUteis": 15,
+        "feriadosNoIntervalo": 2,
+        "alertas": [
+          "Prazo engloba feriados de Natal e Ano Novo"
+        ]
+      }
+    },
+    {
+      "queryId": "prazo_002",
+      "metric": "Precisão de Cálculo de Prazos",
+      "input": {
+        "dataIntimacao": "2024-12-13",
+        "tipoPrazo": "Recurso - 15 dias úteis",
+        "feriados": [
+          "2024-12-25",
+          "2025-01-01"
+        ],
+        "diasUteis": true
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "dataLimite": "2025-01-07",
+          "diasCorridos": 25,
+          "diasUteis": 15,
+          "feriadosNoIntervalo": [
+            "2024-12-25",
+            "2025-01-01"
+          ],
+          "alertas": [
+            "Prazo engloba feriados de Natal e Ano Novo"
+          ]
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.524Z",
+        "agentId": "gestao-prazos",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"dataIntimacao\":\"2024-12-13\",\"tipoPrazo\":\"Recurso - 15 dias úteis\",\"feriados\":[\"2024-12-25\",\"2025-01-01\"],\"diasUteis\":true}",
+            "timestamp": "2025-12-14T00:39:51.524Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"dataLimite\":\"2025-01-07\",\"diasCorridos\":25,\"diasUteis\":15,\"feriadosNoIntervalo\":[\"2024-12-25\",\"2025-01-01\"],\"alertas\":[\"Prazo engloba feriados de Natal e Ano Novo\"]}",
+            "timestamp": "2025-12-14T00:39:51.524Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "dataLimite": "2025-01-06",
+        "diasCorridos": 24,
+        "diasUteis": 15,
+        "feriadosNoIntervalo": 2,
+        "alertas": [
+          "Prazo engloba feriados de Natal e Ano Novo"
+        ]
+      }
+    },
+    {
+      "queryId": "prazo_003",
+      "metric": "Precisão de Cálculo de Prazos",
+      "input": {
+        "dataIntimacao": "2024-12-13",
+        "tipoPrazo": "Manifestação - 10 dias corridos",
+        "feriados": [],
+        "diasUteis": false
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "dataLimite": "2024-12-23",
+          "diasCorridos": 10,
+          "diasUteis": null,
+          "feriadosNoIntervalo": [],
+          "alertas": []
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.525Z",
+        "agentId": "gestao-prazos",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"dataIntimacao\":\"2024-12-13\",\"tipoPrazo\":\"Manifestação - 10 dias corridos\",\"feriados\":[],\"diasUteis\":false}",
+            "timestamp": "2025-12-14T00:39:51.525Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"dataLimite\":\"2024-12-23\",\"diasCorridos\":10,\"diasUteis\":null,\"feriadosNoIntervalo\":[],\"alertas\":[]}",
+            "timestamp": "2025-12-14T00:39:51.525Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "dataLimite": "2024-12-23",
+        "diasCorridos": 10,
+        "diasUteis": null,
+        "feriadosNoIntervalo": 0,
+        "alertas": []
+      }
+    },
+    {
+      "queryId": "prazo_004",
+      "metric": "Precisão de Cálculo de Prazos",
+      "input": {
+        "dataIntimacao": "2024-12-13",
+        "tipoPrazo": "Urgente - 48 horas",
+        "feriados": [],
+        "diasUteis": false
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "dataLimite": "2024-12-15",
+          "diasCorridos": 2,
+          "diasUteis": null,
+          "feriadosNoIntervalo": [],
+          "alertas": [
+            "Prazo crítico - menos de 3 dias"
+          ]
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.526Z",
+        "agentId": "gestao-prazos",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"dataIntimacao\":\"2024-12-13\",\"tipoPrazo\":\"Urgente - 48 horas\",\"feriados\":[],\"diasUteis\":false}",
+            "timestamp": "2025-12-14T00:39:51.526Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"dataLimite\":\"2024-12-15\",\"diasCorridos\":2,\"diasUteis\":null,\"feriadosNoIntervalo\":[],\"alertas\":[\"Prazo crítico - menos de 3 dias\"]}",
+            "timestamp": "2025-12-14T00:39:51.526Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "dataLimite": "2024-12-15",
+        "diasCorridos": 2,
+        "diasUteis": null,
+        "feriadosNoIntervalo": 0,
+        "alertas": [
+          "Prazo crítico - menos de 3 dias"
+        ]
+      }
+    },
+    {
+      "queryId": "prazo_005",
+      "metric": "Precisão de Cálculo de Prazos",
+      "input": {
+        "dataIntimacao": "2024-12-13",
+        "tipoPrazo": "Emenda da inicial - 5 dias úteis",
+        "feriados": [
+          "2024-12-25"
+        ],
+        "diasUteis": true
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "dataLimite": "2024-12-20",
+          "diasCorridos": 7,
+          "diasUteis": 5,
+          "feriadosNoIntervalo": [],
+          "alertas": []
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.527Z",
+        "agentId": "gestao-prazos",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"dataIntimacao\":\"2024-12-13\",\"tipoPrazo\":\"Emenda da inicial - 5 dias úteis\",\"feriados\":[\"2024-12-25\"],\"diasUteis\":true}",
+            "timestamp": "2025-12-14T00:39:51.527Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"dataLimite\":\"2024-12-20\",\"diasCorridos\":7,\"diasUteis\":5,\"feriadosNoIntervalo\":[],\"alertas\":[]}",
+            "timestamp": "2025-12-14T00:39:51.527Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "dataLimite": "2024-12-20",
+        "diasCorridos": 7,
+        "diasUteis": 5,
+        "feriadosNoIntervalo": 1,
+        "alertas": [
+          "Prazo engloba feriado de Natal"
+        ]
+      }
+    },
+    {
+      "queryId": "prazo_006",
+      "metric": "Precisão de Cálculo de Prazos",
+      "input": {
+        "dataIntimacao": "2024-12-13",
+        "tipoPrazo": "Alegações finais - 10 dias",
+        "feriados": [
+          "2024-12-25",
+          "2025-01-01"
+        ],
+        "diasUteis": false
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "dataLimite": "2024-12-23",
+          "diasCorridos": 10,
+          "diasUteis": null,
+          "feriadosNoIntervalo": [],
+          "alertas": []
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.528Z",
+        "agentId": "gestao-prazos",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"dataIntimacao\":\"2024-12-13\",\"tipoPrazo\":\"Alegações finais - 10 dias\",\"feriados\":[\"2024-12-25\",\"2025-01-01\"],\"diasUteis\":false}",
+            "timestamp": "2025-12-14T00:39:51.528Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"dataLimite\":\"2024-12-23\",\"diasCorridos\":10,\"diasUteis\":null,\"feriadosNoIntervalo\":[],\"alertas\":[]}",
+            "timestamp": "2025-12-14T00:39:51.528Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "dataLimite": "2024-12-23",
+        "diasCorridos": 10,
+        "diasUteis": null,
+        "feriadosNoIntervalo": 0,
+        "alertas": []
+      }
+    },
+    {
+      "queryId": "prazo_007",
+      "metric": "Precisão de Cálculo de Prazos",
+      "input": {
+        "dataIntimacao": "2024-12-20",
+        "tipoPrazo": "Réplica - 15 dias úteis",
+        "feriados": [
+          "2024-12-25",
+          "2025-01-01"
+        ],
+        "diasUteis": true
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "dataLimite": "2025-01-14",
+          "diasCorridos": 25,
+          "diasUteis": 15,
+          "feriadosNoIntervalo": [
+            "2024-12-25",
+            "2025-01-01"
+          ],
+          "alertas": [
+            "Prazo engloba feriados de Natal e Ano Novo"
+          ]
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.529Z",
+        "agentId": "gestao-prazos",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"dataIntimacao\":\"2024-12-20\",\"tipoPrazo\":\"Réplica - 15 dias úteis\",\"feriados\":[\"2024-12-25\",\"2025-01-01\"],\"diasUteis\":true}",
+            "timestamp": "2025-12-14T00:39:51.529Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"dataLimite\":\"2025-01-14\",\"diasCorridos\":25,\"diasUteis\":15,\"feriadosNoIntervalo\":[\"2024-12-25\",\"2025-01-01\"],\"alertas\":[\"Prazo engloba feriados de Natal e Ano Novo\"]}",
+            "timestamp": "2025-12-14T00:39:51.529Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "dataLimite": "2025-01-15",
+        "diasCorridos": 26,
+        "diasUteis": 15,
+        "feriadosNoIntervalo": 2,
+        "alertas": [
+          "Prazo engloba feriados de Natal e Ano Novo",
+          "Prazo inicia próximo ao feriado"
+        ]
+      }
+    },
+    {
+      "queryId": "prazo_008",
+      "metric": "Precisão de Cálculo de Prazos",
+      "input": {
+        "dataIntimacao": "2024-12-13",
+        "tipoPrazo": "Contrarrazões - 15 dias úteis",
+        "feriados": [
+          "2024-12-25",
+          "2025-01-01"
+        ],
+        "diasUteis": true
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "dataLimite": "2025-01-07",
+          "diasCorridos": 25,
+          "diasUteis": 15,
+          "feriadosNoIntervalo": [
+            "2024-12-25",
+            "2025-01-01"
+          ],
+          "alertas": [
+            "Prazo engloba feriados de Natal e Ano Novo"
+          ]
+        },
+        "executionTime": 1,
+        "timestamp": "2025-12-14T00:39:51.530Z",
+        "agentId": "gestao-prazos",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"dataIntimacao\":\"2024-12-13\",\"tipoPrazo\":\"Contrarrazões - 15 dias úteis\",\"feriados\":[\"2024-12-25\",\"2025-01-01\"],\"diasUteis\":true}",
+            "timestamp": "2025-12-14T00:39:51.529Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"dataLimite\":\"2025-01-07\",\"diasCorridos\":25,\"diasUteis\":15,\"feriadosNoIntervalo\":[\"2024-12-25\",\"2025-01-01\"],\"alertas\":[\"Prazo engloba feriados de Natal e Ano Novo\"]}",
+            "timestamp": "2025-12-14T00:39:51.530Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "dataLimite": "2025-01-06",
+        "diasCorridos": 24,
+        "diasUteis": 15,
+        "feriadosNoIntervalo": 2,
+        "alertas": [
+          "Prazo engloba feriados de Natal e Ano Novo"
+        ]
+      }
+    },
+    {
+      "queryId": "prazo_009",
+      "metric": "Precisão de Cálculo de Prazos",
+      "input": {
+        "dataIntimacao": "2024-12-13",
+        "tipoPrazo": "Defesa prévia - 24 horas",
+        "feriados": [],
+        "diasUteis": false
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "dataLimite": "2024-12-14",
+          "diasCorridos": 1,
+          "diasUteis": null,
+          "feriadosNoIntervalo": [],
+          "alertas": [
+            "Prazo crítico - menos de 3 dias",
+            "Urgência máxima"
+          ]
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.530Z",
+        "agentId": "gestao-prazos",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"dataIntimacao\":\"2024-12-13\",\"tipoPrazo\":\"Defesa prévia - 24 horas\",\"feriados\":[],\"diasUteis\":false}",
+            "timestamp": "2025-12-14T00:39:51.530Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"dataLimite\":\"2024-12-14\",\"diasCorridos\":1,\"diasUteis\":null,\"feriadosNoIntervalo\":[],\"alertas\":[\"Prazo crítico - menos de 3 dias\",\"Urgência máxima\"]}",
+            "timestamp": "2025-12-14T00:39:51.530Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "dataLimite": "2024-12-14",
+        "diasCorridos": 1,
+        "diasUteis": null,
+        "feriadosNoIntervalo": 0,
+        "alertas": [
+          "Prazo crítico - menos de 2 dias",
+          "Urgência máxima"
+        ]
+      }
+    },
+    {
+      "queryId": "prazo_010",
+      "metric": "Precisão de Cálculo de Prazos",
+      "input": {
+        "dataIntimacao": "2024-12-23",
+        "tipoPrazo": "Recurso - 15 dias úteis",
+        "feriados": [
+          "2024-12-25",
+          "2025-01-01"
+        ],
+        "diasUteis": true
+      },
+      "response": {
+        "status": "success",
+        "output": {
+          "dataLimite": "2025-01-15",
+          "diasCorridos": 23,
+          "diasUteis": 15,
+          "feriadosNoIntervalo": [
+            "2024-12-25",
+            "2025-01-01"
+          ],
+          "alertas": [
+            "Prazo engloba feriados de Natal e Ano Novo",
+            "Prazo inicia próximo ao feriado"
+          ]
+        },
+        "executionTime": 0,
+        "timestamp": "2025-12-14T00:39:51.531Z",
+        "agentId": "gestao-prazos",
+        "conversationHistory": [
+          {
+            "role": "user",
+            "content": "{\"dataIntimacao\":\"2024-12-23\",\"tipoPrazo\":\"Recurso - 15 dias úteis\",\"feriados\":[\"2024-12-25\",\"2025-01-01\"],\"diasUteis\":true}",
+            "timestamp": "2025-12-14T00:39:51.531Z"
+          },
+          {
+            "role": "assistant",
+            "content": "{\"dataLimite\":\"2025-01-15\",\"diasCorridos\":23,\"diasUteis\":15,\"feriadosNoIntervalo\":[\"2024-12-25\",\"2025-01-01\"],\"alertas\":[\"Prazo engloba feriados de Natal e Ano Novo\",\"Prazo inicia próximo ao feriado\"]}",
+            "timestamp": "2025-12-14T00:39:51.531Z"
+          }
+        ]
+      },
+      "expectedOutput": {
+        "dataLimite": "2025-01-16",
+        "diasCorridos": 24,
+        "diasUteis": 15,
+        "feriadosNoIntervalo": 2,
+        "alertas": [
+          "Prazo inicia em período de recesso",
+          "Prazo engloba feriados de Natal e Ano Novo"
+        ]
+      }
+    }
+  ]
+}

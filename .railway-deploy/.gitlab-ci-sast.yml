@@ -1,0 +1,52 @@
+# Configuração específica para GitLab SAST
+# Resolve o erro "No valid project detected"
+
+# Este arquivo é incluído automaticamente pelo template SAST.gitlab-ci.yml
+# quando o projeto é detectado como Node.js/TypeScript
+
+# Configurações específicas para projetos React/TypeScript
+variables:
+  SAST_NODEJS_VERSION: "22"
+  SAST_EXCLUDED_PATHS: "node_modules/**,dist/**,.git/**,coverage/**"
+  SAST_ANALYZER_IMAGE_TAG: "5"
+
+# Job de SAST customizado (opcional - complementa o SAST padrão)
+sast-custom-scan:
+  stage: security
+  image: node:${SAST_NODEJS_VERSION}
+  script:
+    - echo "🔍 Executando verificações de segurança customizadas..."
+    - npm ci --cache .npm --prefer-offline
+    - |
+      # Verificar vulnerabilidades de segurança no código fonte
+      echo "Verificando código perigoso..."
+      DANGEROUS_CODE=$(grep -r "eval(\|innerHTML\|document\.write\|dangerouslySetInnerHTML" src/ --include="*.ts" --include="*.tsx" | grep -v node_modules | wc -l)
+      if [ "$DANGEROUS_CODE" -gt "0" ]; then
+        echo "⚠️ Código potencialmente perigoso detectado: $DANGEROUS_CODE ocorrências"
+        grep -r "eval(\|innerHTML\|document\.write\|dangerouslySetInnerHTML" src/ --include="*.ts" --include="*.tsx" | grep -v node_modules
+      else
+        echo "✅ Nenhum código perigoso detectado"
+      fi
+    - |
+      # Verificar dependências vulneráveis
+      echo "Verificando dependências..."
+      npm audit --audit-level=moderate --json > npm-audit-results.json || true
+      VULNERABILITIES=$(jq '.metadata.vulnerabilities.total' npm-audit-results.json 2>/dev/null || echo "0")
+      if [ "$VULNERABILITIES" -gt "0" ]; then
+        echo "⚠️ Vulnerabilidades detectadas: $VULNERABILITIES"
+        jq '.metadata.vulnerabilities' npm-audit-results.json
+      else
+        echo "✅ Nenhuma vulnerabilidade crítica detectada"
+      fi
+  artifacts:
+    reports:
+      sast: sast-custom-report.json
+    paths:
+      - npm-audit-results.json
+      - sast-custom-report.json
+    expire_in: 1 week
+  allow_failure: true
+  only:
+    - merge_requests
+    - main
+    - develop

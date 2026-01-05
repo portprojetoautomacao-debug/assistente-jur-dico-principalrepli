@@ -1,0 +1,164 @@
+Sim — do jeito que está, os agentes conseguem redigir no editor, desde que você passe onAIStream ou onAIGenerate e o editor não esteja readOnly.
+
+Mas tem um detalhe importante: o seu onChunk hoje tenta inserir o chunk como HTML usando:
+
+const viewFragment = editor.data.processor.toView(chunk);
+const modelFragment = editor.data.toModel(viewFragment);
+editor.model.insertContent(modelFragment);
+
+
+Isso quebra fácil quando o streaming manda “pedaços” que não são HTML válido (ex.: corta no meio de uma tag, ou manda texto puro). O resultado típico é: IA “trava”, insere lixo, ou some com a seleção.
+
+A correção mais sólida é: streaming insere texto como texto (writer.insertText) e no final (onComplete) você pode, se quiser, “normalizar” (ex.: converter markdown pra HTML, etc.). Abaixo vai pronto pra colar.
+
+✅ PATCH — ProfessionalEditor.tsx (somente as partes que mudam)
+
+Cole/ajuste essas funções dentro do seu componente. Eu mantive sua arquitetura e só deixei o streaming “à prova de modal + CKEditor”.
+
+// ===========================
+// Helper: inserção segura (texto) no ponto atual do cursor
+// ===========================
+function insertPlainTextAtSelection(editor: ClassicEditor, text: string) {
+  editor.model.change((writer) => {
+    const selection = editor.model.document.selection;
+    const insertPosition = selection.getFirstPosition();
+
+    if (!insertPosition) return;
+
+    // Insere como texto puro (não quebra com chunks inválidos)
+    writer.insertText(text, insertPosition);
+
+    // Move cursor para o final do texto inserido
+    const endPos = insertPosition.getShiftedBy(text.length);
+    writer.setSelection(endPos);
+  });
+}
+
+// ===========================
+// AI Streaming (FIXED)
+// ===========================
+const runAIStreaming = useCallback(
+  async (prompt: string) => {
+    const editor = editorRef.current;
+    if (!editor || !onAIStream) return;
+
+    setIsAIActive(true);
+    setIsStreaming(true);
+
+    try {
+      // garante foco no editor antes de começar
+      editor.editing.view.focus();
+
+      await onAIStream(prompt, {
+        onChunk: (chunk: string) => {
+          // Se o usuário voltar a digitar, pausa a IA automaticamente
+          if (isUserTyping) return;
+          if (!chunk) return;
+
+          // Inserção segura (texto puro)
+          insertPlainTextAtSelection(editor, chunk);
+        },
+        onComplete: () => {
+          setIsStreaming(false);
+          setIsAIActive(false);
+          setAiPrompt("");
+          toast.success("IA finalizou a redação");
+        },
+        onError: (error: Error) => {
+          console.error("Erro no streaming:", error);
+          toast.error("Erro no streaming de IA");
+          setIsStreaming(false);
+          setIsAIActive(false);
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao iniciar streaming:", error);
+      setIsStreaming(false);
+      setIsAIActive(false);
+    }
+  },
+  [onAIStream, isUserTyping]
+);
+
+// ===========================
+// Quick AI (FIX: usar TEXTO SELECIONADO quando houver)
+// ===========================
+function getSelectedPlainText(editor: ClassicEditor) {
+  const selection = editor.model.document.selection;
+  const range = selection.getFirstRange();
+  if (!range) return "";
+
+  let text = "";
+  for (const item of range.getItems()) {
+    // pega só nós de texto
+    // @ts-ignore
+    if (item && item.is && item.is("textProxy")) text += item.data;
+  }
+  return text.trim();
+}
+
+const handleQuickAI = useCallback(
+  async (command: (typeof AI_QUICK_COMMANDS)[number]) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    // Preferir seleção; se não houver, usar documento inteiro (plain text)
+    const selected = getSelectedPlainText(editor);
+    const fallbackHtml = editor.getData();
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = fallbackHtml;
+    const fullPlain = (tempDiv.textContent || tempDiv.innerText || "").trim();
+
+    const baseText = selected.length > 0 ? selected : fullPlain;
+    const fullPrompt = `${command.prompt}\n\n${baseText}`;
+
+    if (onAIStream) {
+      await runAIStreaming(fullPrompt);
+      return;
+    }
+
+    if (onAIGenerate) {
+      setIsAILoading(true);
+      try {
+        const result = await onAIGenerate(fullPrompt);
+        const processed = replaceVariables(result);
+
+        // aqui pode ser HTML completo (geração “não streaming” costuma vir íntegra)
+        editor.setData(processed);
+
+        toast.success(`IA aplicou: ${command.label}`);
+      } catch {
+        toast.error("Erro ao processar comando de IA");
+      } finally {
+        setIsAILoading(false);
+      }
+    }
+  },
+  [onAIGenerate, onAIStream, replaceVariables, runAIStreaming]
+);
+
+Por que isso resolve?
+
+Streaming não depende de HTML válido por chunk.
+
+Cursor fica estável (não pula).
+
+Funciona bem dentro de modal (Radix) porque o CKEditor não precisa “reposicionar” DOM fragmentado.
+
+✅ LIMPEZA CRÍTICA — seu professional-editor.scss está com TSX “colado” dentro
+
+No texto que você mandou, depois do @media aparece import * as DialogPrimitive... dentro do SCSS. Isso vai quebrar o build.
+
+Regra de ouro
+
+professional-editor.scss → somente CSS/SCSS
+
+dialog.tsx → somente TSX
+
+Se você quiser, eu te devolvo os 2 arquivos 100% limpos (sem duplicação, sem código misturado) — mas com o patch acima você já garante que a IA escreve.
+
+✅ Resposta direta (o que você perguntou)
+
+Sim, os agentes vão conseguir redigir no editor com a sua configuração, mas eu recomendo fortemente aplicar o patch de streaming acima para evitar travas/HTML quebrado durante a redação.
+
+Obs.: apareceu um aviso aqui de que alguns arquivos enviados expiraram. Se você quiser que eu valide visualmente pelos prints (posicionamento de toolbar / dropdowns no modal), é só reenviar as imagens que eu confiro fino.

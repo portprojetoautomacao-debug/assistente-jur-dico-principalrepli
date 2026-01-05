@@ -1,0 +1,197 @@
+name: Cleanup Old Deployments
+
+on:
+  schedule:
+    # Run weekly on Sunday at 00:00 UTC
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+    inputs:
+      max_age_days:
+        description: "Maximum age of deployments to keep (in days)"
+        required: true
+        default: "7"
+        type: string
+
+concurrency:
+  group: cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup-vercel:
+    name: Cleanup Old Vercel Deployments
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: List and cleanup old deployments
+        run: |
+          echo "## 🧹 Deployment Cleanup Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "**Max Age**: ${{ github.event.inputs.max_age_days || 7 }} days" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Get all deployments
+          DEPLOYMENTS=$(vercel list --token=${{ secrets.VERCEL_TOKEN }} 2>&1 || true)
+
+          if [ $? -eq 0 ]; then
+            echo "✅ Successfully retrieved deployment list" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Deployments" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$DEPLOYMENTS" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            
+            # Note: Automatic deletion is commented out for safety
+            # Uncomment and customize the following lines to enable automatic cleanup
+            # 
+            # MAX_AGE=${{ github.event.inputs.max_age_days || 7 }}
+            # CUTOFF_DATE=$(date -d "$MAX_AGE days ago" +%s)
+            # 
+            # # Parse and delete old deployments
+            # # This is a placeholder - actual implementation depends on Vercel API
+            # echo "To enable automatic cleanup, configure the Vercel API calls here"
+          else
+            echo "⚠️ Could not retrieve deployments" >> $GITHUB_STEP_SUMMARY
+            echo "This is expected if Vercel secrets are not configured" >> $GITHUB_STEP_SUMMARY
+          fi
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        continue-on-error: true
+
+      - name: Cleanup summary
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Notes" >> $GITHUB_STEP_SUMMARY
+          echo "- Preview deployments older than ${{ github.event.inputs.max_age_days || 7 }} days are candidates for cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "- Production deployments are preserved" >> $GITHUB_STEP_SUMMARY
+          echo "- Manual cleanup recommended for safety" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Manual Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# List all deployments" >> $GITHUB_STEP_SUMMARY
+          echo "vercel list" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Remove specific deployment" >> $GITHUB_STEP_SUMMARY
+          echo "vercel rm <deployment-url> --yes" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  cleanup-artifacts:
+    name: Cleanup Old GitHub Artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - name: Delete old artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const core = require('@actions/core');
+            const daysToKeep = 7;
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            let deletedCount = 0;
+            let keptCount = 0;
+
+            for (const artifact of artifacts.data.artifacts) {
+              const createdAt = new Date(artifact.created_at);
+              
+              if (createdAt < cutoffDate) {
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id
+                });
+                deletedCount++;
+                console.log(`Deleted artifact: ${artifact.name} (${artifact.created_at})`);
+              } else {
+                keptCount++;
+              }
+            }
+
+            core.summary
+              .addHeading('🧹 Artifact Cleanup Summary')
+              .addRaw(`**Date**: ${new Date().toUTCString()}`)
+              .addRaw(`\n**Retention Period**: ${daysToKeep} days\n`)
+              .addRaw(`\n### Results\n`)
+              .addRaw(`- ✅ Kept: ${keptCount} artifacts\n`)
+              .addRaw(`- 🗑️ Deleted: ${deletedCount} artifacts\n`)
+              .write();
+
+  cleanup-caches:
+    name: Cleanup Old Caches
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - name: Cleanup old caches
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const core = require('@actions/core');
+            const daysToKeep = 7;
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+
+            const caches = await github.rest.actions.getActionsCacheList({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            let deletedCount = 0;
+            let keptCount = 0;
+
+            for (const cache of caches.data.actions_caches) {
+              const createdAt = new Date(cache.created_at);
+              
+              if (createdAt < cutoffDate) {
+                try {
+                  await github.rest.actions.deleteActionsCacheById({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    cache_id: cache.id
+                  });
+                  deletedCount++;
+                  console.log(`Deleted cache: ${cache.key} (${cache.created_at})`);
+                } catch (error) {
+                  console.log(`Failed to delete cache ${cache.key}: ${error.message}`);
+                }
+              } else {
+                keptCount++;
+              }
+            }
+
+            core.summary
+              .addHeading('🧹 Cache Cleanup Summary')
+              .addRaw(`**Date**: ${new Date().toUTCString()}`)
+              .addRaw(`\n**Retention Period**: ${daysToKeep} days\n`)
+              .addRaw(`\n### Results\n`)
+              .addRaw(`- ✅ Kept: ${keptCount} caches\n`)
+              .addRaw(`- 🗑️ Deleted: ${deletedCount} caches\n`)
+              .write();

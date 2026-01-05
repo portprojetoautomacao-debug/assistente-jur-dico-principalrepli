@@ -1,0 +1,93 @@
+name: Generate Status Badges
+
+on:
+  workflow_run:
+    workflows: ["CI", "Deploy", "Security Scan", "Code Quality"]
+    types:
+      - completed
+  workflow_dispatch:
+
+concurrency:
+  group: badges-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  update-badges:
+    name: Update README Badges
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Temporarily disabled - will be re-enabled after merge to main
+    # When enabled, will work on current branch instead of forcing main checkout
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'cancelled'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Use current branch instead of forcing main
+          # ref: main
+
+      - name: Generate badge data
+        id: badge-data
+        run: |
+          echo "## 🎖️ Badge Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name || 'Manual trigger' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Exportar informações para uso posterior
+          echo "workflow_name=${{ github.event_name == 'workflow_run' && github.event.workflow_run.name || '' }}" >> $GITHUB_OUTPUT
+          echo "workflow_status=${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion || '' }}" >> $GITHUB_OUTPUT
+
+      - name: Create badge JSON
+        run: |
+          mkdir -p .github/badges
+
+          # Badge para CI
+          cat > .github/badges/ci.json <<EOF
+          {
+            "schemaVersion": 1,
+            "label": "CI Build",
+            "message": "${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'CI' && github.event.workflow_run.conclusion || 'passing' }}",
+            "color": "${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && 'brightgreen' || 'red' }}",
+            "namedLogo": "github"
+          }
+          EOF
+
+          echo "✅ Badge JSON files created" >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit badge updates
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .github/badges/
+            git commit -m "chore: Update status badges [skip ci]"
+            git push
+            echo "✅ Badges updated and pushed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No badge changes to commit" >> $GITHUB_STEP_SUMMARY
+          fi
+        continue-on-error: true
+
+      - name: Summary
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Available Badges" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Add these to your README.md:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```markdown' >> $GITHUB_STEP_SUMMARY
+          echo "![CI](https://github.com/${{ github.repository }}/actions/workflows/ci.yml/badge.svg)" >> $GITHUB_STEP_SUMMARY
+          echo "![Deploy](https://github.com/${{ github.repository }}/actions/workflows/deploy.yml/badge.svg)" >> $GITHUB_STEP_SUMMARY
+          echo "![Security](https://github.com/${{ github.repository }}/actions/workflows/security-scan.yml/badge.svg)" >> $GITHUB_STEP_SUMMARY
+          echo "![Code Quality](https://github.com/${{ github.repository }}/actions/workflows/code-quality.yml/badge.svg)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

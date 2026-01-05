@@ -1,0 +1,353 @@
+/**
+ * Testes E2E para Editor de Minutas com CKEditor 5
+ * Valida funcionalidades do ProfessionalEditor e MinutasManager
+ */
+
+import { expect, test } from "@playwright/test";
+
+test.describe("Editor de Minutas - CKEditor 5", () => {
+  test.beforeEach(async ({ page }) => {
+    // Configurar timeout maior para operações de editor
+    test.setTimeout(60000);
+
+    // Navegar para aplicação
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Fazer login se necessário
+    const loginButton = page.locator('button:has-text("Entrar")');
+    if (await loginButton.isVisible({ timeout: 2000 })) {
+      await page.fill('input[type="text"], input[name="username"]', "adm");
+      await page.fill('input[type="password"], input[name="password"]', "adm123");
+      await loginButton.click();
+      await page.waitForLoadState("networkidle");
+    }
+
+    // Navegar para seção Minutas
+    const minutasLink = page.locator('a:has-text("Minutas"), button:has-text("Minutas")').first();
+    await minutasLink.click();
+    await page.waitForTimeout(1000);
+  });
+
+  test("deve abrir modal de nova minuta com CKEditor", async ({ page }) => {
+    // Clicar no botão "Nova Minuta"
+    const novaMinutaBtn = page.locator('button:has-text("Nova Minuta")').first();
+    await expect(novaMinutaBtn).toBeVisible();
+    await novaMinutaBtn.click();
+
+    // Aguardar modal abrir
+    await page.waitForTimeout(500);
+
+    // Verificar título do modal
+    await expect(page.locator('text="Nova Minuta"')).toBeVisible();
+
+    // Verificar tabs do modal
+    await expect(page.locator('button[role="tab"]:has-text("Editor")')).toBeVisible();
+    await expect(page.locator('button[role="tab"]:has-text("Templates")')).toBeVisible();
+    await expect(page.locator('button[role="tab"]:has-text("Variáveis")')).toBeVisible();
+
+    // Verificar campos do formulário
+    await expect(page.locator('label:has-text("Título")')).toBeVisible();
+    await expect(page.locator('label:has-text("Tipo")')).toBeVisible();
+    await expect(page.locator('label:has-text("Status")')).toBeVisible();
+
+    // Verificar se CKEditor foi carregado
+    await expect(page.locator(".ck-editor")).toBeVisible();
+    await expect(page.locator(".ck-toolbar")).toBeVisible();
+    await expect(page.locator(".ck-editor__editable")).toBeVisible();
+  });
+
+  test("deve criar nova minuta com conteúdo básico", async ({ page }) => {
+    // Abrir modal
+    await page.locator('button:has-text("Nova Minuta")').first().click();
+    await page.waitForTimeout(500);
+
+    // Preencher título
+    const tituloInput = page.locator('input[id="titulo"]');
+    await tituloInput.fill("Petição Inicial - Teste E2E CKEditor");
+
+    // Selecionar tipo
+    const tipoSelect = page.locator('button[id="tipo"]');
+    await tipoSelect.click();
+    await page.locator('text="Petição"').first().click();
+
+    // Escrever no CKEditor
+    const editorContent = page.locator(".ck-editor__editable");
+    await editorContent.click();
+    
+    // Esperar editor estar pronto
+    await page.waitForTimeout(300);
+    
+    // Digitar texto
+    await page.keyboard.type("Excelentíssimo Senhor Doutor Juiz de Direito da Vara Cível da Comarca de Belo Horizonte/MG.");
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("Fulano de Tal, já qualificado nos autos, vem respeitosamente perante Vossa Excelência propor a presente AÇÃO DE COBRANÇA.");
+
+    // Verificar se texto apareceu no editor
+    await expect(editorContent).toContainText("Excelentíssimo Senhor Doutor");
+    await expect(editorContent).toContainText("AÇÃO DE COBRANÇA");
+
+    // Verificar contador de palavras
+    const wordCount = page.locator('text=/\\d+ palavra/');
+    await expect(wordCount).toBeVisible();
+
+    // Salvar minuta
+    await page.locator('button:has-text("Criar Minuta")').click();
+    await page.waitForTimeout(1000);
+
+    // Verificar se minuta foi criada
+    await expect(page.locator('text="Petição Inicial - Teste E2E CKEditor"')).toBeVisible();
+    await expect(page.locator('text="Minuta criada com sucesso"')).toBeVisible();
+  });
+
+  test("deve usar toolbar de formatação do CKEditor", async ({ page }) => {
+    // Abrir modal
+    await page.locator('button:has-text("Nova Minuta")').first().click();
+    await page.waitForTimeout(500);
+
+    // Preencher título
+    await page.locator('input[id="titulo"]').fill("Teste Formatação");
+
+    // Clicar no editor
+    const editorContent = page.locator(".ck-editor__editable");
+    await editorContent.click();
+    await page.waitForTimeout(300);
+
+    // Digitar texto
+    await page.keyboard.type("Texto para formatar");
+
+    // Selecionar todo o texto (Ctrl+A)
+    await page.keyboard.press("Control+a");
+
+    // Aplicar negrito usando a toolbar
+    const boldButton = page.locator('.ck-toolbar button[aria-label*="Bold"], .ck-toolbar button[title*="Bold"], .ck-toolbar button:has(.ck-icon[viewBox*="bold"])').first();
+    await boldButton.click();
+    await page.waitForTimeout(200);
+
+    // Verificar se HTML tem tag <strong>
+    const content = await editorContent.innerHTML();
+    expect(content).toContain("<strong>");
+
+    // Aplicar itálico
+    await page.keyboard.press("Control+a");
+    const italicButton = page.locator('.ck-toolbar button[aria-label*="Italic"], .ck-toolbar button[title*="Italic"], .ck-toolbar button:has(.ck-icon[viewBox*="italic"])').first();
+    await italicButton.click();
+    await page.waitForTimeout(200);
+
+    // Verificar itálico aplicado
+    const contentItalic = await editorContent.innerHTML();
+    expect(contentItalic).toContain("<em>");
+  });
+
+  test("deve usar comandos de IA - Continuar", async ({ page }) => {
+    // Verificar se Gemini está configurado
+    const geminiKey = process.env.VITE_GEMINI_API_KEY;
+    if (!geminiKey || geminiKey === "your-gemini-api-key-here") {
+      test.skip();
+      return;
+    }
+
+    // Abrir modal
+    await page.locator('button:has-text("Nova Minuta")').first().click();
+    await page.waitForTimeout(500);
+
+    // Preencher dados básicos
+    await page.locator('input[id="titulo"]').fill("Teste IA - Continuar");
+    
+    // Escrever texto inicial
+    const editorContent = page.locator(".ck-editor__editable");
+    await editorContent.click();
+    await page.keyboard.type("O contrato foi assinado em 10 de janeiro de 2024");
+
+    // Clicar no botão "Continuar" dos comandos IA
+    const continuarBtn = page.locator('button:has-text("Continuar")').first();
+    await continuarBtn.click();
+
+    // Aguardar processamento da IA (máximo 15s)
+    await page.waitForTimeout(2000);
+
+    // Verificar se há indicador de loading
+    const loadingIndicator = page.locator('text=/Processando|Aguarde/i');
+    if (await loadingIndicator.isVisible({ timeout: 1000 })) {
+      await loadingIndicator.waitFor({ state: "hidden", timeout: 15000 });
+    }
+
+    // Verificar se texto foi expandido (deve ter mais palavras)
+    const wordCountAfter = page.locator('text=/\\d+ palavra/');
+    const wordCountText = await wordCountAfter.textContent();
+    const wordCount = parseInt(wordCountText?.match(/\d+/)?.[0] || "0");
+    expect(wordCount).toBeGreaterThan(10);
+  });
+
+  test("deve editar minuta existente", async ({ page }) => {
+    // Criar minuta primeiro
+    await page.locator('button:has-text("Nova Minuta")').first().click();
+    await page.waitForTimeout(500);
+    await page.locator('input[id="titulo"]').fill("Minuta para Editar");
+    const editorContent = page.locator(".ck-editor__editable");
+    await editorContent.click();
+    await page.keyboard.type("Conteúdo inicial da minuta.");
+    await page.locator('button:has-text("Criar Minuta")').click();
+    await page.waitForTimeout(1000);
+
+    // Encontrar e clicar no botão "Editar" da minuta criada
+    const minutaCard = page.locator('text="Minuta para Editar"').locator('..');
+    await minutaCard.locator('button:has-text("Editar")').click();
+    await page.waitForTimeout(500);
+
+    // Verificar modal de edição
+    await expect(page.locator('text="Editar Minuta"')).toBeVisible();
+
+    // Modificar conteúdo
+    const editor = page.locator(".ck-editor__editable");
+    await editor.click();
+    await page.keyboard.press("Control+a");
+    await page.keyboard.type("Conteúdo MODIFICADO pelo teste E2E.");
+
+    // Salvar alterações
+    await page.locator('button:has-text("Atualizar Minuta")').click();
+    await page.waitForTimeout(1000);
+
+    // Verificar feedback de sucesso
+    await expect(page.locator('text="Minuta atualizada"')).toBeVisible();
+  });
+
+  test("deve duplicar minuta", async ({ page }) => {
+    // Criar minuta
+    await page.locator('button:has-text("Nova Minuta")').first().click();
+    await page.waitForTimeout(500);
+    await page.locator('input[id="titulo"]').fill("Minuta Original");
+    const editorContent = page.locator(".ck-editor__editable");
+    await editorContent.click();
+    await page.keyboard.type("Este é o conteúdo da minuta original.");
+    await page.locator('button:has-text("Criar Minuta")').click();
+    await page.waitForTimeout(1000);
+
+    // Duplicar minuta
+    const minutaCard = page.locator('text="Minuta Original"').locator('..');
+    await minutaCard.locator('button:has-text("Duplicar")').click();
+    await page.waitForTimeout(1000);
+
+    // Verificar se cópia foi criada
+    await expect(page.locator('text="Minuta Original (Cópia)"')).toBeVisible();
+    await expect(page.locator('text="Minuta duplicada com sucesso"')).toBeVisible();
+  });
+
+  test("deve deletar minuta", async ({ page }) => {
+    // Criar minuta
+    await page.locator('button:has-text("Nova Minuta")').first().click();
+    await page.waitForTimeout(500);
+    await page.locator('input[id="titulo"]').fill("Minuta para Deletar");
+    const editorContent = page.locator(".ck-editor__editable");
+    await editorContent.click();
+    await page.keyboard.type("Esta minuta será deletada.");
+    await page.locator('button:has-text("Criar Minuta")').click();
+    await page.waitForTimeout(1000);
+
+    // Deletar minuta
+    const minutaCard = page.locator('text="Minuta para Deletar"').locator('..');
+    await minutaCard.locator('button:has-text("Excluir")').click();
+    await page.waitForTimeout(1000);
+
+    // Verificar que minuta foi removida
+    await expect(page.locator('text="Minuta para Deletar"')).not.toBeVisible();
+    await expect(page.locator('text="Minuta excluída"')).toBeVisible();
+  });
+
+  test("deve aplicar template jurídico", async ({ page }) => {
+    // Abrir modal
+    await page.locator('button:has-text("Nova Minuta")').first().click();
+    await page.waitForTimeout(500);
+
+    // Ir para aba Templates
+    await page.locator('button[role="tab"]:has-text("Templates")').click();
+    await page.waitForTimeout(300);
+
+    // Selecionar um template (ex: "Petição Inicial")
+    const templateCard = page.locator('text="Petição Inicial"').first();
+    await templateCard.click();
+    await page.waitForTimeout(500);
+
+    // Voltar para aba Editor
+    await page.locator('button[role="tab"]:has-text("Editor")').click();
+    await page.waitForTimeout(300);
+
+    // Verificar se conteúdo do template foi aplicado
+    const editorContent = page.locator(".ck-editor__editable");
+    await expect(editorContent).not.toBeEmpty();
+  });
+
+  test("deve filtrar minutas por status", async ({ page }) => {
+    // Criar minutas com diferentes status
+    // Minuta 1 - Rascunho
+    await page.locator('button:has-text("Nova Minuta")').first().click();
+    await page.waitForTimeout(500);
+    await page.locator('input[id="titulo"]').fill("Minuta Rascunho");
+    await page.locator(".ck-editor__editable").click();
+    await page.keyboard.type("Rascunho");
+    await page.locator('button:has-text("Criar Minuta")').click();
+    await page.waitForTimeout(1000);
+
+    // Aplicar filtro de status
+    const statusFilter = page.locator('button:has-text("Todos Status"), select[value="all"]').first();
+    await statusFilter.click();
+    await page.locator('text="Rascunho"').first().click();
+    await page.waitForTimeout(500);
+
+    // Verificar se apenas minutas com status Rascunho são exibidas
+    const minutasVisiveis = page.locator('[data-testid="minutas-container"] > div, .minuta-card');
+    const count = await minutasVisiveis.count();
+    expect(count).toBeGreaterThan(0);
+  });
+
+  test("deve alternar entre visualização em grade e lista", async ({ page }) => {
+    // Verificar botões de visualização
+    const gridViewBtn = page.locator('button[aria-label="Visualização em grade"]').first();
+    const listViewBtn = page.locator('button[aria-label="Visualização em lista"]').first();
+
+    await expect(gridViewBtn).toBeVisible();
+    await expect(listViewBtn).toBeVisible();
+
+    // Alternar para visualização em lista
+    await listViewBtn.click();
+    await page.waitForTimeout(300);
+
+    // Alternar de volta para grade
+    await gridViewBtn.click();
+    await page.waitForTimeout(300);
+  });
+
+  test("deve aprovar minuta (finalizar)", async ({ page }) => {
+    // Criar minuta
+    await page.locator('button:has-text("Nova Minuta")').first().click();
+    await page.waitForTimeout(500);
+    await page.locator('input[id="titulo"]').fill("Minuta para Aprovar");
+    await page.locator(".ck-editor__editable").click();
+    await page.keyboard.type("Conteúdo da minuta para aprovação.");
+    await page.locator('button:has-text("Criar Minuta")').click();
+    await page.waitForTimeout(1000);
+
+    // Aprovar minuta
+    const minutaCard = page.locator('text="Minuta para Aprovar"').locator('..');
+    await minutaCard.locator('button:has-text("Aprovar")').click();
+    await page.waitForTimeout(1000);
+
+    // Verificar status mudou para "Finalizada"
+    await expect(page.locator('text="Finalizada"')).toBeVisible();
+    await expect(page.locator('text="Minuta aprovada"')).toBeVisible();
+  });
+
+  test("deve validar campos obrigatórios", async ({ page }) => {
+    // Abrir modal
+    await page.locator('button:has-text("Nova Minuta")').first().click();
+    await page.waitForTimeout(500);
+
+    // Tentar salvar sem preencher nada
+    await page.locator('button:has-text("Criar Minuta")').click();
+    await page.waitForTimeout(500);
+
+    // Verificar mensagem de erro
+    await expect(page.locator('text=/Preencha.*título/i, text=/título.*obrigatório/i')).toBeVisible();
+  });
+});

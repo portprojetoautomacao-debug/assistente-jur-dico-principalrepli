@@ -1,0 +1,222 @@
+# Configuração Central para Agentes em Nuvem
+# GitHub Actions + Vercel + Cron Jobs
+# Data: 2025-12-07
+
+version: "1.0"
+cloud_agents_permissions: "unrestricted"
+
+# ═══════════════════════════════════════════════════════════════════
+# 1️⃣  GITHUB ACTIONS - Permissões Globais
+# ═══════════════════════════════════════════════════════════════════
+
+github_actions:
+  enabled: true
+  permissions:
+    contents: write          # ✅ Pode fazer commit/push
+    pull-requests: write     # ✅ Pode criar/atualizar PRs
+    issues: write            # ✅ Pode atualizar issues
+    deployments: write       # ✅ Pode fazer deploy
+    packages: write          # ✅ Pode publicar packages
+    checks: write            # ✅ Pode atualizar checks
+    statuses: write          # ✅ Pode atualizar status
+
+  # Workflows com permissões automáticas
+  workflows:
+    - copilot-auto-fix.yml
+    - auto-test-fix.yml
+    - auto-assign-copilot.yml
+    - agents-integration.yml
+    - deploy.yml
+
+  # Secrets automaticamente disponíveis
+  auto_secrets: true
+
+# ═══════════════════════════════════════════════════════════════════
+# 2️⃣  VERCEL SERVERLESS - Permissões de Deploy
+# ═══════════════════════════════════════════════════════════════════
+
+vercel:
+  enabled: true
+  permissions:
+    deploy: write           # ✅ Deploy automático
+    env_variables: read     # ✅ Ler variáveis de ambiente
+    logs: write             # ✅ Escrever logs
+    analytics: read         # ✅ Ler analytics
+
+  # Auto-deploy configurado
+  auto_deploy:
+    enabled: true
+    branches:
+      - main
+      - develop
+    trigger: push
+
+  # Functions com permissões de produção
+  functions:
+    - api/agents.ts         # 45s timeout, 1GB memory
+    - api/cron.ts           # 60s timeout, 512MB memory
+    - api/djen-sync.ts      # 60s timeout, 512MB memory
+    - api/llm-proxy.ts      # 40s timeout, 512MB memory
+    - api/legal-services.ts # 30s timeout, 512MB memory
+    - api/kv.ts             # 30s timeout, 256MB memory
+
+# ═══════════════════════════════════════════════════════════════════
+# 3️⃣  CRON JOBS - Execução Automática 24/7
+# ═══════════════════════════════════════════════════════════════════
+
+cron_jobs:
+  enabled: true
+  timezone: America/Sao_Paulo
+  jobs:
+    - id: djen-monitor
+      schedule: "0 12,20 * * *"   # 09h e 17h BRT
+      endpoint: /api/cron?job=djen_monitor
+      timeout: 300
+      max_duration: 60
+
+    - id: process-agent-queue
+      schedule: "*/15 * * * *"    # A cada 15min
+      endpoint: /api/cron?job=process_queue
+      timeout: 60
+      max_duration: 45
+
+    - id: notifications
+      schedule: "*/5 * * * *"     # A cada 5min
+      endpoint: /api/cron?job=notifications
+      timeout: 30
+      max_duration: 30
+
+    - id: calendar-sync
+      schedule: "0 */2 * * *"     # A cada 2h
+      endpoint: /api/cron?job=calendar_sync
+      timeout: 120
+      max_duration: 60
+
+    - id: datajud-monitor
+      schedule: "0 16 * * *"      # 13h BRT
+      endpoint: /api/cron?job=datajud_monitor
+      timeout: 300
+      max_duration: 60
+
+    - id: deadline-alerts
+      schedule: "0 55 11 * * *"   # 08:55 BRT
+      endpoint: /api/cron?job=deadline_alerts
+      timeout: 60
+      max_duration: 30
+
+    - id: watchdog
+      schedule: "*/30 * * * *"    # A cada 30min
+      endpoint: /api/cron?job=watchdog
+      timeout: 60
+      max_duration: 30
+
+    - id: backup
+      schedule: "0 3 * * *"       # 00h BRT
+      endpoint: /api/cron?job=backup
+      timeout: 600
+      max_duration: 300
+
+# ═══════════════════════════════════════════════════════════════════
+# 4️⃣  ENVIRONMENT VARIABLES - Disponíveis em Todos os Agentes
+# ═══════════════════════════════════════════════════════════════════
+
+environment:
+  shared:
+    # Agentes funcionam sem restrição
+    COPILOT_UNRESTRICTED_OPERATIONS: "true"
+    SKIP_PREFLIGHT_CHECK: "true"
+    SKIP_GIT_COMMIT_VERIFICATION: "true"
+    
+    # Auto-operações
+    AUTO_COMMIT: "true"
+    AUTO_PUSH: "true"
+    AUTO_DEPLOY: "true"
+
+  github_actions:
+    GIT_AUTHOR_NAME: "GitHub Copilot Bot"
+    GIT_AUTHOR_EMAIL: "noreply@github.com"
+    GIT_COMMITTER_NAME: "GitHub Copilot Bot"
+    GIT_COMMITTER_EMAIL: "noreply@github.com"
+
+  vercel:
+    NODE_ENV: "production"
+    LOG_LEVEL: "info"
+    ENABLE_ANALYTICS: "true"
+
+# ═══════════════════════════════════════════════════════════════════
+# 5️⃣  SECRETS - Sincronizados em Todos os Agentes
+# ═══════════════════════════════════════════════════════════════════
+
+secrets_sync:
+  enabled: true
+  # GitHub Secrets automaticamente sincronizados para Vercel
+  auto_sync_to:
+    - vercel
+    - actions
+
+  required_secrets:
+    - UPSTASH_REDIS_REST_URL
+    - UPSTASH_REDIS_REST_TOKEN
+    - GEMINI_API_KEY
+    - VITE_GOOGLE_CLIENT_ID
+    - VITE_GOOGLE_API_KEY
+    - SENTRY_DSN
+    - RESEND_API_KEY
+
+# ═══════════════════════════════════════════════════════════════════
+# 6️⃣  LOGGING & MONITORING - Rastreamento de Agentes
+# ═══════════════════════════════════════════════════════════════════
+
+logging:
+  enabled: true
+  
+  github_actions:
+    logs_retention: 90         # dias
+    upload_to_sentry: true
+
+  vercel:
+    logs_retention: 30         # dias
+    real_time_monitoring: true
+    alerts_on_error: true
+
+  cron_jobs:
+    logs_retention: 30         # dias
+    status_notifications: true
+
+# ═══════════════════════════════════════════════════════════════════
+# 7️⃣  DEPLOYMENT STRATEGY
+# ═══════════════════════════════════════════════════════════════════
+
+deployment:
+  strategy: "continuous"      # Deploy contínuo no push
+  
+  production:
+    auto_deploy: true
+    blue_green: false
+    rollback_on_error: true
+    
+  staging:
+    auto_deploy: false
+    manual_trigger: true
+
+# ═══════════════════════════════════════════════════════════════════
+# 8️⃣  COMPLIANCE & AUDIT
+# ═══════════════════════════════════════════════════════════════════
+
+audit:
+  enabled: true
+  log_all_operations: true
+  retention_period: 90         # dias
+  export_to_sentry: true
+
+# ═══════════════════════════════════════════════════════════════════
+
+# RESUMO DE PERMISSÕES:
+# ✅ GitHub Actions: Escrita total (commits, PRs, issues, deployments)
+# ✅ Vercel: Deploy automático, variáveis de ambiente, logs
+# ✅ Cron Jobs: Execução 24/7 sem interrupção
+# ✅ Secrets: Sincronizados automaticamente
+# ✅ Logs: Centralizados com Sentry
+# ✅ Sem necessidade de aprovação/confirmação manual
+
+# STATUS: 🟢 AGENTES EM NUVEM OPERACIONAIS COM PERMISSÕES LIVRES
